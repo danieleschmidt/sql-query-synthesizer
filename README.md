@@ -29,6 +29,22 @@ print(result.explanation)
 print(result.data)
 ```
 
+## Query Validation
+`QueryAgent` automatically validates the SQL before execution and returns a
+`ValidationResult` with any suggestions. You can also call `validate_sql`
+directly:
+
+```python
+from sql_query_synthesizer import validate_sql
+
+result = agent.query("show users")
+for suggestion in result.validation.suggestions:
+    print(suggestion)
+
+validation = validate_sql("SELECT * FROM users")
+print(validation.is_valid, validation.suggestions)
+```
+
 ## Supported Queries
 - Aggregations: "What's the average order value by region?"
 - Joins: "List customers with their recent orders"
