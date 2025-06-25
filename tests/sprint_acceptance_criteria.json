@@ -1,0 +1,40 @@
+{
+  "epic": "**Feature:** Query validation and optimization suggestions",
+  "generated": "2025-06-24T12:28:00.772852Z",
+  "tasks": [
+    {
+      "id": 1,
+      "description": "Create SQL validation module returning ValidationResult for parsed queries",
+      "acceptance_criteria": [
+        "validate_sql(query) returns ValidationResult object",
+        "ValidationResult includes boolean is_valid and list of suggestions",
+        "Invalid SQL syntax results in is_valid False with an appropriate suggestion"
+      ]
+    },
+    {
+      "id": 2,
+      "description": "Implement rules to detect missing WHERE clauses and SELECT * usage",
+      "acceptance_criteria": [
+        "SELECT * statements trigger suggestion to specify columns",
+        "DELETE or UPDATE statements without WHERE trigger warning",
+        "Results include specific suggestion text for each issue"
+      ]
+    },
+    {
+      "id": 3,
+      "description": "Integrate validation results into QueryAgent query workflow",
+      "acceptance_criteria": [
+        "QueryAgent.query returns QueryResult containing validation information",
+        "When query has no issues, suggestions list is empty"
+      ]
+    },
+    {
+      "id": 4,
+      "description": "Document how users can enable and extend query validation",
+      "acceptance_criteria": [
+        "README explains validation usage with example",
+        "Contribution guide references extension of validation rules"
+      ]
+    }
+  ]
+}
