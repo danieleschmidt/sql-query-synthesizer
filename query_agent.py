@@ -49,6 +49,11 @@ def main() -> None:
     parser.add_argument("--output-csv", help="Write query results to a CSV file")
     parser.add_argument("--openai-api-key", help="OpenAI API key for LLM-based generation")
     parser.add_argument("--openai-model", help="OpenAI model to use for generation")
+    parser.add_argument(
+        "--openai-timeout",
+        type=float,
+        help="Timeout in seconds for OpenAI API requests",
+    )
     parser.add_argument("--explain", action="store_true", help="Display EXPLAIN plan instead of rows")
     parser.add_argument("--sql-only", action="store_true", help="Print generated SQL without executing")
     parser.add_argument("--interactive", action="store_true")
@@ -78,6 +83,11 @@ def main() -> None:
     if cache_ttl is None:
         cache_ttl = int(os.environ.get("QUERY_AGENT_CACHE_TTL", 0))
         cache_ttl = config.get("query_cache_ttl", cache_ttl)
+    openai_timeout = args.openai_timeout
+    if openai_timeout is None:
+        env_to = os.environ.get("QUERY_AGENT_OPENAI_TIMEOUT")
+        if env_to is not None:
+            openai_timeout = float(env_to)
     agent = QueryAgent(
         db_url,
         schema_cache_ttl=schema_ttl,
@@ -85,6 +95,7 @@ def main() -> None:
         query_cache_ttl=cache_ttl,
         openai_api_key=args.openai_api_key,
         openai_model=args.openai_model or os.environ.get("QUERY_AGENT_OPENAI_MODEL", "gpt-3.5-turbo"),
+        openai_timeout=openai_timeout,
     )
 
     if args.clear_cache:

@@ -46,7 +46,11 @@ Use `--sql-only` to print generated SQL without executing it.
 Set `--cache-ttl` (or `QUERY_AGENT_CACHE_TTL`) to reuse results for repeated questions.
 Run `query-agent --clear-cache` to reset cached schema and query results.
 Provide `--openai-api-key` (or set ``OPENAI_API_KEY``) to use an LLM for query
-generation.
+generation. Run ``python -m sql_synthesizer.webapp --database-url <db>`` to start
+a simple web UI. Metrics are exposed at ``/metrics`` for Prometheus scraping and
+available programmatically from ``prometheus_client.REGISTRY``. Use
+``--openai-timeout`` (or ``QUERY_AGENT_OPENAI_TIMEOUT``) to specify a request
+timeout for OpenAI calls.
 
 ## Supported Queries
 - Aggregations: "What's the average order value by region?"
