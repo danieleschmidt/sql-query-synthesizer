@@ -3,6 +3,8 @@
 import argparse
 import os
 
+from dotenv import load_dotenv
+
 import yaml
 from sql_synthesizer import QueryAgent
 import csv
@@ -30,8 +32,12 @@ def save_csv(filename: str, rows: list[dict]) -> None:
         writer.writerows(rows)
 
 
-def main() -> None:
-    """Entry point for the ``query-agent`` command."""
+def main(argv: list[str] | None = None) -> None:
+    """Entry point for the ``query-agent`` command.
+
+    *argv* can be provided to supply command-line arguments for testing.
+    """
+    load_dotenv()
     parser = argparse.ArgumentParser(description="Interactive NL to SQL agent")
     parser.add_argument("--database-url")
     parser.add_argument("--config")
@@ -59,7 +65,7 @@ def main() -> None:
     parser.add_argument("--interactive", action="store_true")
     parser.add_argument("--list-tables", action="store_true", help="List available tables and exit")
     parser.add_argument("question", nargs="?")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     config_path = args.config or os.environ.get("QUERY_AGENT_CONFIG", "config/databases.yaml")
     env_name = args.env or os.environ.get("QUERY_AGENT_ENV", "default")

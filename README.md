@@ -72,11 +72,15 @@ Set `schema_cache_ttl` to control how long table names are cached when using the
 Use `query_cache_ttl` to enable query result caching.
 You can override the schema TTL via the `QUERY_AGENT_SCHEMA_CACHE_TTL` environment variable.
 Set `OPENAI_API_KEY` and optionally `QUERY_AGENT_OPENAI_MODEL` to enable LLM-based SQL generation.
-
-## Roadmap
-1. Add support for NoSQL databases
-2. Implement query caching and performance monitoring
-3. Build web UI for non-technical users
+Environment variables may also be loaded from a `.env` file if present.
 
 ## License
 MIT
+
+## Development
+Install pre-commit hooks to scan for secrets before commits:
+```bash
+pip install pre-commit detect-secrets
+pre-commit install
+```
+Run `pre-commit run --all-files` to check manually.

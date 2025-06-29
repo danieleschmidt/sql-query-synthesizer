@@ -22,6 +22,7 @@ from sqlalchemy import (
 
 from .cache import TTLCache
 from .openai_adapter import OpenAIAdapter
+from .generator import naive_generate_sql
 from . import metrics
 
 logger = logging.getLogger(__name__)
@@ -103,10 +104,12 @@ class QueryAgent:
         return table
 
     def _validate_sql(self, sql: str) -> str:
-        """Basic validation that *sql* is a single statement."""
+        """Validate that *sql* is a safe single ``SELECT`` statement."""
         cleaned = sql.strip().rstrip(";")
         if ";" in cleaned:
             raise ValueError("Only single SQL statements are allowed")
+        if not re.match(r"^(select|with|explain)\b", cleaned, re.IGNORECASE):
+            raise ValueError("Only SELECT queries are permitted")
         return cleaned + ";"
 
     def discover_schema(self) -> List[str]:
@@ -180,14 +183,8 @@ class QueryAgent:
             except Exception:
                 pass  # Fall back to naive pattern
 
-        q = question.lower()
         tables = self.discover_schema()
-        for table in tables:
-            if re.search(rf"\b{re.escape(table.lower())}\b", q):
-                if any(word in q for word in ["count", "how many", "number"]):
-                    return f"SELECT COUNT(*) FROM {table};"
-                return f"SELECT * FROM {table} LIMIT {self.max_rows};"
-        return f"-- SQL for: {question}"
+        return naive_generate_sql(question, tables, self.max_rows)
 
     def query(self, question: str, *, explain: bool = False) -> QueryResult:
         """Generate and optionally execute SQL for *question*.
