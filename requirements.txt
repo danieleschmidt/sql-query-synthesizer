@@ -2,3 +2,4 @@ SQLAlchemy>=2.0
 PyYAML
 openai
 prometheus-client
+python-dotenv

@@ -1,10 +1,11 @@
-import subprocess
-import sys
 from pathlib import Path
+import sys
 
 import pytest
 from sqlalchemy import text, create_engine
 
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+import query_agent
 from sql_synthesizer import QueryAgent
 
 
@@ -51,33 +52,23 @@ def test_query_execute(agent: QueryAgent):
     assert len(res.data) == 2
 
 
-def test_cli_list_tables(agent: QueryAgent, tmp_path: Path):
-    script = Path(__file__).resolve().parents[1] / "query_agent.py"
-    result = subprocess.run(
-        [sys.executable, str(script), "--database-url", agent.engine.url.render_as_string(hide_password=False), "--list-tables"],
-        text=True,
-        capture_output=True,
-        check=True,
-    )
-    assert "users" in result.stdout
+def test_cli_list_tables(agent: QueryAgent, capsys: pytest.CaptureFixture[str]):
+    url = agent.engine.url.render_as_string(hide_password=False)
+    query_agent.main(["--database-url", url, "--list-tables"])
+    out = capsys.readouterr().out
+    assert "users" in out
 
 
-def test_cli_execute_sql(agent: QueryAgent):
-    script = Path(__file__).resolve().parents[1] / "query_agent.py"
-    result = subprocess.run(
-        [
-            sys.executable,
-            str(script),
-            "--database-url",
-            agent.engine.url.render_as_string(hide_password=False),
-            "--execute-sql",
-            "SELECT COUNT(*) AS c FROM users",
-        ],
-        text=True,
-        capture_output=True,
-        check=True,
-    )
-    assert "SELECT COUNT(*) AS c FROM users" in result.stdout
+def test_cli_execute_sql(agent: QueryAgent, capsys: pytest.CaptureFixture[str]):
+    url = agent.engine.url.render_as_string(hide_password=False)
+    query_agent.main([
+        "--database-url",
+        url,
+        "--execute-sql",
+        "SELECT COUNT(*) AS c FROM users",
+    ])
+    out = capsys.readouterr().out
+    assert "SELECT COUNT(*) AS c FROM users" in out
 
 
 def test_row_count_injection(agent: QueryAgent):
@@ -112,5 +103,5 @@ def test_openai_timeout(monkeypatch, tmp_path: Path):
             captured["timeout"] = timeout
 
     monkeypatch.setattr("sql_synthesizer.query_agent.OpenAIAdapter", DummyAdapter)
-    QueryAgent(url, openai_api_key="key", openai_timeout=7.5)
+    QueryAgent(url, openai_api_key="key", openai_timeout=7.5)  # pragma: allowlist secret
     assert captured["timeout"] == 7.5
