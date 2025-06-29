@@ -1,18 +1,32 @@
 """Core query agent implementation."""
 
 from dataclasses import dataclass, field
-from typing import List, Any, Tuple, Dict
-
-try:  # Optional dependency
-    import openai  # type: ignore
-except Exception:  # pragma: no cover - optional
-    openai = None
+from typing import List, Any, Tuple
 
 import time
 import os
 
 import re
-from sqlalchemy import create_engine, inspect, text
+import logging
+from sqlalchemy import (
+    create_engine,
+    inspect,
+    text,
+    Table,
+    MetaData,
+    select,
+    func,
+    union_all,
+    literal,
+)
+
+from .cache import TTLCache
+from .openai_adapter import OpenAIAdapter
+from . import metrics
+
+logger = logging.getLogger(__name__)
+
+VALID_TABLE_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 @dataclass
 class QueryResult:
@@ -34,6 +48,7 @@ class QueryAgent:
         query_cache_ttl: int = 0,
         openai_api_key: str | None = None,
         openai_model: str = "gpt-3.5-turbo",
+        openai_timeout: float | None = None,
     ):
         """Create a new agent for the given ``database_url``.
 
@@ -55,89 +70,111 @@ class QueryAgent:
         openai_model:
             Name of the OpenAI model used to generate SQL when an API key is
             provided.
+        openai_timeout:
+            Request timeout in seconds for OpenAI API calls.
         """
 
         self.engine = create_engine(database_url)
         self.inspector = inspect(self.engine)
-        self.schema_cache_ttl = schema_cache_ttl
-        self._schema_cache: List[str] = []
-        self._schema_ts = 0.0
         self.max_rows = max_rows
-        self.query_cache_ttl = query_cache_ttl
-        self._query_cache: Dict[str, tuple[float, QueryResult]] = {}
-        self.openai_api_key = openai_api_key or os.environ.get("OPENAI_API_KEY")
-        self.openai_model = openai_model
-        if openai and self.openai_api_key:
-            openai.api_key = self.openai_api_key
+        self.schema_cache = TTLCache(schema_cache_ttl)
+        self.query_cache = TTLCache(query_cache_ttl)
+        self.openai_adapter: OpenAIAdapter | None = None
+        key = openai_api_key or os.environ.get("OPENAI_API_KEY")
+        if key:
+            try:
+                self.openai_adapter = OpenAIAdapter(
+                    key, model=openai_model, timeout=openai_timeout
+                )
+            except RuntimeError:
+                self.openai_adapter = None
 
     def clear_cache(self) -> None:
         """Empty in-memory caches for schema and query results."""
-        self._schema_cache = []
-        self._schema_ts = 0.0
-        self._query_cache.clear()
+        self.schema_cache.clear()
+        self.query_cache.clear()
+
+    def _validate_table(self, table: str) -> str:
+        """Return *table* if valid and known, else raise ``ValueError``."""
+        if not VALID_TABLE_RE.match(table):
+            raise ValueError(f"Invalid table name: {table!r}")
+        if table not in self.discover_schema():
+            raise ValueError(f"Unknown table: {table}")
+        return table
+
+    def _validate_sql(self, sql: str) -> str:
+        """Basic validation that *sql* is a single statement."""
+        cleaned = sql.strip().rstrip(";")
+        if ";" in cleaned:
+            raise ValueError("Only single SQL statements are allowed")
+        return cleaned + ";"
 
     def discover_schema(self) -> List[str]:
         """Return a list of available tables in the database."""
-        now = time.time()
-        if (
-            self.schema_cache_ttl
-            and now - self._schema_ts <= self.schema_cache_ttl
-            and self._schema_cache
-        ):
-            return self._schema_cache
+        try:
+            return self.schema_cache.get("tables")
+        except KeyError:
+            pass
 
         tables = self.inspector.get_table_names()
-        self._schema_cache = tables
-        self._schema_ts = now
+        self.schema_cache.set("tables", tables)
         return tables
 
     def row_count(self, table: str) -> int:
-        """Return the number of rows for *table*."""
+        """Return the number of rows for *table* using SQLAlchemy constructs."""
+        table = self._validate_table(table)
+        tbl = Table(table, MetaData(), autoload_with=self.engine)
+        stmt = select(func.count()).select_from(tbl)
         with self.engine.connect() as conn:
-            result = conn.execute(text(f"SELECT COUNT(*) FROM {table}"))
+            result = conn.execute(stmt)
             return result.scalar() or 0
+
+    def batch_row_counts(self, tables: List[str]) -> dict[str, int]:
+        """Return row counts for multiple *tables* with a single query."""
+        valid = [self._validate_table(t) for t in tables]
+        if not valid:
+            return {}
+        meta = MetaData()
+        selects = [
+            select(literal(t).label("tbl"), func.count().label("cnt")).select_from(
+                Table(t, meta, autoload_with=self.engine)
+            )
+            for t in valid
+        ]
+        union = union_all(*selects)
+        with self.engine.connect() as conn:
+            result = conn.execute(union)
+            return {row._mapping["tbl"]: row._mapping["cnt"] for row in result}
 
     def list_table_counts(self) -> List[tuple[str, int]]:
         """Return table names with corresponding row counts."""
-        info = []
-        for table in self.discover_schema():
-            try:
-                count = self.row_count(table)
-            except Exception:
-                count = -1
-            info.append((table, count))
-        return info
+        tables = self.discover_schema()
+        counts = self.batch_row_counts(tables)
+        return [(t, counts.get(t, -1)) for t in tables]
 
     def explain_sql(self, sql: str) -> List[Any]:
         """Return the database's execution plan for *sql* using ``EXPLAIN``."""
+        sql = self._validate_sql(sql)
         with self.engine.connect() as conn:
             result = conn.execute(text(f"EXPLAIN {sql}"))
             return [dict(row._mapping) for row in result]
 
     def table_columns(self, table: str) -> List[Tuple[str, str]]:
         """Return column names and types for *table*."""
+        table = self._validate_table(table)
         columns = self.inspector.get_columns(table)
         return [(col["name"], str(col["type"])) for col in columns]
 
     def generate_sql_llm(self, question: str) -> str:
-        """Generate SQL using an OpenAI model if configured."""
-        if not (openai and self.openai_api_key):
+        """Generate SQL using an OpenAI adapter if configured."""
+        if not self.openai_adapter:
             raise RuntimeError("OpenAI API key not configured")
 
-        prompt = (
-            "Translate the following natural language request into an SQL "
-            f"query:\n{question}\nSQL:"
-        )
-        response = openai.ChatCompletion.create(
-            model=self.openai_model,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0,
-        )
-        return response.choices[0].message["content"].strip()
+        return self.openai_adapter.generate_sql(question)
 
     def generate_sql(self, question: str) -> str:
         """Generate SQL from *question* using OpenAI if available."""
-        if openai and self.openai_api_key:
+        if self.openai_adapter:
             try:
                 return self.generate_sql_llm(question)
             except Exception:
@@ -164,13 +201,11 @@ class QueryAgent:
         """
 
         # Return cached result if available and valid
-        now = time.time()
-        if (
-            self.query_cache_ttl
-            and question in self._query_cache
-            and now - self._query_cache[question][0] <= self.query_cache_ttl
-        ):
-            return self._query_cache[question][1]
+        if self.query_cache.ttl:
+            try:
+                return self.query_cache.get(question)
+            except KeyError:
+                pass
 
         sql = self.generate_sql(question)
         data: List[Any] = []
@@ -178,6 +213,9 @@ class QueryAgent:
         if sql.startswith("--"):
             explanation = "SQL generation placeholder"
         else:
+            sql = self._validate_sql(sql)
+            start = time.time()
+            logger.info("Executing SQL", extra={"sql": sql})
             with self.engine.connect() as conn:
                 if explain:
                     result = conn.execute(text(f"EXPLAIN {sql}"))
@@ -187,24 +225,31 @@ class QueryAgent:
                     result = conn.execute(text(sql))
                     data = [dict(row._mapping) for row in result]
                     explanation = "Generated and executed SQL using naive keyword match"
+            duration = time.time() - start
+            logger.info(
+                "Query executed",
+                extra={"sql": sql, "duration_ms": int(duration * 1000)},
+            )
+            metrics.record_query(duration, "query")
         result = QueryResult(sql=sql, explanation=explanation, data=data)
-        if self.query_cache_ttl:
-            self._query_cache[question] = (now, result)
+        if self.query_cache.ttl:
+            self.query_cache.set(question, result)
         return result
 
     def execute_sql(self, sql: str, *, explain: bool = False) -> QueryResult:
         """Execute raw SQL and return a :class:`QueryResult`."""
 
-        now = time.time()
-        if (
-            self.query_cache_ttl
-            and sql in self._query_cache
-            and now - self._query_cache[sql][0] <= self.query_cache_ttl
-        ):
-            return self._query_cache[sql][1]
+        sql = self._validate_sql(sql)
+        if self.query_cache.ttl:
+            try:
+                return self.query_cache.get(sql)
+            except KeyError:
+                pass
 
         data: list[Any] = []
         explanation = ""
+        start = time.time()
+        logger.info("Executing SQL", extra={"sql": sql})
         with self.engine.connect() as conn:
             if explain:
                 result = conn.execute(text(f"EXPLAIN {sql}"))
@@ -214,8 +259,14 @@ class QueryAgent:
                 result = conn.execute(text(sql))
                 data = [dict(row._mapping) for row in result]
                 explanation = "Executed raw SQL"
+        duration = time.time() - start
+        logger.info(
+            "Query executed",
+            extra={"sql": sql, "duration_ms": int(duration * 1000)},
+        )
+        metrics.record_query(duration, "execute")
 
         res = QueryResult(sql=sql, explanation=explanation, data=data)
-        if self.query_cache_ttl:
-            self._query_cache[sql] = (now, res)
+        if self.query_cache.ttl:
+            self.query_cache.set(sql, res)
         return res
