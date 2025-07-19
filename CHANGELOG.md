@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.3.0] - 2025-07-19
+- **Comprehensive Metrics and Monitoring**: Enhanced observability with detailed performance and error tracking
+  - Added error rate metrics for input validation, SQL validation, and query execution failures
+  - Implemented detailed database connection and query performance metrics with appropriate histogram buckets
+  - Added OpenAI API request tracking with duration and status metrics
+  - Enhanced metrics with granular error categorization (SQL injection attempts, invalid queries, etc.)
+  - Added comprehensive test suite for all new metrics functionality (13 new tests)
+  - Improved production monitoring capabilities with actionable error insights
+- **Cache Performance Optimization**: Enhanced TTLCache with comprehensive metrics and memory management
+  - Added cache hit/miss metrics tracking with Prometheus integration
+  - Implemented LRU (Least Recently Used) eviction strategy for memory efficiency
+  - Added automatic expired entry cleanup with configurable scheduling
+  - Enhanced thread safety with RLock for concurrent access
+  - Added comprehensive cache statistics and monitoring endpoints
+  - Integrated cache metrics with QueryAgent for production monitoring
 - Enhanced security with comprehensive input validation and SQL injection prevention
 - Added structured logging with trace IDs for request correlation
 - Implemented JSON log formatting option

@@ -106,6 +106,7 @@ class QueryAgent:
         # Set up automatic cache cleanup if TTL is enabled
         self._cleanup_timer = None
         self._setup_cache_cleanup()
+        
         key = openai_api_key or os.environ.get("OPENAI_API_KEY")
         if key:
             try:
@@ -150,6 +151,70 @@ class QueryAgent:
             "total_cleaned": schema_cleaned + query_cleaned,
         }
 
+    def _setup_cache_cleanup(self) -> None:
+        """Set up automatic cache cleanup if TTL is enabled."""
+        if self.schema_cache.ttl > 0 or self.query_cache.ttl > 0:
+            self._start_cleanup_timer()
+            # Register cleanup on exit
+            atexit.register(self._stop_cleanup_timer)
+
+    def _start_cleanup_timer(self) -> None:
+        """Start the periodic cache cleanup timer."""
+        if self._cleanup_timer is not None:
+            return
+        
+        # Run cleanup every 5 minutes
+        cleanup_interval = 300  # 5 minutes in seconds
+        self._cleanup_timer = threading.Timer(cleanup_interval, self._periodic_cleanup)
+        self._cleanup_timer.daemon = True
+        self._cleanup_timer.start()
+
+    def _stop_cleanup_timer(self) -> None:
+        """Stop the periodic cache cleanup timer."""
+        if self._cleanup_timer is not None:
+            self._cleanup_timer.cancel()
+            self._cleanup_timer = None
+
+    def _periodic_cleanup(self) -> None:
+        """Perform periodic cache cleanup and reschedule."""
+        try:
+            # Clean expired entries
+            cleanup_stats = self.cleanup_expired_cache_entries()
+            
+            # Log cleanup if significant activity
+            if cleanup_stats["total_cleaned"] > 0:
+                logger.debug(
+                    "Cache cleanup completed",
+                    extra={
+                        "schema_cleaned": cleanup_stats["schema_cache_cleaned"],
+                        "query_cleaned": cleanup_stats["query_cache_cleaned"],
+                        "total_cleaned": cleanup_stats["total_cleaned"],
+                    }
+                )
+        except Exception as e:
+            logger.error(f"Cache cleanup failed: {e}")
+        finally:
+            # Reschedule next cleanup
+            self._cleanup_timer = None
+            self._start_cleanup_timer()
+
+    def _execute_with_metrics(self, sql_text: str, operation_type: str = "query"):
+        """Execute SQL with database connection and query metrics tracking."""
+        start_time = time.time()
+        try:
+            metrics.record_database_connection("success")
+            with self.engine.connect() as conn:
+                result = conn.execute(text(sql_text))
+                query_duration = time.time() - start_time
+                metrics.record_database_query(query_duration)
+                return result
+        except Exception as e:
+            query_duration = time.time() - start_time
+            metrics.record_database_connection("error")
+            metrics.record_database_query(query_duration)
+            metrics.record_query_error(f"database_{operation_type}_error")
+            raise
+
     def _validate_table(self, table: str) -> str:
         """Return *table* if valid and known, else raise user-friendly error."""
         if not VALID_TABLE_RE.match(table):
@@ -162,14 +227,22 @@ class QueryAgent:
 
     def _validate_sql(self, sql: str) -> str:
         """Validate that *sql* is a safe single ``SELECT`` statement."""
-        cleaned = sql.strip().rstrip(";")
-        if ";" in cleaned:
-            raise create_multiple_statements_error()
-        if not re.match(r"^(select|with|explain)\b", cleaned, re.IGNORECASE):
-            # Try to determine what operation they attempted
-            attempted = cleaned.split()[0] if cleaned.split() else "unknown"
-            raise create_invalid_sql_error(attempted.upper())
-        return cleaned + ";"
+        try:
+            cleaned = sql.strip().rstrip(";")
+            if ";" in cleaned:
+                metrics.record_query_error("multiple_statements")
+                raise create_multiple_statements_error()
+            if not re.match(r"^(select|with|explain)\b", cleaned, re.IGNORECASE):
+                # Try to determine what operation they attempted
+                attempted = cleaned.split()[0] if cleaned.split() else "unknown"
+                metrics.record_query_error(f"invalid_sql_{attempted.lower()}")
+                raise create_invalid_sql_error(attempted.upper())
+            return cleaned + ";"
+        except Exception as e:
+            # Record SQL validation error if not already recorded
+            if not any(attr in str(e) for attr in ['multiple_statements', 'invalid_sql']):
+                metrics.record_query_error("unknown_sql_validation_error")
+            raise
 
     def discover_schema(self) -> List[str]:
         """Return a list of available tables in the database."""
@@ -219,9 +292,8 @@ class QueryAgent:
     def explain_sql(self, sql: str) -> List[Any]:
         """Return the database's execution plan for *sql* using ``EXPLAIN``."""
         sql = self._validate_sql(sql)
-        with self.engine.connect() as conn:
-            result = conn.execute(text(f"EXPLAIN {sql}"))
-            return [dict(row._mapping) for row in result]
+        result = self._execute_with_metrics(f"EXPLAIN {sql}", "explain")
+        return [dict(row._mapping) for row in result]
 
     def table_columns(self, table: str) -> List[Tuple[str, str]]:
         """Return column names and types for *table*."""
@@ -250,37 +322,47 @@ class QueryAgent:
 
     def _sanitize_question(self, question: str) -> str:
         """Sanitize and validate user question input."""
-        if not isinstance(question, str):
-            raise create_invalid_question_type_error()
-        
-        question = question.strip()
-        if not question:
-            raise create_empty_question_error()
-        
-        # Check for suspicious patterns that might indicate SQL injection attempts
-        suspicious_patterns = [
-            r';\s*drop\s+',
-            r';\s*delete\s+',
-            r';\s*update\s+',
-            r';\s*insert\s+',
-            r';\s*truncate\s+',
-            r';\s*alter\s+',
-            r';\s*create\s+',
-            r'union\s+select',
-            r'exec\s*\(',
-            r'xp_cmdshell',
-        ]
-        
-        question_lower = question.lower()
-        for pattern in suspicious_patterns:
-            if re.search(pattern, question_lower):
-                raise create_unsafe_input_error()
-        
-        # Limit question length to prevent abuse
-        if len(question) > 1000:
-            raise create_question_too_long_error(1000)
+        try:
+            if not isinstance(question, str):
+                metrics.record_input_validation_error("invalid_type")
+                raise create_invalid_question_type_error()
             
-        return question
+            question = question.strip()
+            if not question:
+                metrics.record_input_validation_error("empty_question")
+                raise create_empty_question_error()
+            
+            # Check for suspicious patterns that might indicate SQL injection attempts
+            suspicious_patterns = [
+                r';\s*drop\s+',
+                r';\s*delete\s+',
+                r';\s*update\s+',
+                r';\s*insert\s+',
+                r';\s*truncate\s+',
+                r';\s*alter\s+',
+                r';\s*create\s+',
+                r'union\s+select',
+                r'exec\s*\(',
+                r'xp_cmdshell',
+            ]
+            
+            question_lower = question.lower()
+            for pattern in suspicious_patterns:
+                if re.search(pattern, question_lower):
+                    metrics.record_input_validation_error("sql_injection_attempt")
+                    raise create_unsafe_input_error()
+            
+            # Limit question length to prevent abuse
+            if len(question) > 1000:
+                metrics.record_input_validation_error("question_too_long")
+                raise create_question_too_long_error(1000)
+                
+            return question
+        except Exception as e:
+            # Record validation error if not already recorded
+            if not any(hasattr(e, attr) for attr in ['__cause__', '__context__']):
+                metrics.record_input_validation_error("unknown_validation_error")
+            raise
 
     def query(self, question: str, *, explain: bool = False, trace_id: str = None) -> QueryResult:
         """Generate and optionally execute SQL for *question*.
@@ -323,24 +405,30 @@ class QueryAgent:
             if trace_id:
                 log_extra["trace_id"] = trace_id
             logger.info("Executing SQL", extra=log_extra)
-            with self.engine.connect() as conn:
+            
+            try:
                 if explain:
-                    result = conn.execute(text(f"EXPLAIN {sql}"))
+                    result = self._execute_with_metrics(f"EXPLAIN {sql}", "explain")
                     data = [dict(row._mapping) for row in result]
                     explanation = "Execution plan via EXPLAIN"
                 else:
-                    result = conn.execute(text(sql))
+                    result = self._execute_with_metrics(sql, "query")
                     data = [dict(row._mapping) for row in result]
                     explanation = "Generated and executed SQL using naive keyword match"
-            duration = time.time() - start
-            log_extra = {"sql": sql, "duration_ms": int(duration * 1000)}
-            if trace_id:
-                log_extra["trace_id"] = trace_id
-            logger.info(
-                "Query executed",
-                extra=log_extra,
-            )
-            metrics.record_query(duration, "query")
+                    
+                duration = time.time() - start
+                log_extra = {"sql": sql, "duration_ms": int(duration * 1000)}
+                if trace_id:
+                    log_extra["trace_id"] = trace_id
+                logger.info(
+                    "Query executed",
+                    extra=log_extra,
+                )
+                metrics.record_query(duration, "query")
+            except Exception as e:
+                duration = time.time() - start
+                metrics.record_query_error("query_execution_failed")
+                raise
         result = QueryResult(sql=sql, explanation=explanation, data=data)
         if self.query_cache.ttl:
             self.query_cache.set(question, result)
@@ -370,16 +458,21 @@ class QueryAgent:
         if trace_id:
             log_extra["trace_id"] = trace_id
         logger.info("Executing SQL", extra=log_extra)
-        with self.engine.connect() as conn:
+        
+        try:
             if explain:
-                result = conn.execute(text(f"EXPLAIN {sql}"))
+                result = self._execute_with_metrics(f"EXPLAIN {sql}", "explain")
                 data = [dict(row._mapping) for row in result]
                 explanation = "Execution plan via EXPLAIN"
             else:
-                result = conn.execute(text(sql))
+                result = self._execute_with_metrics(sql, "execute")
                 data = [dict(row._mapping) for row in result]
                 explanation = "Executed raw SQL"
-        duration = time.time() - start
+            duration = time.time() - start
+        except Exception as e:
+            duration = time.time() - start
+            metrics.record_query_error("sql_execution_failed")
+            raise
         log_extra = {"sql": sql, "duration_ms": int(duration * 1000)}
         if trace_id:
             log_extra["trace_id"] = trace_id
