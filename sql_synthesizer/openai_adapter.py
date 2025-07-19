@@ -20,15 +20,35 @@ class OpenAIAdapter:
         self.model = model
         self.timeout = timeout
 
-    def generate_sql(self, question: str) -> str:
+    def generate_sql(self, question: str, available_tables: list[str] | None = None) -> str:
+        """Generate SQL with proper schema context and safety constraints."""
+        # Sanitize input question
+        question = question.strip()
+        if not question:
+            raise ValueError("Question cannot be empty")
+        
+        # Build secure prompt with table context
+        table_context = ""
+        if available_tables:
+            table_list = ", ".join(available_tables)
+            table_context = f"\nAvailable tables: {table_list}\n"
+        
         prompt = (
-            "Translate the following natural language request into an SQL query:\n"
-            f"{question}\nSQL:"
+            "You are a SQL assistant. Generate ONLY safe SELECT queries based on the following constraints:\n"
+            "- Use only SELECT statements\n"
+            "- Use only the provided table names\n"
+            "- Do not use multiple statements or semicolons\n"
+            "- Do not use DROP, DELETE, UPDATE, INSERT, or other destructive operations\n"
+            f"{table_context}"
+            f"Translate this natural language request into a single SQL SELECT query:\n"
+            f"{question}\n\n"
+            "Return only the SQL query without any explanation or additional text:\n"
         )
+        
         response = openai.chat.completions.create(
             model=self.model,
             messages=[{"role": "user", "content": prompt}],
             temperature=0,
             timeout=self.timeout,
         )
-        return response.choices[0].message["content"].strip()
+        return response.choices[0].message.content.strip()
