@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.3.0] - 2025-07-19
+- **Cache Performance Optimization**: Enhanced TTLCache with comprehensive metrics and memory management
+  - Added cache hit/miss metrics tracking with Prometheus integration
+  - Implemented LRU (Least Recently Used) eviction strategy for memory efficiency
+  - Added automatic expired entry cleanup with configurable scheduling
+  - Enhanced thread safety with RLock for concurrent access
+  - Added comprehensive cache statistics and monitoring endpoints
+  - Integrated cache metrics with QueryAgent for production monitoring
 - Enhanced security with comprehensive input validation and SQL injection prevention
 - Added structured logging with trace IDs for request correlation
 - Implemented JSON log formatting option

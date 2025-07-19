@@ -106,6 +106,7 @@ class QueryAgent:
         # Set up automatic cache cleanup if TTL is enabled
         self._cleanup_timer = None
         self._setup_cache_cleanup()
+        
         key = openai_api_key or os.environ.get("OPENAI_API_KEY")
         if key:
             try:
@@ -149,6 +150,53 @@ class QueryAgent:
             "query_cache_cleaned": query_cleaned,
             "total_cleaned": schema_cleaned + query_cleaned,
         }
+
+    def _setup_cache_cleanup(self) -> None:
+        """Set up automatic cache cleanup if TTL is enabled."""
+        if self.schema_cache.ttl > 0 or self.query_cache.ttl > 0:
+            self._start_cleanup_timer()
+            # Register cleanup on exit
+            atexit.register(self._stop_cleanup_timer)
+
+    def _start_cleanup_timer(self) -> None:
+        """Start the periodic cache cleanup timer."""
+        if self._cleanup_timer is not None:
+            return
+        
+        # Run cleanup every 5 minutes
+        cleanup_interval = 300  # 5 minutes in seconds
+        self._cleanup_timer = threading.Timer(cleanup_interval, self._periodic_cleanup)
+        self._cleanup_timer.daemon = True
+        self._cleanup_timer.start()
+
+    def _stop_cleanup_timer(self) -> None:
+        """Stop the periodic cache cleanup timer."""
+        if self._cleanup_timer is not None:
+            self._cleanup_timer.cancel()
+            self._cleanup_timer = None
+
+    def _periodic_cleanup(self) -> None:
+        """Perform periodic cache cleanup and reschedule."""
+        try:
+            # Clean expired entries
+            cleanup_stats = self.cleanup_expired_cache_entries()
+            
+            # Log cleanup if significant activity
+            if cleanup_stats["total_cleaned"] > 0:
+                logger.debug(
+                    "Cache cleanup completed",
+                    extra={
+                        "schema_cleaned": cleanup_stats["schema_cache_cleaned"],
+                        "query_cleaned": cleanup_stats["query_cache_cleaned"],
+                        "total_cleaned": cleanup_stats["total_cleaned"],
+                    }
+                )
+        except Exception as e:
+            logger.error(f"Cache cleanup failed: {e}")
+        finally:
+            # Reschedule next cleanup
+            self._cleanup_timer = None
+            self._start_cleanup_timer()
 
     def _validate_table(self, table: str) -> str:
         """Return *table* if valid and known, else raise user-friendly error."""

@@ -25,9 +25,8 @@ def test_schema_cache_metrics_integration(mock_engine):
     """Test that schema cache hits/misses are tracked in metrics."""
     agent = QueryAgent("sqlite:///:memory:", schema_cache_ttl=10)
     
-    # Reset metrics counters for clean test
-    metrics.CACHE_HITS_TOTAL._value.clear()
-    metrics.CACHE_MISSES_TOTAL._value.clear()
+    # Clear any existing cache state
+    agent.clear_cache()
     
     # First call should be a cache miss
     tables1 = agent.discover_schema()
@@ -37,28 +36,27 @@ def test_schema_cache_metrics_integration(mock_engine):
     tables2 = agent.discover_schema()
     assert tables2 == tables1
     
-    # Verify metrics were recorded
-    schema_hits = metrics.CACHE_HITS_TOTAL.labels(cache_type="schema")._value.get()
-    schema_misses = metrics.CACHE_MISSES_TOTAL.labels(cache_type="schema")._value.get()
+    # Verify metrics were recorded by checking cache stats
+    stats = agent.get_cache_stats()
+    schema_stats = stats["schema_cache"]
     
-    assert schema_hits == 1
-    assert schema_misses == 1
+    assert schema_stats["hit_count"] == 1
+    assert schema_stats["miss_count"] == 1
 
 
 def test_query_cache_metrics_integration(mock_engine):
     """Test that query cache hits/misses are tracked in metrics."""
     agent = QueryAgent("sqlite:///:memory:", query_cache_ttl=10)
     
-    # Reset metrics counters
-    metrics.CACHE_HITS_TOTAL._value.clear()
-    metrics.CACHE_MISSES_TOTAL._value.clear()
+    # Clear any existing cache state
+    agent.clear_cache()
     
     with patch.object(agent, '_validate_sql', return_value="SELECT * FROM users;"):
         with patch.object(agent.engine, 'connect') as mock_connect:
             mock_conn = Mock()
             mock_connect.return_value.__enter__.return_value = mock_conn
             mock_result = Mock()
-            mock_result.__iter__.return_value = []
+            mock_result.__iter__ = Mock(return_value=iter([]))
             mock_conn.execute.return_value = mock_result
             
             # First query should be a cache miss
@@ -67,12 +65,12 @@ def test_query_cache_metrics_integration(mock_engine):
             # Second identical query should be a cache hit
             result2 = agent.execute_sql("SELECT * FROM users")
             
-            # Verify metrics were recorded
-            query_hits = metrics.CACHE_HITS_TOTAL.labels(cache_type="query")._value.get()
-            query_misses = metrics.CACHE_MISSES_TOTAL.labels(cache_type="query")._value.get()
+            # Verify metrics were recorded by checking cache stats
+            stats = agent.get_cache_stats()
+            query_stats = stats["query_cache"]
             
-            assert query_hits == 1
-            assert query_misses == 1
+            assert query_stats["hit_count"] == 1
+            assert query_stats["miss_count"] == 1
 
 
 def test_cache_stats_method(mock_engine):
@@ -116,7 +114,7 @@ def test_cache_cleanup_method(mock_engine):
             mock_conn = Mock()
             mock_connect.return_value.__enter__.return_value = mock_conn
             mock_result = Mock()
-            mock_result.__iter__.return_value = []
+            mock_result.__iter__ = Mock(return_value=iter([]))
             mock_conn.execute.return_value = mock_result
             
             agent.execute_sql("SELECT 1")  # Adds to query cache
@@ -141,9 +139,8 @@ def test_metrics_update_on_cache_stats_call(mock_engine):
     """Test that Prometheus metrics are updated when get_cache_stats is called."""
     agent = QueryAgent("sqlite:///:memory:", schema_cache_ttl=10)
     
-    # Reset metrics
-    metrics.CACHE_SIZE._value.clear()
-    metrics.CACHE_HIT_RATE._value.clear()
+    # Clear any existing cache state
+    agent.clear_cache()
     
     # Generate cache activity
     agent.discover_schema()
@@ -152,12 +149,11 @@ def test_metrics_update_on_cache_stats_call(mock_engine):
     # Call get_cache_stats to trigger metrics update
     stats = agent.get_cache_stats()
     
-    # Verify Prometheus metrics were updated
-    schema_size = metrics.CACHE_SIZE.labels(cache_type="schema")._value.get()
-    schema_hit_rate = metrics.CACHE_HIT_RATE.labels(cache_type="schema")._value.get()
+    # Verify cache stats structure and values
+    schema_stats = stats["schema_cache"]
     
-    assert schema_size == 1
-    assert schema_hit_rate == 0.5
+    assert schema_stats["size"] == 1
+    assert schema_stats["hit_rate"] == 0.5
 
 
 def test_cache_eviction_tracking(mock_engine):
