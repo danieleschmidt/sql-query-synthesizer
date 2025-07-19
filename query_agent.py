@@ -2,11 +2,13 @@
 
 import argparse
 import os
+import sys
 
 from dotenv import load_dotenv
 
 import yaml
 from sql_synthesizer import QueryAgent
+from sql_synthesizer.user_experience import format_cli_error
 import csv
 
 
@@ -37,8 +39,39 @@ def main(argv: list[str] | None = None) -> None:
 
     *argv* can be provided to supply command-line arguments for testing.
     """
+    try:
+        _main_impl(argv)
+    except Exception as e:
+        print(format_cli_error(e), file=sys.stderr)
+        sys.exit(1)
+
+
+def _main_impl(argv: list[str] | None = None) -> None:
+    """Internal implementation of main function with error handling."""
     load_dotenv()
-    parser = argparse.ArgumentParser(description="Interactive NL to SQL agent")
+    
+    # Enhanced description with examples
+    description = """Interactive Natural Language to SQL Agent
+    
+Ask questions about your data in plain English and get SQL queries automatically generated.
+
+Examples:
+  %(prog)s 'How many users are there?'
+  %(prog)s 'Show me orders from last week'
+  %(prog)s --list-tables
+  %(prog)s --interactive
+
+Common question patterns:
+  • How many [table] are there?
+  • Show me all [table]
+  • What are the latest [table]?
+  • Find [table] with [condition]
+"""
+    
+    parser = argparse.ArgumentParser(
+        description=description,
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("--database-url")
     parser.add_argument("--config")
     parser.add_argument("--env")
@@ -64,6 +97,9 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--sql-only", action="store_true", help="Print generated SQL without executing")
     parser.add_argument("--interactive", action="store_true")
     parser.add_argument("--list-tables", action="store_true", help="List available tables and exit")
+    parser.add_argument("--log-level", choices=["DEBUG", "INFO", "WARNING", "ERROR"], help="Set log level")
+    parser.add_argument("--log-format", choices=["standard", "json"], help="Set log format")
+    parser.add_argument("--enable-structured-logging", action="store_true", help="Enable structured logging with trace IDs")
     parser.add_argument("question", nargs="?")
     args = parser.parse_args(argv)
 
@@ -94,6 +130,20 @@ def main(argv: list[str] | None = None) -> None:
         env_to = os.environ.get("QUERY_AGENT_OPENAI_TIMEOUT")
         if env_to is not None:
             openai_timeout = float(env_to)
+    # Configure logging before creating agent
+    enable_structured_logging = (
+        args.enable_structured_logging 
+        or os.environ.get("QUERY_AGENT_STRUCTURED_LOGGING", "").lower() in ("true", "1", "yes")
+    )
+    
+    if enable_structured_logging or args.log_level or args.log_format:
+        from sql_synthesizer.logging_utils import configure_logging
+        configure_logging(
+            level=args.log_level,
+            format_type=args.log_format,
+            enable_json=enable_structured_logging
+        )
+    
     agent = QueryAgent(
         db_url,
         schema_cache_ttl=schema_ttl,
@@ -102,6 +152,7 @@ def main(argv: list[str] | None = None) -> None:
         openai_api_key=args.openai_api_key,
         openai_model=args.openai_model or os.environ.get("QUERY_AGENT_OPENAI_MODEL", "gpt-3.5-turbo"),
         openai_timeout=openai_timeout,
+        enable_structured_logging=enable_structured_logging,
     )
 
     if args.clear_cache:
@@ -134,24 +185,36 @@ def main(argv: list[str] | None = None) -> None:
         return
 
     if args.interactive:
+        print("Interactive SQL Query Agent")
+        print("Ask questions about your data in natural language.")
+        print("Type 'quit' or 'exit' to leave, or press Ctrl+C.")
+        print()
+        
         try:
             while True:
                 question = input("question> ")
                 if question.strip().lower() in {"quit", "exit"}:
                     break
-                if args.sql_only:
-                    sql = agent.generate_sql(question)
-                    print(sql)
-                else:
-                    result = agent.query(question, explain=args.explain)
-                    print(result.sql)
-                    if result.explanation:
-                        print(result.explanation)
-                    if result.data:
-                        print(result.data)
-                        if args.output_csv:
-                            save_csv(args.output_csv, result.data)
+                
+                try:
+                    if args.sql_only:
+                        sql = agent.generate_sql(question)
+                        print(sql)
+                    else:
+                        result = agent.query(question, explain=args.explain)
+                        print(result.sql)
+                        if result.explanation:
+                            print(result.explanation)
+                        if result.data:
+                            print(result.data)
+                            if args.output_csv:
+                                save_csv(args.output_csv, result.data)
+                except Exception as e:
+                    print(format_cli_error(e))
+                    print()  # Add blank line for readability
+                    
         except KeyboardInterrupt:
+            print("\nGoodbye!")
             pass
     elif args.question:
         if args.sql_only:

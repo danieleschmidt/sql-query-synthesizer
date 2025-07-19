@@ -5,6 +5,8 @@ from typing import List, Any, Tuple
 
 import time
 import os
+import threading
+import atexit
 
 import re
 import logging
@@ -24,6 +26,16 @@ from .cache import TTLCache
 from .openai_adapter import OpenAIAdapter
 from .generator import naive_generate_sql
 from . import metrics
+from .user_experience import (
+    create_empty_question_error,
+    create_invalid_table_error,
+    create_unsafe_input_error,
+    create_question_too_long_error,
+    create_invalid_sql_error,
+    create_multiple_statements_error,
+    create_openai_not_configured_error,
+    create_invalid_question_type_error,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +62,7 @@ class QueryAgent:
         openai_api_key: str | None = None,
         openai_model: str = "gpt-3.5-turbo",
         openai_timeout: float | None = None,
+        enable_structured_logging: bool = False,
     ):
         """Create a new agent for the given ``database_url``.
 
@@ -73,14 +86,26 @@ class QueryAgent:
             provided.
         openai_timeout:
             Request timeout in seconds for OpenAI API calls.
+        enable_structured_logging:
+            Enable structured logging with trace IDs and JSON formatting.
         """
 
         self.engine = create_engine(database_url)
+        self._structured_logging = enable_structured_logging
+        
+        # Configure structured logging if enabled
+        if enable_structured_logging:
+            from .logging_utils import configure_logging
+            configure_logging(enable_json=True)
         self.inspector = inspect(self.engine)
         self.max_rows = max_rows
         self.schema_cache = TTLCache(schema_cache_ttl)
         self.query_cache = TTLCache(query_cache_ttl)
         self.openai_adapter: OpenAIAdapter | None = None
+        
+        # Set up automatic cache cleanup if TTL is enabled
+        self._cleanup_timer = None
+        self._setup_cache_cleanup()
         key = openai_api_key or os.environ.get("OPENAI_API_KEY")
         if key:
             try:
@@ -95,29 +120,65 @@ class QueryAgent:
         self.schema_cache.clear()
         self.query_cache.clear()
 
+    def get_cache_stats(self) -> dict[str, Any]:
+        """Return comprehensive cache statistics for monitoring."""
+        schema_stats = self.schema_cache.get_stats()
+        query_stats = self.query_cache.get_stats()
+        
+        # Update Prometheus metrics
+        metrics.update_cache_metrics("schema", schema_stats)
+        metrics.update_cache_metrics("query", query_stats)
+        
+        return {
+            "schema_cache": schema_stats,
+            "query_cache": query_stats,
+            "total_cache_size": schema_stats["size"] + query_stats["size"],
+            "overall_hit_rate": (
+                (schema_stats["hit_count"] + query_stats["hit_count"]) /
+                max(1, schema_stats["total_operations"] + query_stats["total_operations"])
+            ),
+        }
+
+    def cleanup_expired_cache_entries(self) -> dict[str, int]:
+        """Clean up expired entries from all caches and return cleanup stats."""
+        schema_cleaned = self.schema_cache.cleanup_expired()
+        query_cleaned = self.query_cache.cleanup_expired()
+        
+        return {
+            "schema_cache_cleaned": schema_cleaned,
+            "query_cache_cleaned": query_cleaned,
+            "total_cleaned": schema_cleaned + query_cleaned,
+        }
+
     def _validate_table(self, table: str) -> str:
-        """Return *table* if valid and known, else raise ``ValueError``."""
+        """Return *table* if valid and known, else raise user-friendly error."""
         if not VALID_TABLE_RE.match(table):
-            raise ValueError(f"Invalid table name: {table!r}")
+            available_tables = self.discover_schema()
+            raise create_invalid_table_error(table, available_tables)
         if table not in self.discover_schema():
-            raise ValueError(f"Unknown table: {table}")
+            available_tables = self.discover_schema()
+            raise create_invalid_table_error(table, available_tables)
         return table
 
     def _validate_sql(self, sql: str) -> str:
         """Validate that *sql* is a safe single ``SELECT`` statement."""
         cleaned = sql.strip().rstrip(";")
         if ";" in cleaned:
-            raise ValueError("Only single SQL statements are allowed")
+            raise create_multiple_statements_error()
         if not re.match(r"^(select|with|explain)\b", cleaned, re.IGNORECASE):
-            raise ValueError("Only SELECT queries are permitted")
+            # Try to determine what operation they attempted
+            attempted = cleaned.split()[0] if cleaned.split() else "unknown"
+            raise create_invalid_sql_error(attempted.upper())
         return cleaned + ";"
 
     def discover_schema(self) -> List[str]:
         """Return a list of available tables in the database."""
         try:
-            return self.schema_cache.get("tables")
+            tables = self.schema_cache.get("tables")
+            metrics.record_cache_hit("schema")
+            return tables
         except KeyError:
-            pass
+            metrics.record_cache_miss("schema")
 
         tables = self.inspector.get_table_names()
         self.schema_cache.set("tables", tables)
@@ -171,7 +232,7 @@ class QueryAgent:
     def generate_sql_llm(self, question: str) -> str:
         """Generate SQL using an OpenAI adapter if configured."""
         if not self.openai_adapter:
-            raise RuntimeError("OpenAI API key not configured")
+            raise create_openai_not_configured_error()
 
         available_tables = self.discover_schema()
         return self.openai_adapter.generate_sql(question, available_tables)
@@ -190,11 +251,11 @@ class QueryAgent:
     def _sanitize_question(self, question: str) -> str:
         """Sanitize and validate user question input."""
         if not isinstance(question, str):
-            raise ValueError("Question must be a string")
+            raise create_invalid_question_type_error()
         
         question = question.strip()
         if not question:
-            raise ValueError("Question cannot be empty")
+            raise create_empty_question_error()
         
         # Check for suspicious patterns that might indicate SQL injection attempts
         suspicious_patterns = [
@@ -213,15 +274,15 @@ class QueryAgent:
         question_lower = question.lower()
         for pattern in suspicious_patterns:
             if re.search(pattern, question_lower):
-                raise ValueError("Potentially unsafe input detected: contains suspicious SQL patterns")
+                raise create_unsafe_input_error()
         
         # Limit question length to prevent abuse
         if len(question) > 1000:
-            raise ValueError("Question too long (max 1000 characters)")
+            raise create_question_too_long_error(1000)
             
         return question
 
-    def query(self, question: str, *, explain: bool = False) -> QueryResult:
+    def query(self, question: str, *, explain: bool = False, trace_id: str = None) -> QueryResult:
         """Generate and optionally execute SQL for *question*.
 
         Parameters
@@ -230,16 +291,25 @@ class QueryAgent:
             Natural language prompt.
         explain:
             If ``True``, return the ``EXPLAIN`` plan instead of query results.
+        trace_id:
+            Optional trace ID for request correlation. Auto-generated if not provided.
         """
+        # Generate trace ID for this request
+        if trace_id is None and self._structured_logging:
+            from .logging_utils import get_trace_id
+            trace_id = get_trace_id()
+        
         # Sanitize input
         question = self._sanitize_question(question)
 
         # Return cached result if available and valid
         if self.query_cache.ttl:
             try:
-                return self.query_cache.get(question)
+                result = self.query_cache.get(question)
+                metrics.record_cache_hit("query")
+                return result
             except KeyError:
-                pass
+                metrics.record_cache_miss("query")
 
         sql = self.generate_sql(question)
         data: List[Any] = []
@@ -249,7 +319,10 @@ class QueryAgent:
         else:
             sql = self._validate_sql(sql)
             start = time.time()
-            logger.info("Executing SQL", extra={"sql": sql})
+            log_extra = {"sql": sql}
+            if trace_id:
+                log_extra["trace_id"] = trace_id
+            logger.info("Executing SQL", extra=log_extra)
             with self.engine.connect() as conn:
                 if explain:
                     result = conn.execute(text(f"EXPLAIN {sql}"))
@@ -260,9 +333,12 @@ class QueryAgent:
                     data = [dict(row._mapping) for row in result]
                     explanation = "Generated and executed SQL using naive keyword match"
             duration = time.time() - start
+            log_extra = {"sql": sql, "duration_ms": int(duration * 1000)}
+            if trace_id:
+                log_extra["trace_id"] = trace_id
             logger.info(
                 "Query executed",
-                extra={"sql": sql, "duration_ms": int(duration * 1000)},
+                extra=log_extra,
             )
             metrics.record_query(duration, "query")
         result = QueryResult(sql=sql, explanation=explanation, data=data)
@@ -270,20 +346,30 @@ class QueryAgent:
             self.query_cache.set(question, result)
         return result
 
-    def execute_sql(self, sql: str, *, explain: bool = False) -> QueryResult:
+    def execute_sql(self, sql: str, *, explain: bool = False, trace_id: str = None) -> QueryResult:
         """Execute raw SQL and return a :class:`QueryResult`."""
+        
+        # Generate trace ID for this request
+        if trace_id is None and self._structured_logging:
+            from .logging_utils import get_trace_id
+            trace_id = get_trace_id()
 
         sql = self._validate_sql(sql)
         if self.query_cache.ttl:
             try:
-                return self.query_cache.get(sql)
+                result = self.query_cache.get(sql)
+                metrics.record_cache_hit("query")
+                return result
             except KeyError:
-                pass
+                metrics.record_cache_miss("query")
 
         data: list[Any] = []
         explanation = ""
         start = time.time()
-        logger.info("Executing SQL", extra={"sql": sql})
+        log_extra = {"sql": sql}
+        if trace_id:
+            log_extra["trace_id"] = trace_id
+        logger.info("Executing SQL", extra=log_extra)
         with self.engine.connect() as conn:
             if explain:
                 result = conn.execute(text(f"EXPLAIN {sql}"))
@@ -294,9 +380,12 @@ class QueryAgent:
                 data = [dict(row._mapping) for row in result]
                 explanation = "Executed raw SQL"
         duration = time.time() - start
+        log_extra = {"sql": sql, "duration_ms": int(duration * 1000)}
+        if trace_id:
+            log_extra["trace_id"] = trace_id
         logger.info(
             "Query executed",
-            extra={"sql": sql, "duration_ms": int(duration * 1000)},
+            extra=log_extra,
         )
         metrics.record_query(duration, "execute")
 
