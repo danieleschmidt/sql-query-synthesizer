@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import time
+
 try:
     import openai  # type: ignore
 except Exception:  # pragma: no cover - optional
     openai = None
 
+from . import metrics
 from .user_experience import (
     create_openai_package_missing_error,
     create_empty_question_error,
@@ -50,10 +53,18 @@ class OpenAIAdapter:
             "Return only the SQL query without any explanation or additional text:\n"
         )
         
-        response = openai.chat.completions.create(
-            model=self.model,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0,
-            timeout=self.timeout,
-        )
-        return response.choices[0].message.content.strip()
+        start_time = time.time()
+        try:
+            response = openai.chat.completions.create(
+                model=self.model,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0,
+                timeout=self.timeout,
+            )
+            duration = time.time() - start_time
+            metrics.record_openai_request(duration, "success")
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            duration = time.time() - start_time
+            metrics.record_openai_request(duration, "error")
+            raise
