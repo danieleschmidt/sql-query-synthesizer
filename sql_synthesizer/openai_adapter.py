@@ -7,6 +7,11 @@ try:
 except Exception:  # pragma: no cover - optional
     openai = None
 
+from .user_experience import (
+    create_openai_package_missing_error,
+    create_empty_question_error,
+)
+
 
 class OpenAIAdapter:
     """Thin wrapper around the OpenAI chat completion API."""
@@ -15,7 +20,7 @@ class OpenAIAdapter:
         self, api_key: str, model: str = "gpt-3.5-turbo", timeout: float | None = None
     ) -> None:
         if not openai:
-            raise RuntimeError("openai package not available")
+            raise create_openai_package_missing_error()
         openai.api_key = api_key
         self.model = model
         self.timeout = timeout
@@ -25,7 +30,7 @@ class OpenAIAdapter:
         # Sanitize input question
         question = question.strip()
         if not question:
-            raise ValueError("Question cannot be empty")
+            raise create_empty_question_error()
         
         # Build secure prompt with table context
         table_context = ""

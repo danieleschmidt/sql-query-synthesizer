@@ -24,6 +24,16 @@ from .cache import TTLCache
 from .openai_adapter import OpenAIAdapter
 from .generator import naive_generate_sql
 from . import metrics
+from .user_experience import (
+    create_empty_question_error,
+    create_invalid_table_error,
+    create_unsafe_input_error,
+    create_question_too_long_error,
+    create_invalid_sql_error,
+    create_multiple_statements_error,
+    create_openai_not_configured_error,
+    create_invalid_question_type_error,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -105,20 +115,24 @@ class QueryAgent:
         self.query_cache.clear()
 
     def _validate_table(self, table: str) -> str:
-        """Return *table* if valid and known, else raise ``ValueError``."""
+        """Return *table* if valid and known, else raise user-friendly error."""
         if not VALID_TABLE_RE.match(table):
-            raise ValueError(f"Invalid table name: {table!r}")
+            available_tables = self.discover_schema()
+            raise create_invalid_table_error(table, available_tables)
         if table not in self.discover_schema():
-            raise ValueError(f"Unknown table: {table}")
+            available_tables = self.discover_schema()
+            raise create_invalid_table_error(table, available_tables)
         return table
 
     def _validate_sql(self, sql: str) -> str:
         """Validate that *sql* is a safe single ``SELECT`` statement."""
         cleaned = sql.strip().rstrip(";")
         if ";" in cleaned:
-            raise ValueError("Only single SQL statements are allowed")
+            raise create_multiple_statements_error()
         if not re.match(r"^(select|with|explain)\b", cleaned, re.IGNORECASE):
-            raise ValueError("Only SELECT queries are permitted")
+            # Try to determine what operation they attempted
+            attempted = cleaned.split()[0] if cleaned.split() else "unknown"
+            raise create_invalid_sql_error(attempted.upper())
         return cleaned + ";"
 
     def discover_schema(self) -> List[str]:
@@ -180,7 +194,7 @@ class QueryAgent:
     def generate_sql_llm(self, question: str) -> str:
         """Generate SQL using an OpenAI adapter if configured."""
         if not self.openai_adapter:
-            raise RuntimeError("OpenAI API key not configured")
+            raise create_openai_not_configured_error()
 
         available_tables = self.discover_schema()
         return self.openai_adapter.generate_sql(question, available_tables)
@@ -199,11 +213,11 @@ class QueryAgent:
     def _sanitize_question(self, question: str) -> str:
         """Sanitize and validate user question input."""
         if not isinstance(question, str):
-            raise ValueError("Question must be a string")
+            raise create_invalid_question_type_error()
         
         question = question.strip()
         if not question:
-            raise ValueError("Question cannot be empty")
+            raise create_empty_question_error()
         
         # Check for suspicious patterns that might indicate SQL injection attempts
         suspicious_patterns = [
@@ -222,11 +236,11 @@ class QueryAgent:
         question_lower = question.lower()
         for pattern in suspicious_patterns:
             if re.search(pattern, question_lower):
-                raise ValueError("Potentially unsafe input detected: contains suspicious SQL patterns")
+                raise create_unsafe_input_error()
         
         # Limit question length to prevent abuse
         if len(question) > 1000:
-            raise ValueError("Question too long (max 1000 characters)")
+            raise create_question_too_long_error(1000)
             
         return question
 

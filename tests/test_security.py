@@ -18,26 +18,26 @@ def agent(tmp_path: Path) -> QueryAgent:
 
 def test_sanitize_question_empty(agent: QueryAgent):
     """Test that empty questions are rejected."""
-    with pytest.raises(ValueError, match="Question cannot be empty"):
+    with pytest.raises(ValueError, match="Please provide a question"):
         agent.query("")
     
-    with pytest.raises(ValueError, match="Question cannot be empty"):
+    with pytest.raises(ValueError, match="Please provide a question"):
         agent.query("   ")
 
 
 def test_sanitize_question_non_string(agent: QueryAgent):
     """Test that non-string inputs are rejected."""
-    with pytest.raises(ValueError, match="Question must be a string"):
+    with pytest.raises(ValueError, match="Questions must be provided as text"):
         agent.query(123)
     
-    with pytest.raises(ValueError, match="Question must be a string"):
+    with pytest.raises(ValueError, match="Questions must be provided as text"):
         agent.query(None)
 
 
 def test_sanitize_question_too_long(agent: QueryAgent):
     """Test that overly long questions are rejected."""
     long_question = "a" * 1001
-    with pytest.raises(ValueError, match="Question too long"):
+    with pytest.raises(ValueError, match="too long"):
         agent.query(long_question)
 
 
@@ -56,7 +56,7 @@ def test_sanitize_question_sql_injection_attempts(agent: QueryAgent):
     ]
     
     for injection in injection_attempts:
-        with pytest.raises(ValueError, match="Potentially unsafe input detected"):
+        with pytest.raises(ValueError, match="unsafe.*security"):
             agent.query(injection)
 
 
@@ -78,7 +78,7 @@ def test_valid_questions_pass_sanitization(agent: QueryAgent):
 
 def test_sql_validation_rejects_multiple_statements(agent: QueryAgent):
     """Test that SQL validation rejects multiple statements."""
-    with pytest.raises(ValueError, match="Only single SQL statements are allowed"):
+    with pytest.raises(ValueError, match="Multiple.*statements.*not allowed"):
         agent.execute_sql("SELECT * FROM users; DROP TABLE users;")
 
 
@@ -93,7 +93,7 @@ def test_sql_validation_rejects_non_select(agent: QueryAgent):
     ]
     
     for sql in non_select_statements:
-        with pytest.raises(ValueError, match="Only SELECT queries are permitted"):
+        with pytest.raises(ValueError, match="Only SELECT.*allowed.*security"):
             agent.execute_sql(sql)
 
 
@@ -108,11 +108,11 @@ def test_table_validation_rejects_invalid_names(agent: QueryAgent):
     ]
     
     for table in invalid_tables:
-        with pytest.raises(ValueError, match="Invalid table name"):
+        with pytest.raises(ValueError, match="not found.*database"):
             agent.row_count(table)
 
 
 def test_table_validation_rejects_unknown_tables(agent: QueryAgent):
     """Test that unknown table names are rejected."""
-    with pytest.raises(ValueError, match="Unknown table"):
+    with pytest.raises(ValueError, match="not found.*database"):
         agent.row_count("nonexistent_table")

@@ -55,10 +55,10 @@ def test_openai_adapter_empty_question(monkeypatch):
     monkeypatch.setattr(oa, "openai", fake)
     adapter = oa.OpenAIAdapter(api_key="key")
     
-    with pytest.raises(ValueError, match="Question cannot be empty"):
+    with pytest.raises(ValueError, match="Please provide a question"):
         adapter.generate_sql("")
     
-    with pytest.raises(ValueError, match="Question cannot be empty"):
+    with pytest.raises(ValueError, match="Please provide a question"):
         adapter.generate_sql("   ")
 
 
@@ -66,5 +66,5 @@ def test_openai_adapter_no_openai(monkeypatch):
     """Test OpenAI adapter when openai package is not available."""
     # Mock openai to be None
     monkeypatch.setattr(oa, "openai", None)
-    with pytest.raises(RuntimeError, match="openai package not available"):
+    with pytest.raises(ValueError, match="OpenAI package.*install"):
         oa.OpenAIAdapter(api_key="key")  # pragma: allowlist secret
