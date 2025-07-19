@@ -173,7 +173,8 @@ class QueryAgent:
         if not self.openai_adapter:
             raise RuntimeError("OpenAI API key not configured")
 
-        return self.openai_adapter.generate_sql(question)
+        available_tables = self.discover_schema()
+        return self.openai_adapter.generate_sql(question, available_tables)
 
     def generate_sql(self, question: str) -> str:
         """Generate SQL from *question* using OpenAI if available."""
@@ -186,6 +187,40 @@ class QueryAgent:
         tables = self.discover_schema()
         return naive_generate_sql(question, tables, self.max_rows)
 
+    def _sanitize_question(self, question: str) -> str:
+        """Sanitize and validate user question input."""
+        if not isinstance(question, str):
+            raise ValueError("Question must be a string")
+        
+        question = question.strip()
+        if not question:
+            raise ValueError("Question cannot be empty")
+        
+        # Check for suspicious patterns that might indicate SQL injection attempts
+        suspicious_patterns = [
+            r';\s*drop\s+',
+            r';\s*delete\s+',
+            r';\s*update\s+',
+            r';\s*insert\s+',
+            r';\s*truncate\s+',
+            r';\s*alter\s+',
+            r';\s*create\s+',
+            r'union\s+select',
+            r'exec\s*\(',
+            r'xp_cmdshell',
+        ]
+        
+        question_lower = question.lower()
+        for pattern in suspicious_patterns:
+            if re.search(pattern, question_lower):
+                raise ValueError("Potentially unsafe input detected: contains suspicious SQL patterns")
+        
+        # Limit question length to prevent abuse
+        if len(question) > 1000:
+            raise ValueError("Question too long (max 1000 characters)")
+            
+        return question
+
     def query(self, question: str, *, explain: bool = False) -> QueryResult:
         """Generate and optionally execute SQL for *question*.
 
@@ -196,6 +231,8 @@ class QueryAgent:
         explain:
             If ``True``, return the ``EXPLAIN`` plan instead of query results.
         """
+        # Sanitize input
+        question = self._sanitize_question(question)
 
         # Return cached result if available and valid
         if self.query_cache.ttl:

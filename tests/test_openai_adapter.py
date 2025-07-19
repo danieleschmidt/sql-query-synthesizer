@@ -3,9 +3,13 @@ import types
 import sql_synthesizer.openai_adapter as oa
 
 
+class FakeMessage:
+    def __init__(self, content: str):
+        self.content = content
+
 class FakeChoice:
     def __init__(self, content: str):
-        self.message = {"content": content}
+        self.message = FakeMessage(content)
 
 
 class FakeOpenAI:
