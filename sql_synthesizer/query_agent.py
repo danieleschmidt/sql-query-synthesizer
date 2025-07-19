@@ -5,6 +5,8 @@ from typing import List, Any, Tuple
 
 import time
 import os
+import threading
+import atexit
 
 import re
 import logging
@@ -100,6 +102,10 @@ class QueryAgent:
         self.schema_cache = TTLCache(schema_cache_ttl)
         self.query_cache = TTLCache(query_cache_ttl)
         self.openai_adapter: OpenAIAdapter | None = None
+        
+        # Set up automatic cache cleanup if TTL is enabled
+        self._cleanup_timer = None
+        self._setup_cache_cleanup()
         key = openai_api_key or os.environ.get("OPENAI_API_KEY")
         if key:
             try:
@@ -113,6 +119,36 @@ class QueryAgent:
         """Empty in-memory caches for schema and query results."""
         self.schema_cache.clear()
         self.query_cache.clear()
+
+    def get_cache_stats(self) -> dict[str, Any]:
+        """Return comprehensive cache statistics for monitoring."""
+        schema_stats = self.schema_cache.get_stats()
+        query_stats = self.query_cache.get_stats()
+        
+        # Update Prometheus metrics
+        metrics.update_cache_metrics("schema", schema_stats)
+        metrics.update_cache_metrics("query", query_stats)
+        
+        return {
+            "schema_cache": schema_stats,
+            "query_cache": query_stats,
+            "total_cache_size": schema_stats["size"] + query_stats["size"],
+            "overall_hit_rate": (
+                (schema_stats["hit_count"] + query_stats["hit_count"]) /
+                max(1, schema_stats["total_operations"] + query_stats["total_operations"])
+            ),
+        }
+
+    def cleanup_expired_cache_entries(self) -> dict[str, int]:
+        """Clean up expired entries from all caches and return cleanup stats."""
+        schema_cleaned = self.schema_cache.cleanup_expired()
+        query_cleaned = self.query_cache.cleanup_expired()
+        
+        return {
+            "schema_cache_cleaned": schema_cleaned,
+            "query_cache_cleaned": query_cleaned,
+            "total_cleaned": schema_cleaned + query_cleaned,
+        }
 
     def _validate_table(self, table: str) -> str:
         """Return *table* if valid and known, else raise user-friendly error."""
@@ -138,9 +174,11 @@ class QueryAgent:
     def discover_schema(self) -> List[str]:
         """Return a list of available tables in the database."""
         try:
-            return self.schema_cache.get("tables")
+            tables = self.schema_cache.get("tables")
+            metrics.record_cache_hit("schema")
+            return tables
         except KeyError:
-            pass
+            metrics.record_cache_miss("schema")
 
         tables = self.inspector.get_table_names()
         self.schema_cache.set("tables", tables)
@@ -267,9 +305,11 @@ class QueryAgent:
         # Return cached result if available and valid
         if self.query_cache.ttl:
             try:
-                return self.query_cache.get(question)
+                result = self.query_cache.get(question)
+                metrics.record_cache_hit("query")
+                return result
             except KeyError:
-                pass
+                metrics.record_cache_miss("query")
 
         sql = self.generate_sql(question)
         data: List[Any] = []
@@ -317,9 +357,11 @@ class QueryAgent:
         sql = self._validate_sql(sql)
         if self.query_cache.ttl:
             try:
-                return self.query_cache.get(sql)
+                result = self.query_cache.get(sql)
+                metrics.record_cache_hit("query")
+                return result
             except KeyError:
-                pass
+                metrics.record_cache_miss("query")
 
         data: list[Any] = []
         explanation = ""
