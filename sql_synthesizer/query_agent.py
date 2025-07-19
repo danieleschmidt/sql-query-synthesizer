@@ -50,6 +50,7 @@ class QueryAgent:
         openai_api_key: str | None = None,
         openai_model: str = "gpt-3.5-turbo",
         openai_timeout: float | None = None,
+        enable_structured_logging: bool = False,
     ):
         """Create a new agent for the given ``database_url``.
 
@@ -73,9 +74,17 @@ class QueryAgent:
             provided.
         openai_timeout:
             Request timeout in seconds for OpenAI API calls.
+        enable_structured_logging:
+            Enable structured logging with trace IDs and JSON formatting.
         """
 
         self.engine = create_engine(database_url)
+        self._structured_logging = enable_structured_logging
+        
+        # Configure structured logging if enabled
+        if enable_structured_logging:
+            from .logging_utils import configure_logging
+            configure_logging(enable_json=True)
         self.inspector = inspect(self.engine)
         self.max_rows = max_rows
         self.schema_cache = TTLCache(schema_cache_ttl)
@@ -221,7 +230,7 @@ class QueryAgent:
             
         return question
 
-    def query(self, question: str, *, explain: bool = False) -> QueryResult:
+    def query(self, question: str, *, explain: bool = False, trace_id: str = None) -> QueryResult:
         """Generate and optionally execute SQL for *question*.
 
         Parameters
@@ -230,7 +239,14 @@ class QueryAgent:
             Natural language prompt.
         explain:
             If ``True``, return the ``EXPLAIN`` plan instead of query results.
+        trace_id:
+            Optional trace ID for request correlation. Auto-generated if not provided.
         """
+        # Generate trace ID for this request
+        if trace_id is None and self._structured_logging:
+            from .logging_utils import get_trace_id
+            trace_id = get_trace_id()
+        
         # Sanitize input
         question = self._sanitize_question(question)
 
@@ -249,7 +265,10 @@ class QueryAgent:
         else:
             sql = self._validate_sql(sql)
             start = time.time()
-            logger.info("Executing SQL", extra={"sql": sql})
+            log_extra = {"sql": sql}
+            if trace_id:
+                log_extra["trace_id"] = trace_id
+            logger.info("Executing SQL", extra=log_extra)
             with self.engine.connect() as conn:
                 if explain:
                     result = conn.execute(text(f"EXPLAIN {sql}"))
@@ -260,9 +279,12 @@ class QueryAgent:
                     data = [dict(row._mapping) for row in result]
                     explanation = "Generated and executed SQL using naive keyword match"
             duration = time.time() - start
+            log_extra = {"sql": sql, "duration_ms": int(duration * 1000)}
+            if trace_id:
+                log_extra["trace_id"] = trace_id
             logger.info(
                 "Query executed",
-                extra={"sql": sql, "duration_ms": int(duration * 1000)},
+                extra=log_extra,
             )
             metrics.record_query(duration, "query")
         result = QueryResult(sql=sql, explanation=explanation, data=data)
@@ -270,8 +292,13 @@ class QueryAgent:
             self.query_cache.set(question, result)
         return result
 
-    def execute_sql(self, sql: str, *, explain: bool = False) -> QueryResult:
+    def execute_sql(self, sql: str, *, explain: bool = False, trace_id: str = None) -> QueryResult:
         """Execute raw SQL and return a :class:`QueryResult`."""
+        
+        # Generate trace ID for this request
+        if trace_id is None and self._structured_logging:
+            from .logging_utils import get_trace_id
+            trace_id = get_trace_id()
 
         sql = self._validate_sql(sql)
         if self.query_cache.ttl:
@@ -283,7 +310,10 @@ class QueryAgent:
         data: list[Any] = []
         explanation = ""
         start = time.time()
-        logger.info("Executing SQL", extra={"sql": sql})
+        log_extra = {"sql": sql}
+        if trace_id:
+            log_extra["trace_id"] = trace_id
+        logger.info("Executing SQL", extra=log_extra)
         with self.engine.connect() as conn:
             if explain:
                 result = conn.execute(text(f"EXPLAIN {sql}"))
@@ -294,9 +324,12 @@ class QueryAgent:
                 data = [dict(row._mapping) for row in result]
                 explanation = "Executed raw SQL"
         duration = time.time() - start
+        log_extra = {"sql": sql, "duration_ms": int(duration * 1000)}
+        if trace_id:
+            log_extra["trace_id"] = trace_id
         logger.info(
             "Query executed",
-            extra={"sql": sql, "duration_ms": int(duration * 1000)},
+            extra=log_extra,
         )
         metrics.record_query(duration, "execute")
 

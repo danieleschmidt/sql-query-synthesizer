@@ -64,6 +64,9 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--sql-only", action="store_true", help="Print generated SQL without executing")
     parser.add_argument("--interactive", action="store_true")
     parser.add_argument("--list-tables", action="store_true", help="List available tables and exit")
+    parser.add_argument("--log-level", choices=["DEBUG", "INFO", "WARNING", "ERROR"], help="Set log level")
+    parser.add_argument("--log-format", choices=["standard", "json"], help="Set log format")
+    parser.add_argument("--enable-structured-logging", action="store_true", help="Enable structured logging with trace IDs")
     parser.add_argument("question", nargs="?")
     args = parser.parse_args(argv)
 
@@ -94,6 +97,20 @@ def main(argv: list[str] | None = None) -> None:
         env_to = os.environ.get("QUERY_AGENT_OPENAI_TIMEOUT")
         if env_to is not None:
             openai_timeout = float(env_to)
+    # Configure logging before creating agent
+    enable_structured_logging = (
+        args.enable_structured_logging 
+        or os.environ.get("QUERY_AGENT_STRUCTURED_LOGGING", "").lower() in ("true", "1", "yes")
+    )
+    
+    if enable_structured_logging or args.log_level or args.log_format:
+        from sql_synthesizer.logging_utils import configure_logging
+        configure_logging(
+            level=args.log_level,
+            format_type=args.log_format,
+            enable_json=enable_structured_logging
+        )
+    
     agent = QueryAgent(
         db_url,
         schema_cache_ttl=schema_ttl,
@@ -102,6 +119,7 @@ def main(argv: list[str] | None = None) -> None:
         openai_api_key=args.openai_api_key,
         openai_model=args.openai_model or os.environ.get("QUERY_AGENT_OPENAI_MODEL", "gpt-3.5-turbo"),
         openai_timeout=openai_timeout,
+        enable_structured_logging=enable_structured_logging,
     )
 
     if args.clear_cache:
