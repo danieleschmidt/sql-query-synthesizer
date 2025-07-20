@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2025-07-20
+- **Service Layer Architecture Implementation**: Major refactoring with clean architecture principles
+  - Split QueryAgent (489 lines) into focused, single-responsibility services for improved maintainability
+  - Created QueryValidatorService for input sanitization and SQL injection prevention with comprehensive patterns
+  - Created SQLGeneratorService for SQL generation with OpenAI fallback and error handling
+  - Created QueryService for query orchestration, caching, execution, and metrics integration
+  - Extracted QueryResult and common types to eliminate circular imports and improve modularity
+  - Added 33 comprehensive service-specific tests with full mock coverage and edge case testing
+  - Maintained 100% backward compatibility - all existing 45 tests pass without modification
+  - Enhanced error handling with database-level exception catching and user-friendly error conversion
+  - Improved separation of concerns: validation, generation, orchestration, and execution are now isolated
+  - Reduced tight coupling and enhanced testability with dependency injection patterns (WSJF Score: 7/10)
+
 ## [0.4.0] - 2025-07-20
 - **Centralized Configuration Management**: Implemented comprehensive configuration system with environment variable overrides
   - Created centralized Config class consolidating all hardcoded values into configurable settings

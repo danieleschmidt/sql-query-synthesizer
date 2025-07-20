@@ -1,8 +1,9 @@
-"""Adapter for OpenAI completions used to generate SQL."""
+"""OpenAI implementation of the LLM provider interface."""
 
 from __future__ import annotations
 
 import time
+from typing import Dict, Any, Optional
 
 try:
     import openai  # type: ignore
@@ -10,14 +11,15 @@ except Exception:  # pragma: no cover - optional
     openai = None
 
 from . import metrics
+from .llm_interface import LLMProvider, ProviderError, ProviderTimeoutError, ProviderAuthenticationError
 from .user_experience import (
     create_openai_package_missing_error,
     create_empty_question_error,
 )
 
 
-class OpenAIAdapter:
-    """Thin wrapper around the OpenAI chat completion API."""
+class OpenAIAdapter(LLMProvider):
+    """OpenAI implementation of the LLM provider interface."""
 
     def __init__(
         self, api_key: str, model: str = "gpt-3.5-turbo", timeout: float | None = None
@@ -27,8 +29,14 @@ class OpenAIAdapter:
         openai.api_key = api_key
         self.model = model
         self.timeout = timeout
+        self.api_key = api_key
 
-    def generate_sql(self, question: str, available_tables: list[str] | None = None) -> str:
+    def generate_sql(
+        self, 
+        question: str, 
+        available_tables: Optional[list[str]] = None,
+        **kwargs: Any
+    ) -> str:
         """Generate SQL with proper schema context and safety constraints."""
         # Sanitize input question
         question = question.strip()
@@ -66,5 +74,43 @@ class OpenAIAdapter:
             return response.choices[0].message.content.strip()
         except Exception as e:
             duration = time.time() - start_time
-            metrics.record_openai_request(duration, "error")
-            raise
+            
+            # Check exception type by name to handle import/mocking issues
+            exception_name = type(e).__name__
+            
+            if "Timeout" in exception_name:
+                metrics.record_openai_request(duration, "timeout")
+                raise ProviderTimeoutError(f"OpenAI request timed out: {e}", "openai")
+            elif "Authentication" in exception_name:
+                metrics.record_openai_request(duration, "auth_error")
+                raise ProviderAuthenticationError(f"OpenAI authentication failed: {e}", "openai")
+            else:
+                metrics.record_openai_request(duration, "error")
+                raise ProviderError(f"OpenAI request failed: {e}", "openai")
+    
+    def get_provider_name(self) -> str:
+        """Get the name of the LLM provider."""
+        return "openai"
+    
+    def get_model_name(self) -> str:
+        """Get the specific model being used."""
+        return self.model
+    
+    def validate_configuration(self) -> bool:
+        """Validate that the OpenAI provider is properly configured."""
+        if not openai:
+            return False
+        if not self.api_key:
+            return False
+        return True
+    
+    def get_capabilities(self) -> Dict[str, Any]:
+        """Get OpenAI provider capabilities and limitations."""
+        return {
+            "max_tokens": 4096 if "gpt-3.5" in self.model else 8192,
+            "supports_json_mode": True,
+            "supports_function_calling": True,
+            "temperature_range": (0.0, 2.0),
+            "model": self.model,
+            "timeout": self.timeout
+        }

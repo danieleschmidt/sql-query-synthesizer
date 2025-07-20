@@ -22,8 +22,8 @@ def naive_generate_sql(question: str, tables: list[str], max_rows: int = 5) -> s
         if re.search(rf"\b{re.escape(table.lower())}\b", q):
             if any(word in q for word in ["count", "how many", "number"]):
                 # Use quoted identifier for safety
-                return f'SELECT COUNT(*) FROM "{table}";'
-            return f'SELECT * FROM "{table}" LIMIT {max_rows};'
+                return f'SELECT COUNT(*) FROM "{table}"'
+            return f'SELECT * FROM "{table}" LIMIT {max_rows}'
     
     return f"-- No matching table found for: {question}"
 

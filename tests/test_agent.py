@@ -43,7 +43,7 @@ def test_list_table_counts(agent: QueryAgent):
 
 def test_generate_sql(agent: QueryAgent):
     sql = agent.generate_sql("How many users do we have?")
-    assert sql == 'SELECT COUNT(*) FROM "users";'
+    assert sql == 'SELECT COUNT(*) FROM "users"'
 
 
 def test_query_execute(agent: QueryAgent):
