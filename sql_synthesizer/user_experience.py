@@ -53,7 +53,7 @@ def create_unsafe_input_error() -> UserFriendlyError:
     )
 
 
-def create_question_too_long_error(max_length: int = 1000) -> UserFriendlyError:
+def create_question_too_long_error(max_length: int) -> UserFriendlyError:
     """Create a user-friendly error for questions that are too long."""
     return UserFriendlyError(
         f"Your question is too long (maximum {max_length} characters).",

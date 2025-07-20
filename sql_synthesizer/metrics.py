@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from prometheus_client import Counter, Histogram, Gauge
+from .config import config
 
 # Query metrics
 QUERIES_TOTAL = Counter("queries_total", "Number of queries executed", ["type"])
@@ -10,7 +11,7 @@ QUERY_ERRORS_TOTAL = Counter("query_errors_total", "Number of query errors", ["e
 QUERY_DURATION = Histogram(
     "query_duration_seconds",
     "Query execution latency",
-    buckets=(0.01, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10),
+    buckets=config.openai_request_buckets,
 )
 
 # Input validation metrics
@@ -25,7 +26,7 @@ OPENAI_REQUESTS_TOTAL = Counter("openai_requests_total", "Number of OpenAI API r
 OPENAI_REQUEST_DURATION = Histogram(
     "openai_request_duration_seconds",
     "OpenAI API request latency",
-    buckets=(0.1, 0.5, 1, 2, 5, 10, 30),
+    buckets=config.database_query_buckets,
 )
 
 # Database metrics
@@ -33,7 +34,7 @@ DATABASE_CONNECTIONS_TOTAL = Counter("database_connections_total", "Number of da
 DATABASE_QUERY_DURATION = Histogram(
     "database_query_duration_seconds",
     "Database query execution latency",
-    buckets=(0.001, 0.01, 0.05, 0.1, 0.25, 0.5, 1),
+    buckets=config.cache_operation_buckets,
 )
 
 # Cache metrics

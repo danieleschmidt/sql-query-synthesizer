@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 import yaml
 from sql_synthesizer import QueryAgent
 from sql_synthesizer.user_experience import format_cli_error
+from sql_synthesizer.config import config as app_config
 import csv
 
 
@@ -120,7 +121,7 @@ Common question patterns:
             schema_ttl = config.get("schema_cache_ttl", 0)
     max_rows = args.max_rows
     if max_rows is None:
-        max_rows = int(os.environ.get("QUERY_AGENT_MAX_ROWS", 5))
+        max_rows = int(os.environ.get("QUERY_AGENT_MAX_ROWS", app_config.default_max_rows))
     cache_ttl = args.cache_ttl
     if cache_ttl is None:
         cache_ttl = int(os.environ.get("QUERY_AGENT_CACHE_TTL", 0))

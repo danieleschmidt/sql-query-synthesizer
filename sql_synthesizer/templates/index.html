@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline';">
+    <title>SQL Synthesizer</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+        }
+        form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        input[name="question"] {
+            width: 70%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        input[type="submit"] {
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        input[type="submit"]:hover {
+            background: #2980b9;
+        }
+        pre {
+            background: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+        .sql-block {
+            background: #e8f4fd;
+            border-left: 4px solid #3498db;
+        }
+        .data-block {
+            background: #f0f8f0;
+            border-left: 4px solid #27ae60;
+        }
+        .examples {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .examples h3 {
+            margin-top: 0;
+            color: #856404;
+        }
+        .examples ul {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>SQL Synthesizer</h1>
+    
+    <div class="examples">
+        <h3>Try asking questions like:</h3>
+        <ul>
+            <li>"How many users are there?"</li>
+            <li>"Show me orders from last week"</li>
+            <li>"What are the top 5 products by sales?"</li>
+            <li>"Find users who haven't placed orders"</li>
+        </ul>
+    </div>
+    
+    <form method="post">
+        <input name="question" 
+               size="{{ input_size }}" 
+               placeholder="Ask a question about your data..."
+               value="{{ question|e if question else '' }}"
+               required>
+        <input type="submit" value="Generate SQL">
+    </form>
+    
+    {% if sql %}
+    <h2>Generated SQL</h2>
+    <pre class="sql-block">{{ sql|e }}</pre>
+    
+    {% if data %}
+    <h2>Query Results</h2>
+    <pre class="data-block">{{ data|e }}</pre>
+    {% endif %}
+    {% endif %}
+    
+    {% if error %}
+    <h2 style="color: #e74c3c;">Error</h2>
+    <pre style="color: #e74c3c; background: #fdf2f2; border-left: 4px solid #e74c3c;">{{ error|e }}</pre>
+    {% endif %}
+</body>
+</html>

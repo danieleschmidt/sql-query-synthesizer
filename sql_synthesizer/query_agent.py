@@ -26,6 +26,7 @@ from .cache import TTLCache
 from .openai_adapter import OpenAIAdapter
 from .generator import naive_generate_sql
 from . import metrics
+from .config import config
 from .user_experience import (
     create_empty_question_error,
     create_invalid_table_error,
@@ -164,7 +165,7 @@ class QueryAgent:
             return
         
         # Run cleanup every 5 minutes
-        cleanup_interval = 300  # 5 minutes in seconds
+        cleanup_interval = config.cache_cleanup_interval
         self._cleanup_timer = threading.Timer(cleanup_interval, self._periodic_cleanup)
         self._cleanup_timer.daemon = True
         self._cleanup_timer.start()
@@ -353,9 +354,9 @@ class QueryAgent:
                     raise create_unsafe_input_error()
             
             # Limit question length to prevent abuse
-            if len(question) > 1000:
+            if len(question) > config.max_question_length:
                 metrics.record_input_validation_error("question_too_long")
-                raise create_question_too_long_error(1000)
+                raise create_question_too_long_error(config.max_question_length)
                 
             return question
         except Exception as e:

@@ -2,29 +2,11 @@
 
 from __future__ import annotations
 
-from flask import Flask, request, jsonify, render_template_string, Response
+from flask import Flask, request, jsonify, render_template, Response
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
 from .query_agent import QueryAgent
-
-PAGE = """
-<!doctype html>
-<title>SQL Synthesizer</title>
-<h1>Ask a question</h1>
-<form method=post>
-  <input name=question size=60>
-  <input type=submit value=Query>
-</form>
-{% if sql %}
-<h2>SQL</h2>
-<pre>{{ sql }}</pre>
-{% if data %}
-<h2>Data</h2>
-<pre>{{ data }}</pre>
-{% endif %}
-{% endif %}
-"""
-
+from .config import config
 
 def create_app(agent: QueryAgent) -> Flask:
     app = Flask(__name__)
@@ -33,9 +15,23 @@ def create_app(agent: QueryAgent) -> Flask:
     def index() -> str:
         if request.method == "POST":
             q = request.form.get("question", "")
-            res = agent.query(q)
-            return render_template_string(PAGE, sql=res.sql, data=res.data)
-        return render_template_string(PAGE, sql=None, data=None)
+            try:
+                res = agent.query(q)
+                return render_template(
+                    "index.html", 
+                    sql=res.sql, 
+                    data=res.data, 
+                    input_size=config.webapp_input_size,
+                    question=q
+                )
+            except Exception as e:
+                return render_template(
+                    "index.html", 
+                    error=str(e), 
+                    input_size=config.webapp_input_size,
+                    question=q
+                )
+        return render_template("index.html", input_size=config.webapp_input_size)
 
     @app.post("/api/query")
     def api_query() -> tuple[str, int]:
@@ -57,7 +53,7 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(description="Run web UI for QueryAgent")
     parser.add_argument("--database-url", required=True)
-    parser.add_argument("--port", type=int, default=5000)
+    parser.add_argument("--port", type=int, default=config.webapp_port)
     args = parser.parse_args()
 
     agent = QueryAgent(args.database_url)
