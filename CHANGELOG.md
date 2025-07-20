@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0] - 2025-07-20
+- **Enterprise Web Application Security**: Comprehensive security hardening for production deployments
+  - Added SecurityMiddleware with CSRF protection, rate limiting, and security headers
+  - Implemented comprehensive input validation and sanitization to prevent XSS and injection attacks
+  - Added configurable rate limiting with sliding window algorithm (60 req/min default)
+  - Enhanced error handling with sanitized error messages preventing information leakage
+  - Added optional API key authentication for programmatic access
+  - Implemented security headers (CSP, XSS protection, frame options, HSTS support)
+  - Added request size limits and JSON validation for API endpoints
+  - Created health check endpoint (/health) with sanitized status information
+  - Added 7 new security configuration options with environment variable support
+  - Enhanced logging for security events and rate limiting violations
+  - Added 20+ comprehensive security tests covering all attack vectors
+  - Maintained 100% backward compatibility while significantly improving security posture
+
 ## [0.6.0] - 2025-07-20
 - **Enterprise Database Connection Management**: Comprehensive connection pooling and reliability improvements
   - Added DatabaseConnectionManager with configurable connection pooling (pool_size, max_overflow, recycle)

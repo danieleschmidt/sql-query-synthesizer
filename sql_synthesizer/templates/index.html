@@ -95,10 +95,14 @@
     </div>
     
     <form method="post">
+        {% if csrf_token %}
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        {% endif %}
         <input name="question" 
                size="{{ input_size }}" 
                placeholder="Ask a question about your data..."
                value="{{ question|e if question else '' }}"
+               maxlength="1000"
                required>
         <input type="submit" value="Generate SQL">
     </form>
