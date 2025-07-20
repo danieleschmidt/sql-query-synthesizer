@@ -48,6 +48,14 @@ class Config:
         self.openai_timeout = self._get_int_env("QUERY_AGENT_OPENAI_TIMEOUT", 30, min_value=1)
         self.database_timeout = self._get_int_env("QUERY_AGENT_DATABASE_TIMEOUT", 30, min_value=1)
         
+        # Database Connection Pool Settings
+        self.db_pool_size = self._get_int_env("QUERY_AGENT_DB_POOL_SIZE", 10, min_value=1)
+        self.db_max_overflow = self._get_int_env("QUERY_AGENT_DB_MAX_OVERFLOW", 20, min_value=0)
+        self.db_pool_recycle = self._get_int_env("QUERY_AGENT_DB_POOL_RECYCLE", 3600, min_value=1)
+        self.db_pool_pre_ping = self._get_bool_env("QUERY_AGENT_DB_POOL_PRE_PING", True)
+        self.db_connect_retries = self._get_int_env("QUERY_AGENT_DB_CONNECT_RETRIES", 3, min_value=0)
+        self.db_retry_delay = self._get_float_env("QUERY_AGENT_DB_RETRY_DELAY", 1.0, min_value=0.1)
+        
         # Prometheus Metrics Histogram Buckets
         self.openai_request_buckets = self._get_bucket_env(
             "QUERY_AGENT_OPENAI_REQUEST_BUCKETS",
@@ -83,6 +91,39 @@ class Config:
         
         return value
     
+    def _get_bool_env(self, env_var: str, default: bool) -> bool:
+        """Get boolean value from environment with validation."""
+        value_str = os.environ.get(env_var)
+        if value_str is None:
+            return default
+        
+        value_lower = value_str.lower()
+        if value_lower in ('true', '1', 'yes', 'on'):
+            return True
+        elif value_lower in ('false', '0', 'no', 'off'):
+            return False
+        else:
+            config_name = env_var.lower().replace('query_agent_', '')
+            raise ValueError(f"Invalid boolean value for {config_name}: '{value_str}' (use true/false)")
+    
+    def _get_float_env(self, env_var: str, default: float, min_value: float = None) -> float:
+        """Get float value from environment with validation."""
+        value_str = os.environ.get(env_var)
+        if value_str is None:
+            return default
+        
+        try:
+            value = float(value_str)
+        except ValueError:
+            config_name = env_var.lower().replace('query_agent_', '')
+            raise ValueError(f"Invalid value for {config_name}: '{value_str}' is not a valid number")
+        
+        if min_value is not None and value < min_value:
+            config_name = env_var.lower().replace('query_agent_', '')
+            raise ValueError(f"{config_name} must be >= {min_value} (got {value})")
+        
+        return value
+    
     def _get_bucket_env(self, env_var: str, default: Tuple[float, ...]) -> Tuple[float, ...]:
         """Get histogram bucket values from environment."""
         value_str = os.environ.get(env_var)
@@ -108,6 +149,12 @@ class Config:
             "cache_cleanup_interval": self.cache_cleanup_interval,
             "openai_timeout": self.openai_timeout,
             "database_timeout": self.database_timeout,
+            "db_pool_size": self.db_pool_size,
+            "db_max_overflow": self.db_max_overflow,
+            "db_pool_recycle": self.db_pool_recycle,
+            "db_pool_pre_ping": self.db_pool_pre_ping,
+            "db_connect_retries": self.db_connect_retries,
+            "db_retry_delay": self.db_retry_delay,
             "openai_request_buckets": self.openai_request_buckets,
             "database_query_buckets": self.database_query_buckets,
             "cache_operation_buckets": self.cache_operation_buckets,

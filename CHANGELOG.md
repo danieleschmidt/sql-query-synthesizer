@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] - 2025-07-20
+- **Enterprise Database Connection Management**: Comprehensive connection pooling and reliability improvements
+  - Added DatabaseConnectionManager with configurable connection pooling (pool_size, max_overflow, recycle)
+  - Implemented automatic connection retry logic with exponential backoff and configurable retry attempts
+  - Added connection health checks with pre_ping validation and automatic connection recovery
+  - Enhanced error handling with specific DatabaseConnectionError types and graceful degradation
+  - Added comprehensive connection statistics and monitoring (total_connections, pool status, failures)
+  - Integrated health monitoring with QueryAgent.health_check() for operational visibility
+  - Added 15+ new configuration options for fine-tuning database connection behavior
+  - Enhanced logging with connection lifecycle events and structured error reporting
+  - Maintained 100% backward compatibility - existing QueryAgent API unchanged
+  - Added 25+ comprehensive tests covering connection pooling, error scenarios, and configuration validation
+
 ## [0.5.0] - 2025-07-20
 - **Service Layer Architecture Implementation**: Major refactoring with clean architecture principles
   - Split QueryAgent (489 lines) into focused, single-responsibility services for improved maintainability
