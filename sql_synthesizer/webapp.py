@@ -2,30 +2,11 @@
 
 from __future__ import annotations
 
-from flask import Flask, request, jsonify, render_template_string, Response
+from flask import Flask, request, jsonify, render_template, Response
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
 from .query_agent import QueryAgent
 from .config import config
-
-PAGE = """
-<!doctype html>
-<title>SQL Synthesizer</title>
-<h1>Ask a question</h1>
-<form method=post>
-  <input name=question size={{ input_size }}>
-  <input type=submit value=Query>
-</form>
-{% if sql %}
-<h2>SQL</h2>
-<pre>{{ sql }}</pre>
-{% if data %}
-<h2>Data</h2>
-<pre>{{ data }}</pre>
-{% endif %}
-{% endif %}
-"""
-
 
 def create_app(agent: QueryAgent) -> Flask:
     app = Flask(__name__)
@@ -34,9 +15,23 @@ def create_app(agent: QueryAgent) -> Flask:
     def index() -> str:
         if request.method == "POST":
             q = request.form.get("question", "")
-            res = agent.query(q)
-            return render_template_string(PAGE, sql=res.sql, data=res.data, input_size=config.webapp_input_size)
-        return render_template_string(PAGE, sql=None, data=None, input_size=config.webapp_input_size)
+            try:
+                res = agent.query(q)
+                return render_template(
+                    "index.html", 
+                    sql=res.sql, 
+                    data=res.data, 
+                    input_size=config.webapp_input_size,
+                    question=q
+                )
+            except Exception as e:
+                return render_template(
+                    "index.html", 
+                    error=str(e), 
+                    input_size=config.webapp_input_size,
+                    question=q
+                )
+        return render_template("index.html", input_size=config.webapp_input_size)
 
     @app.post("/api/query")
     def api_query() -> tuple[str, int]:

@@ -31,16 +31,17 @@ def test_index_page_get(tmp_path):
     client = app.test_client()
     resp = client.get("/")
     assert resp.status_code == 200
-    assert b"Ask a question" in resp.data
+    assert b"SQL Synthesizer" in resp.data
+    assert b"Ask a question about your data" in resp.data
 
 
 def test_index_page_post(tmp_path):
     agent = make_agent(tmp_path)
     app = create_app(agent)
     client = app.test_client()
-    resp = client.post("/", data={"question": "hi"})
+    resp = client.post("/", data={"question": "How many users?"})
     assert resp.status_code == 200
-    assert b"SQL" in resp.data
+    assert b"Generated SQL" in resp.data
 
 
 def test_metrics_endpoint(tmp_path):
@@ -97,6 +98,51 @@ def test_index_post_empty_question(tmp_path):
     app = create_app(agent)
     client = app.test_client()
     
-    # Test with empty question - should return 500 due to validation
+    # Test with empty question - should show error gracefully
     resp = client.post("/", data={"question": ""})
-    assert resp.status_code == 500
+    assert resp.status_code == 200
+    assert b"Error" in resp.data
+
+
+def test_template_security_headers(tmp_path):
+    """Test that security headers are present in template."""
+    agent = make_agent(tmp_path)
+    app = create_app(agent)
+    client = app.test_client()
+    resp = client.get("/")
+    assert resp.status_code == 200
+    assert b"Content-Security-Policy" in resp.data
+    assert b"default-src 'self'" in resp.data
+
+
+def test_template_input_escaping(tmp_path):
+    """Test that user input is properly escaped in templates."""
+    agent = make_agent(tmp_path)
+    app = create_app(agent)
+    client = app.test_client()
+    
+    # Test with potentially malicious input
+    malicious_input = "<script>alert('xss')</script>"
+    resp = client.post("/", data={"question": malicious_input})
+    assert resp.status_code == 200
+    # Should be escaped and not contain raw script tags
+    assert b"<script>" not in resp.data
+    assert b"&lt;script&gt;" in resp.data
+
+
+def test_template_styling_and_ux(tmp_path):
+    """Test that template includes proper styling and UX elements."""
+    agent = make_agent(tmp_path)
+    app = create_app(agent)
+    client = app.test_client()
+    resp = client.get("/")
+    assert resp.status_code == 200
+    
+    # Check for CSS styling
+    assert b"<style>" in resp.data
+    assert b"font-family" in resp.data
+    
+    # Check for UX improvements
+    assert b"Try asking questions like:" in resp.data
+    assert b"placeholder=" in resp.data
+    assert b"required" in resp.data

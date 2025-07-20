@@ -24,21 +24,17 @@
 ## Completed in Current Iteration ✅
 1. ✅ **Optimize caching layer performance** - Enhanced TTLCache with LRU eviction, automatic cleanup, and comprehensive metrics
 2. ✅ **Add comprehensive metrics and monitoring** - Added error rates, database metrics, OpenAI tracking, and production monitoring
+3. ✅ **Create centralized Configuration class** - All hardcoded values now configurable via environment variables with validation
 
 ## High Impact / Medium Effort (WSJF Score: High)
 
-### 🏗️ Configuration Management & Hardcoded Values
-1. **Create centralized Configuration class** (Impact: High, Effort: Medium)
-   - Extract all hardcoded values (timeouts, ports, limits, buckets) to configurable settings
-   - Support environment variable overrides with validation
-   - Files: sql_synthesizer/query_agent.py, webapp.py, metrics.py
-   - WSJF Score: 8/10 (reduces maintenance burden, improves deployment flexibility)
-
-2. **Extract HTML templates from Python code** (Impact: Medium, Effort: Low)
+### 🔐 Security & Template Improvements
+1. **Extract HTML templates from Python code** (Impact: Medium, Effort: Low)
    - Move embedded HTML PAGE variable to separate template files
    - Add proper template escaping and security headers
    - File: sql_synthesizer/webapp.py
    - Security improvement with low effort
+   - WSJF Score: 7/10
 
 ### 🔧 Architecture Improvements
 3. **Implement Service Layer pattern** (Impact: High, Effort: Medium)
