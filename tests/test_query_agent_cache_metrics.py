@@ -12,12 +12,14 @@ def mock_engine():
         mock_engine = Mock()
         mock_create.return_value = mock_engine
         
-        # Mock inspector
+        # Mock inspector for both query_agent and query_service
         mock_inspector = Mock()
         mock_inspector.get_table_names.return_value = ["users", "orders", "products"]
         
-        with patch('sql_synthesizer.query_agent.inspect') as mock_inspect:
-            mock_inspect.return_value = mock_inspector
+        with patch('sql_synthesizer.query_agent.inspect') as mock_inspect_agent, \
+             patch('sql_synthesizer.services.query_service.inspect') as mock_inspect_service:
+            mock_inspect_agent.return_value = mock_inspector
+            mock_inspect_service.return_value = mock_inspector
             yield mock_engine
 
 
@@ -51,26 +53,26 @@ def test_query_cache_metrics_integration(mock_engine):
     # Clear any existing cache state
     agent.clear_cache()
     
-    with patch.object(agent, '_validate_sql', return_value="SELECT * FROM users;"):
-        with patch.object(agent.engine, 'connect') as mock_connect:
-            mock_conn = Mock()
-            mock_connect.return_value.__enter__.return_value = mock_conn
-            mock_result = Mock()
-            mock_result.__iter__ = Mock(return_value=iter([]))
-            mock_conn.execute.return_value = mock_result
-            
-            # First query should be a cache miss
-            result1 = agent.execute_sql("SELECT * FROM users")
-            
-            # Second identical query should be a cache hit
-            result2 = agent.execute_sql("SELECT * FROM users")
-            
-            # Verify metrics were recorded by checking cache stats
-            stats = agent.get_cache_stats()
-            query_stats = stats["query_cache"]
-            
-            assert query_stats["hit_count"] == 1
-            assert query_stats["miss_count"] == 1
+    # Mock database execution without patching internal validation
+    with patch.object(agent.engine, 'connect') as mock_connect:
+        mock_conn = Mock()
+        mock_connect.return_value.__enter__.return_value = mock_conn
+        mock_result = Mock()
+        mock_result.__iter__ = Mock(return_value=iter([]))
+        mock_conn.execute.return_value = mock_result
+        
+        # First query should be a cache miss
+        result1 = agent.execute_sql("SELECT * FROM users")
+        
+        # Second identical query should be a cache hit
+        result2 = agent.execute_sql("SELECT * FROM users")
+        
+        # Verify metrics were recorded by checking cache stats
+        stats = agent.get_cache_stats()
+        query_stats = stats["query_cache"]
+        
+        assert query_stats["hit_count"] == 1
+        assert query_stats["miss_count"] == 1
 
 
 def test_cache_stats_method(mock_engine):
@@ -109,15 +111,15 @@ def test_cache_cleanup_method(mock_engine):
     # Add some data to caches
     agent.discover_schema()  # Adds to schema cache
     
-    with patch.object(agent, '_validate_sql', return_value="SELECT 1;"):
-        with patch.object(agent.engine, 'connect') as mock_connect:
-            mock_conn = Mock()
-            mock_connect.return_value.__enter__.return_value = mock_conn
-            mock_result = Mock()
-            mock_result.__iter__ = Mock(return_value=iter([]))
-            mock_conn.execute.return_value = mock_result
-            
-            agent.execute_sql("SELECT 1")  # Adds to query cache
+    # Mock database execution without patching internal validation
+    with patch.object(agent.engine, 'connect') as mock_connect:
+        mock_conn = Mock()
+        mock_connect.return_value.__enter__.return_value = mock_conn
+        mock_result = Mock()
+        mock_result.__iter__ = Mock(return_value=iter([]))
+        mock_conn.execute.return_value = mock_result
+        
+        agent.execute_sql("SELECT 1")  # Adds to query cache
     
     # Wait for expiration
     import time
