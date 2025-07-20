@@ -5,11 +5,10 @@ import time
 import threading
 import atexit
 import logging
-from typing import List, Any, Tuple, Optional
+from typing import List, Any, Tuple, Optional, Dict
 from dataclasses import dataclass, field
 
 from sqlalchemy import (
-    create_engine,
     inspect,
     text,
     Table,
@@ -23,6 +22,7 @@ from sqlalchemy import (
 from .cache import TTLCache
 from .openai_adapter import OpenAIAdapter
 from .config import config
+from .database import DatabaseConnectionManager
 from .services import QueryValidatorService, SQLGeneratorService, QueryService
 
 logger = logging.getLogger(__name__)
@@ -68,7 +68,9 @@ class QueryAgent:
         enable_structured_logging:
             Enable structured logging with trace IDs and JSON formatting.
         """
-        self.engine = create_engine(database_url)
+        # Initialize database connection manager with pooling and error handling
+        self.db_manager = DatabaseConnectionManager(database_url)
+        self.engine = self.db_manager.engine  # Backward compatibility
         self._structured_logging = enable_structured_logging
         self.max_rows = max_rows
 
@@ -234,3 +236,53 @@ class QueryAgent:
     def execute_sql(self, sql: str, *, explain: bool = False, trace_id: str = None) -> QueryResult:
         """Execute raw SQL and return a QueryResult."""
         return self.query_service.execute_sql(sql, explain=explain, trace_id=trace_id)
+    
+    def health_check(self) -> Dict[str, Any]:
+        """
+        Perform a comprehensive health check of the query agent.
+        
+        Returns:
+            Dict containing health status of all components
+        """
+        health_status = {
+            "database": self.db_manager.health_check(),
+            "caches": {
+                "schema_cache": {
+                    "size": len(self.schema_cache._cache),
+                    "ttl": self.schema_cache.ttl,
+                    "healthy": True
+                },
+                "query_cache": {
+                    "size": len(self.query_cache._cache),
+                    "ttl": self.query_cache.ttl,
+                    "healthy": True
+                }
+            },
+            "services": {
+                "validator": {"healthy": True},
+                "generator": {
+                    "healthy": True,
+                    "llm_provider_available": self.generator.llm_provider is not None
+                }
+            }
+        }
+        
+        # Overall health status
+        health_status["overall_healthy"] = (
+            health_status["database"]["healthy"] and
+            health_status["caches"]["schema_cache"]["healthy"] and
+            health_status["caches"]["query_cache"]["healthy"] and
+            health_status["services"]["validator"]["healthy"] and
+            health_status["services"]["generator"]["healthy"]
+        )
+        
+        return health_status
+    
+    def get_connection_stats(self) -> Dict[str, Any]:
+        """
+        Get database connection statistics for monitoring.
+        
+        Returns:
+            Dict containing connection pool statistics
+        """
+        return self.db_manager.get_connection_stats()

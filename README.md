@@ -10,6 +10,9 @@ Natural-language-to-SQL agent with automatic schema discovery and query validati
 - Support for complex joins, aggregations, and subqueries
 - Built-in query explanation and performance analysis
 - YAML-based configuration for multiple environments
+- **Enterprise-grade database connection pooling** with automatic retry logic
+- **Health monitoring** with comprehensive diagnostics and connection statistics
+- **Production-ready error handling** with graceful degradation and recovery
 
 ## Quick Start
 ```bash
@@ -86,6 +89,16 @@ All configuration options can be customized via environment variables with the `
 | `QUERY_AGENT_SCHEMA_CACHE_TTL` | - | Schema cache TTL override |
 | `QUERY_AGENT_OPENAI_MODEL` | gpt-3.5-turbo | OpenAI model to use |
 
+### Database Connection Pool Configuration
+| Environment Variable | Default | Description |
+|---------------------|---------|-------------|
+| `QUERY_AGENT_DB_POOL_SIZE` | 10 | Connection pool size |
+| `QUERY_AGENT_DB_MAX_OVERFLOW` | 20 | Maximum overflow connections |
+| `QUERY_AGENT_DB_POOL_RECYCLE` | 3600 | Connection recycle time (seconds) |
+| `QUERY_AGENT_DB_POOL_PRE_PING` | true | Enable connection health checks |
+| `QUERY_AGENT_DB_CONNECT_RETRIES` | 3 | Number of connection retry attempts |
+| `QUERY_AGENT_DB_RETRY_DELAY` | 1.0 | Base delay between retries (seconds) |
+
 ### Prometheus Metrics Configuration
 Histogram buckets for metrics can be customized via environment variables (comma-separated values):
 
@@ -95,6 +108,31 @@ Histogram buckets for metrics can be customized via environment variables (comma
 
 Set `OPENAI_API_KEY` and optionally `QUERY_AGENT_OPENAI_MODEL` to enable LLM-based SQL generation.
 Environment variables may also be loaded from a `.env` file if present.
+
+## Health Monitoring
+
+The query agent provides comprehensive health monitoring capabilities:
+
+```python
+from sql_synthesizer import QueryAgent
+
+agent = QueryAgent(database_url="your_db_connection")
+
+# Get comprehensive health status
+health = agent.health_check()
+print(f"Overall healthy: {health['overall_healthy']}")
+print(f"Database status: {health['database']['healthy']}")
+
+# Monitor connection pool statistics
+stats = agent.get_connection_stats()
+print(f"Active connections: {stats['checked_out']}")
+print(f"Pool size: {stats['pool_size']}")
+```
+
+### Health Check Endpoints
+When using the web interface, health status is available at:
+- `/health` - Basic health check
+- `/metrics` - Prometheus metrics including connection pool stats
 
 ## License
 MIT
