@@ -1,6 +1,6 @@
 # Project Backlog - Impact-Ranked (WSJF)
 
-## Current Status (Updated 2025-07-19)
+## Current Status (Updated 2025-07-20)
 - Test Coverage: 83% ✅ (58 tests, comprehensive coverage)
 - CI Pipeline: ✅ Configured and stable
 - Code Quality: All tests passing, ruff clean
@@ -8,6 +8,7 @@
 - Dependencies: ✅ All declared correctly
 - User Experience: ✅ Friendly errors, helpful CLI, interactive mode
 - Observability: ✅ Structured logging with trace IDs and JSON formatting
+- Architecture: ⚠️ Some technical debt identified (tight coupling, hardcoded values)
 
 ## Completed in Previous Iterations ✅
 1. ✅ **Fixed python-dotenv dependency** - Added to setup.py
@@ -23,6 +24,28 @@
 ## Completed in Current Iteration ✅
 1. ✅ **Optimize caching layer performance** - Enhanced TTLCache with LRU eviction, automatic cleanup, and comprehensive metrics
 2. ✅ **Add comprehensive metrics and monitoring** - Added error rates, database metrics, OpenAI tracking, and production monitoring
+
+## High Impact / Medium Effort (WSJF Score: High)
+
+### 🏗️ Configuration Management & Hardcoded Values
+1. **Create centralized Configuration class** (Impact: High, Effort: Medium)
+   - Extract all hardcoded values (timeouts, ports, limits, buckets) to configurable settings
+   - Support environment variable overrides with validation
+   - Files: sql_synthesizer/query_agent.py, webapp.py, metrics.py
+   - WSJF Score: 8/10 (reduces maintenance burden, improves deployment flexibility)
+
+2. **Extract HTML templates from Python code** (Impact: Medium, Effort: Low)
+   - Move embedded HTML PAGE variable to separate template files
+   - Add proper template escaping and security headers
+   - File: sql_synthesizer/webapp.py
+   - Security improvement with low effort
+
+### 🔧 Architecture Improvements
+3. **Implement Service Layer pattern** (Impact: High, Effort: Medium)
+   - Split QueryAgent into focused services (QueryService, SQLGenerator, QueryValidator)
+   - Reduce tight coupling and improve testability
+   - File: sql_synthesizer/query_agent.py (currently 200+ lines with multiple responsibilities)
+   - WSJF Score: 7/10
 
 ## Medium Impact / High Effort (WSJF Score: Low-Medium)
 

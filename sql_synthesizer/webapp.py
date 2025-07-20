@@ -6,13 +6,14 @@ from flask import Flask, request, jsonify, render_template_string, Response
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
 from .query_agent import QueryAgent
+from .config import config
 
 PAGE = """
 <!doctype html>
 <title>SQL Synthesizer</title>
 <h1>Ask a question</h1>
 <form method=post>
-  <input name=question size=60>
+  <input name=question size={{ input_size }}>
   <input type=submit value=Query>
 </form>
 {% if sql %}
@@ -34,8 +35,8 @@ def create_app(agent: QueryAgent) -> Flask:
         if request.method == "POST":
             q = request.form.get("question", "")
             res = agent.query(q)
-            return render_template_string(PAGE, sql=res.sql, data=res.data)
-        return render_template_string(PAGE, sql=None, data=None)
+            return render_template_string(PAGE, sql=res.sql, data=res.data, input_size=config.webapp_input_size)
+        return render_template_string(PAGE, sql=None, data=None, input_size=config.webapp_input_size)
 
     @app.post("/api/query")
     def api_query() -> tuple[str, int]:
@@ -57,7 +58,7 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(description="Run web UI for QueryAgent")
     parser.add_argument("--database-url", required=True)
-    parser.add_argument("--port", type=int, default=5000)
+    parser.add_argument("--port", type=int, default=config.webapp_port)
     args = parser.parse_args()
 
     agent = QueryAgent(args.database_url)

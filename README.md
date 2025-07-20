@@ -59,6 +59,8 @@ timeout for OpenAI calls.
 - Complex filters: "Find products with declining sales but high ratings"
 
 ## Configuration
+
+### Database Configuration
 Configure your database connections in `config/databases.yaml`:
 ```yaml
 databases:
@@ -68,9 +70,29 @@ databases:
   staging:
     url: "mysql://..."
 ```
-Set `schema_cache_ttl` to control how long table names are cached when using the CLI.
-Use `query_cache_ttl` to enable query result caching.
-You can override the schema TTL via the `QUERY_AGENT_SCHEMA_CACHE_TTL` environment variable.
+
+### Environment Variables
+All configuration options can be customized via environment variables with the `QUERY_AGENT_` prefix:
+
+| Environment Variable | Default | Description |
+|---------------------|---------|-------------|
+| `QUERY_AGENT_WEBAPP_PORT` | 5000 | Web server port |
+| `QUERY_AGENT_WEBAPP_INPUT_SIZE` | 60 | HTML input field size |
+| `QUERY_AGENT_MAX_QUESTION_LENGTH` | 1000 | Maximum question length in characters |
+| `QUERY_AGENT_DEFAULT_MAX_ROWS` | 5 | Default maximum rows to return |
+| `QUERY_AGENT_CACHE_CLEANUP_INTERVAL` | 300 | Cache cleanup interval in seconds |
+| `QUERY_AGENT_OPENAI_TIMEOUT` | 30 | OpenAI API timeout in seconds |
+| `QUERY_AGENT_DATABASE_TIMEOUT` | 30 | Database query timeout in seconds |
+| `QUERY_AGENT_SCHEMA_CACHE_TTL` | - | Schema cache TTL override |
+| `QUERY_AGENT_OPENAI_MODEL` | gpt-3.5-turbo | OpenAI model to use |
+
+### Prometheus Metrics Configuration
+Histogram buckets for metrics can be customized via environment variables (comma-separated values):
+
+- `QUERY_AGENT_OPENAI_REQUEST_BUCKETS`: OpenAI request duration buckets
+- `QUERY_AGENT_DATABASE_QUERY_BUCKETS`: Database query duration buckets  
+- `QUERY_AGENT_CACHE_OPERATION_BUCKETS`: Cache operation duration buckets
+
 Set `OPENAI_API_KEY` and optionally `QUERY_AGENT_OPENAI_MODEL` to enable LLM-based SQL generation.
 Environment variables may also be loaded from a `.env` file if present.
 
