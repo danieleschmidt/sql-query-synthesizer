@@ -99,6 +99,17 @@ All configuration options can be customized via environment variables with the `
 | `QUERY_AGENT_DB_CONNECT_RETRIES` | 3 | Number of connection retry attempts |
 | `QUERY_AGENT_DB_RETRY_DELAY` | 1.0 | Base delay between retries (seconds) |
 
+### Security Configuration
+| Environment Variable | Default | Description |
+|---------------------|---------|-------------|
+| `QUERY_AGENT_SECRET_KEY` | auto-generated | Flask secret key for session security |
+| `QUERY_AGENT_CSRF_ENABLED` | true | Enable CSRF protection for forms |
+| `QUERY_AGENT_RATE_LIMIT_PER_MINUTE` | 60 | API rate limit per client per minute |
+| `QUERY_AGENT_ENABLE_HSTS` | false | Enable HTTP Strict Transport Security |
+| `QUERY_AGENT_API_KEY_REQUIRED` | false | Require API key for API endpoints |
+| `QUERY_AGENT_API_KEY` | - | API key for authentication |
+| `QUERY_AGENT_MAX_REQUEST_SIZE_MB` | 1 | Maximum request size in megabytes |
+
 ### Prometheus Metrics Configuration
 Histogram buckets for metrics can be customized via environment variables (comma-separated values):
 
@@ -133,6 +144,41 @@ print(f"Pool size: {stats['pool_size']}")
 When using the web interface, health status is available at:
 - `/health` - Basic health check
 - `/metrics` - Prometheus metrics including connection pool stats
+
+## Security Features
+
+The SQL Query Synthesizer includes comprehensive security features for production deployments:
+
+### Web Application Security
+- **CSRF Protection**: Automatic Cross-Site Request Forgery protection for forms
+- **Input Validation**: Length limits and sanitization of user input
+- **Security Headers**: Comprehensive security headers (CSP, XSS protection, frame options)
+- **Rate Limiting**: Configurable API rate limiting per client
+- **Error Sanitization**: Prevents information leakage in error messages
+
+### API Security
+- **Optional API Key Authentication**: Secure API access with configurable API keys
+- **Request Size Limits**: Configurable maximum request size
+- **JSON Validation**: Strict validation of API request structure
+- **Rate Limiting**: Per-client rate limiting with headers
+
+### Example Security Configuration
+```bash
+# Enable production security features
+export QUERY_AGENT_SECRET_KEY="your-secure-secret-key-here"
+export QUERY_AGENT_CSRF_ENABLED=true
+export QUERY_AGENT_RATE_LIMIT_PER_MINUTE=30
+export QUERY_AGENT_ENABLE_HSTS=true
+export QUERY_AGENT_API_KEY_REQUIRED=true
+export QUERY_AGENT_API_KEY="your-api-key-here"
+```
+
+### Security Best Practices
+1. **Always set a strong SECRET_KEY** in production
+2. **Enable HSTS** when using HTTPS
+3. **Use API keys** for programmatic access
+4. **Monitor rate limiting** metrics
+5. **Review security logs** regularly
 
 ## License
 MIT

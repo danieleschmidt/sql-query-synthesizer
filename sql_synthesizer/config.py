@@ -56,6 +56,15 @@ class Config:
         self.db_connect_retries = self._get_int_env("QUERY_AGENT_DB_CONNECT_RETRIES", 3, min_value=0)
         self.db_retry_delay = self._get_float_env("QUERY_AGENT_DB_RETRY_DELAY", 1.0, min_value=0.1)
         
+        # Security Settings
+        self.webapp_secret_key = os.environ.get("QUERY_AGENT_SECRET_KEY", None)
+        self.webapp_csrf_enabled = self._get_bool_env("QUERY_AGENT_CSRF_ENABLED", True)
+        self.webapp_rate_limit = self._get_int_env("QUERY_AGENT_RATE_LIMIT_PER_MINUTE", 60, min_value=1)
+        self.webapp_enable_hsts = self._get_bool_env("QUERY_AGENT_ENABLE_HSTS", False)
+        self.webapp_api_key_required = self._get_bool_env("QUERY_AGENT_API_KEY_REQUIRED", False)
+        self.webapp_api_key = os.environ.get("QUERY_AGENT_API_KEY", None)
+        self.webapp_max_request_size = self._get_int_env("QUERY_AGENT_MAX_REQUEST_SIZE_MB", 1, min_value=1)
+        
         # Prometheus Metrics Histogram Buckets
         self.openai_request_buckets = self._get_bucket_env(
             "QUERY_AGENT_OPENAI_REQUEST_BUCKETS",
@@ -155,6 +164,11 @@ class Config:
             "db_pool_pre_ping": self.db_pool_pre_ping,
             "db_connect_retries": self.db_connect_retries,
             "db_retry_delay": self.db_retry_delay,
+            "webapp_csrf_enabled": self.webapp_csrf_enabled,
+            "webapp_rate_limit": self.webapp_rate_limit,
+            "webapp_enable_hsts": self.webapp_enable_hsts,
+            "webapp_api_key_required": self.webapp_api_key_required,
+            "webapp_max_request_size": self.webapp_max_request_size,
             "openai_request_buckets": self.openai_request_buckets,
             "database_query_buckets": self.database_query_buckets,
             "cache_operation_buckets": self.cache_operation_buckets,
