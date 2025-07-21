@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.0] - 2025-07-21
+- **LLM Provider Resilience**: Circuit breaker pattern implementation for improved reliability
+  - Added circuit breaker pattern to prevent cascading failures when OpenAI API is unavailable
+  - Implemented automatic state management: CLOSED → OPEN → HALF_OPEN → CLOSED transitions
+  - Added configurable failure threshold (default: 5) and recovery timeout (default: 60s)
+  - Fast-fail behavior prevents repeated API calls during outages, enabling graceful degradation
+  - Automatic recovery testing with single request validation in HALF_OPEN state
+  - Integrated with centralized configuration system via QUERY_AGENT_CIRCUIT_BREAKER_* variables
+  - Enhanced OpenAI adapter with circuit breaker status monitoring and metrics
+  - Added comprehensive logging for circuit state changes and failure tracking
+  - Created 15+ tests covering all circuit breaker states, transitions, and error scenarios
+  - Enhanced documentation with new configuration options and feature descriptions
+  - Maintained 100% backward compatibility with existing QueryAgent and OpenAI adapter APIs
+
 ## [0.7.0] - 2025-07-20
 - **Enterprise Web Application Security**: Comprehensive security hardening for production deployments
   - Added SecurityMiddleware with CSRF protection, rate limiting, and security headers

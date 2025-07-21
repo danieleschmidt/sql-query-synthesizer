@@ -13,6 +13,7 @@ Natural-language-to-SQL agent with automatic schema discovery and query validati
 - **Enterprise-grade database connection pooling** with automatic retry logic
 - **Health monitoring** with comprehensive diagnostics and connection statistics
 - **Production-ready error handling** with graceful degradation and recovery
+- **LLM provider resilience** with circuit breaker pattern for OpenAI API failures
 
 ## Quick Start
 ```bash
@@ -98,6 +99,12 @@ All configuration options can be customized via environment variables with the `
 | `QUERY_AGENT_DB_POOL_PRE_PING` | true | Enable connection health checks |
 | `QUERY_AGENT_DB_CONNECT_RETRIES` | 3 | Number of connection retry attempts |
 | `QUERY_AGENT_DB_RETRY_DELAY` | 1.0 | Base delay between retries (seconds) |
+
+### Circuit Breaker Configuration (LLM Provider Resilience)
+| Environment Variable | Default | Description |
+|---------------------|---------|-------------|
+| `QUERY_AGENT_CIRCUIT_BREAKER_FAILURE_THRESHOLD` | 5 | Number of failures before opening circuit |
+| `QUERY_AGENT_CIRCUIT_BREAKER_RECOVERY_TIMEOUT` | 60.0 | Seconds to wait before attempting recovery |
 
 ### Security Configuration
 | Environment Variable | Default | Description |

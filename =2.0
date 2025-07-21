@@ -1,0 +1,13 @@
+Requirement already satisfied: sqlalchemy in /usr/lib/python3/dist-packages (1.4.50)
+Collecting sqlalchemy
+  Downloading sqlalchemy-2.0.41-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (9.6 kB)
+Requirement already satisfied: greenlet>=1 in /usr/lib/python3/dist-packages (from sqlalchemy) (3.0.3)
+Requirement already satisfied: typing-extensions>=4.6.0 in /usr/lib/python3/dist-packages (from sqlalchemy) (4.10.0)
+Downloading sqlalchemy-2.0.41-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.3/3.3 MB 14.1 MB/s eta 0:00:00
+Installing collected packages: sqlalchemy
+  Attempting uninstall: sqlalchemy
+    Found existing installation: SQLAlchemy 1.4.50
+    Uninstalling SQLAlchemy-1.4.50:
+      Successfully uninstalled SQLAlchemy-1.4.50
+Successfully installed sqlalchemy-2.0.41

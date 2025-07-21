@@ -93,7 +93,11 @@ class QueryAgent:
         if key:
             try:
                 llm_provider = OpenAIAdapter(
-                    key, model=openai_model, timeout=openai_timeout
+                    api_key=key, 
+                    model=openai_model, 
+                    timeout=openai_timeout,
+                    circuit_breaker_failure_threshold=config.circuit_breaker_failure_threshold,
+                    circuit_breaker_recovery_timeout=config.circuit_breaker_recovery_timeout
                 )
             except RuntimeError:
                 llm_provider = None
