@@ -5,11 +5,12 @@ import logging
 from typing import List, Any, Optional, Dict
 from sqlalchemy import Engine, inspect, text
 
-from ..types import QueryResult
+from ..types import QueryResult, PaginationInfo
 from ..cache import TTLCache
 from .query_validator_service import QueryValidatorService
 from .sql_generator_service import SQLGeneratorService
 from .. import metrics
+from ..security_audit import security_audit_logger, SecurityEventType, SecurityEventSeverity
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,7 @@ class QueryService:
         max_rows: int = 5,
         enable_structured_logging: bool = False,
         inspector=None,
+        max_page_size: int = 1000,
     ):
         """Initialize the query service.
         
@@ -39,6 +41,7 @@ class QueryService:
             max_rows: Maximum rows to return for queries
             enable_structured_logging: Enable structured logging with trace IDs
             inspector: Optional database inspector (for testing)
+            max_page_size: Maximum allowed page size for pagination
         """
         self.engine = engine
         self.validator = validator
@@ -46,6 +49,7 @@ class QueryService:
         self.schema_cache = schema_cache
         self.query_cache = query_cache
         self.max_rows = max_rows
+        self.max_page_size = max_page_size
         self._structured_logging = enable_structured_logging
         
         # Create database inspector
@@ -275,6 +279,15 @@ class QueryService:
             # Record metrics
             metrics.record_query(duration, operation_type)
             
+            # Log security audit event for query execution
+            security_audit_logger.log_query_execution(
+                sql_query=sql,
+                execution_time_ms=duration * 1000,
+                row_count=len(data),
+                trace_id=trace_id,
+                operation_type=operation_type
+            )
+            
             return QueryResult(sql=sql, explanation=explanation, data=data)
             
         except Exception as e:
@@ -282,3 +295,182 @@ class QueryService:
             logger.error(f"Query execution failed: {e}", extra={"sql": sql, "trace_id": trace_id} if trace_id else {"sql": sql})
             metrics.record_query_error("query_execution_failed")
             raise
+    
+    def query_paginated(
+        self, 
+        sql: str, 
+        page: int, 
+        page_size: int, 
+        trace_id: Optional[str] = None
+    ) -> QueryResult:
+        """Execute a SQL query with pagination support.
+        
+        Args:
+            sql: The SQL statement to execute
+            page: Page number (1-based)
+            page_size: Number of items per page
+            trace_id: Optional trace ID for request correlation
+            
+        Returns:
+            QueryResult with data and pagination information
+            
+        Raises:
+            ValueError: If pagination parameters are invalid
+        """
+        # Validate pagination parameters
+        self._validate_pagination_params(page, page_size)
+        
+        # Create cache key including pagination parameters
+        cache_key = f"{sql}|page={page}|page_size={page_size}"
+        
+        # Check cache first
+        if self.query_cache:
+            cached_result = self.query_cache.get(cache_key)
+            if cached_result:
+                logger.info("Returning cached paginated result", extra={"trace_id": trace_id} if trace_id else {})
+                return cached_result
+        
+        start_time = time.time()
+        try:
+            with self.engine.begin() as connection:
+                # First, get the total count
+                total_count = self._get_total_count(connection, sql)
+                
+                # Calculate offset
+                offset = (page - 1) * page_size
+                
+                # Create paginated SQL
+                paginated_sql = self._add_pagination_to_sql(sql, page_size, offset)
+                
+                # Execute paginated query
+                result = connection.execute(text(paginated_sql))
+                data = [list(row) for row in result.fetchall()]
+                column_names = list(result.keys())
+                
+                # Create pagination info
+                pagination = PaginationInfo.create(page, page_size, total_count)
+                
+                # Create result with pagination
+                query_result = QueryResult(
+                    sql=paginated_sql,
+                    explanation=f"Paginated query: page {page} of {pagination.total_pages}",
+                    data=data,
+                    pagination=pagination
+                )
+                
+                # Cache the result
+                if self.query_cache:
+                    self.query_cache.set(cache_key, query_result)
+                
+                duration = time.time() - start_time
+                
+                # Log successful execution
+                log_extra = {
+                    "sql": paginated_sql, 
+                    "duration_ms": int(duration * 1000), 
+                    "row_count": len(data),
+                    "page": page,
+                    "page_size": page_size,
+                    "total_count": total_count
+                }
+                if trace_id:
+                    log_extra["trace_id"] = trace_id
+                logger.info("Paginated query executed successfully", extra=log_extra)
+                
+                # Record metrics
+                metrics.record_query(duration, "paginated_query")
+                
+                # Log security audit event for paginated query execution
+                security_audit_logger.log_query_execution(
+                    sql_query=paginated_sql,
+                    execution_time_ms=duration * 1000,
+                    row_count=len(data),
+                    trace_id=trace_id,
+                    operation_type="paginated_query",
+                    page=page,
+                    page_size=page_size,
+                    total_count=total_count
+                )
+                
+                return query_result
+                
+        except Exception as e:
+            duration = time.time() - start_time
+            logger.error(f"Paginated query execution failed: {e}", extra={"sql": sql, "trace_id": trace_id} if trace_id else {"sql": sql})
+            metrics.record_query_error("paginated_query_execution_failed")
+            raise
+    
+    def _validate_pagination_params(self, page: int, page_size: int) -> None:
+        """Validate pagination parameters.
+        
+        Args:
+            page: Page number to validate
+            page_size: Page size to validate
+            
+        Raises:
+            ValueError: If parameters are invalid
+        """
+        try:
+            page = int(page)
+            page_size = int(page_size)
+        except (ValueError, TypeError):
+            raise ValueError("Page and page_size must be integers")
+        
+        if page < 1:
+            raise ValueError("Page number must be positive")
+        
+        if page_size < 1:
+            raise ValueError("Page size must be positive")
+        
+        if page_size > self.max_page_size:
+            raise ValueError(f"Page size exceeds maximum allowed ({self.max_page_size})")
+    
+    def _get_total_count(self, connection, sql: str) -> int:
+        """Get total count of rows for pagination.
+        
+        Args:
+            connection: Database connection
+            sql: Original SQL query
+            
+        Returns:
+            Total number of rows
+        """
+        # Create a count query by wrapping the original SQL
+        count_sql = f"SELECT COUNT(*) FROM ({sql}) AS count_query"
+        
+        try:
+            result = connection.execute(text(count_sql))
+            return result.scalar() or 0
+        except Exception as e:
+            logger.warning(f"Failed to get count for pagination, using fallback: {e}")
+            # Fallback: execute original query and count results (less efficient)
+            result = connection.execute(text(sql))
+            return len(result.fetchall())
+    
+    def _add_pagination_to_sql(self, sql: str, page_size: int, offset: int) -> str:
+        """Add LIMIT and OFFSET to SQL query.
+        
+        Args:
+            sql: Original SQL query
+            page_size: Number of items per page
+            offset: Number of items to skip
+            
+        Returns:
+            SQL with pagination clauses
+        """
+        # Remove trailing semicolon if present
+        sql = sql.rstrip().rstrip(';')
+        
+        # Add LIMIT and OFFSET
+        return f"{sql} LIMIT {page_size} OFFSET {offset}"
+    
+    def get_pagination_config(self) -> Dict[str, Any]:
+        """Get pagination configuration information.
+        
+        Returns:
+            Dict with pagination configuration
+        """
+        return {
+            'default_page_size': self.max_rows,
+            'max_page_size': self.max_page_size
+        }

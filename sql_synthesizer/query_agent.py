@@ -102,8 +102,16 @@ class QueryAgent:
             except RuntimeError:
                 llm_provider = None
 
-        # Initialize services
-        self.validator = QueryValidatorService(max_question_length=config.max_question_length)
+        # Initialize validator service (enhanced or legacy)
+        if config.use_enhanced_sql_validation:
+            from .services.enhanced_query_validator import EnhancedQueryValidatorService
+            self.validator = EnhancedQueryValidatorService(
+                max_question_length=config.max_question_length,
+                allowed_tables=None,  # Will be set dynamically based on discovered schema
+                allowed_columns=None   # Will be set dynamically based on discovered schema
+            )
+        else:
+            self.validator = QueryValidatorService(max_question_length=config.max_question_length)
         self.generator = SQLGeneratorService(llm_provider=llm_provider)
         self.query_service = QueryService(
             engine=self.engine,
@@ -113,6 +121,7 @@ class QueryAgent:
             query_cache=self.query_cache,
             max_rows=max_rows,
             enable_structured_logging=enable_structured_logging,
+            max_page_size=config.max_page_size,
         )
 
         # Maintain backward compatibility attributes
@@ -240,6 +249,46 @@ class QueryAgent:
     def execute_sql(self, sql: str, *, explain: bool = False, trace_id: str = None) -> QueryResult:
         """Execute raw SQL and return a QueryResult."""
         return self.query_service.execute_sql(sql, explain=explain, trace_id=trace_id)
+    
+    def query_paginated(self, question: str, *, page: int = 1, page_size: int = None, trace_id: str = None) -> QueryResult:
+        """Process a natural language question and return paginated results.
+        
+        Args:
+            question: Natural language question
+            page: Page number (1-based)
+            page_size: Number of items per page (uses default if None)
+            trace_id: Optional trace ID for request correlation
+            
+        Returns:
+            QueryResult with pagination information
+        """
+        if page_size is None:
+            page_size = self.max_rows
+        
+        # Generate SQL from question
+        sanitized_question = self.validator.validate_question(question)
+        tables = self.discover_schema()
+        sql = self.generator.generate_sql(sanitized_question, tables)
+        
+        # Execute with pagination
+        return self.query_service.query_paginated(sql, page, page_size, trace_id=trace_id)
+    
+    def execute_sql_paginated(self, sql: str, *, page: int = 1, page_size: int = None, trace_id: str = None) -> QueryResult:
+        """Execute raw SQL and return paginated results.
+        
+        Args:
+            sql: SQL query to execute
+            page: Page number (1-based)
+            page_size: Number of items per page (uses default if None)
+            trace_id: Optional trace ID for request correlation
+            
+        Returns:
+            QueryResult with pagination information
+        """
+        if page_size is None:
+            page_size = self.max_rows
+        
+        return self.query_service.query_paginated(sql, page, page_size, trace_id=trace_id)
     
     def health_check(self) -> Dict[str, Any]:
         """

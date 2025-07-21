@@ -28,6 +28,8 @@ generate SQL using a large language model. The model can be customized with
 ``--openai-model`` or ``QUERY_AGENT_OPENAI_MODEL``.
 
 ## Usage
+
+### Basic Query Execution
 ```python
 from sql_synthesizer import QueryAgent
 
@@ -36,6 +38,26 @@ result = agent.query("Show me the top 5 customers by revenue last quarter")
 print(result.sql)
 print(result.explanation)
 print(result.data)
+```
+
+### Paginated Query Results
+```python
+from sql_synthesizer import QueryAgent
+
+agent = QueryAgent(database_url="your_db_connection")
+
+# Query with pagination
+result = agent.query_paginated("Show all users", page=2, page_size=20)
+print(f"Page {result.pagination.page} of {result.pagination.total_pages}")
+print(f"Showing {len(result.data)} of {result.pagination.total_count} total results")
+print(f"Has next page: {result.pagination.has_next}")
+
+# Execute raw SQL with pagination
+result = agent.execute_sql_paginated(
+    "SELECT * FROM orders ORDER BY created_at DESC", 
+    page=1, 
+    page_size=10
+)
 ```
 Alternatively start an interactive session (database configured in `config/databases.yaml`):
 ```bash
@@ -105,6 +127,17 @@ All configuration options can be customized via environment variables with the `
 |---------------------|---------|-------------|
 | `QUERY_AGENT_CIRCUIT_BREAKER_FAILURE_THRESHOLD` | 5 | Number of failures before opening circuit |
 | `QUERY_AGENT_CIRCUIT_BREAKER_RECOVERY_TIMEOUT` | 60.0 | Seconds to wait before attempting recovery |
+
+### Enhanced SQL Injection Prevention
+| Environment Variable | Default | Description |
+|---------------------|---------|-------------|
+| `QUERY_AGENT_USE_ENHANCED_SQL_VALIDATION` | true | Enable enhanced SQL injection prevention with AST-based validation |
+
+### Pagination Configuration
+| Environment Variable | Default | Description |
+|---------------------|---------|-------------|
+| `QUERY_AGENT_DEFAULT_PAGE_SIZE` | 10 | Default number of items per page |
+| `QUERY_AGENT_MAX_PAGE_SIZE` | 1000 | Maximum allowed page size |
 
 ### Security Configuration
 | Environment Variable | Default | Description |
@@ -180,12 +213,64 @@ export QUERY_AGENT_API_KEY_REQUIRED=true
 export QUERY_AGENT_API_KEY="your-api-key-here"
 ```
 
+### Security Event Logging and Audit Trail
+
+The SQL Query Synthesizer includes comprehensive security event logging for monitoring and compliance:
+
+#### Event Types Logged
+- **SQL Injection Attempts**: Pattern-based, AST analysis, and semantic detection
+- **Authentication Failures**: API key validation failures
+- **Rate Limiting Violations**: Exceeded request limits per client
+- **Query Executions**: All successful SQL query executions with metadata
+- **Schema Access**: Database schema discovery events
+- **Input Validation**: Unsafe input detection and sanitization
+
+#### Audit Log Format
+All security events are logged in structured JSON format:
+
+```json
+{
+  "event_type": "sql_injection_attempt",
+  "severity": "high",
+  "message": "SQL injection attempt detected: pattern_matching",
+  "timestamp": "2025-07-21T15:30:45.123456Z",
+  "client_ip": "192.168.1.100",
+  "trace_id": "trace-sql-123",
+  "additional_data": {
+    "malicious_input": "'; DROP TABLE users; --",
+    "detection_method": "pattern_matching",
+    "input_length": 25
+  }
+}
+```
+
+#### Event Severity Levels
+- **LOW**: Normal operations (query executions, schema access)
+- **MEDIUM**: Suspicious activity (rate limiting, failed authentication)
+- **HIGH**: Confirmed security violations (SQL injection, unauthorized access)
+- **CRITICAL**: Immediate threats requiring response
+
+#### Security Audit Statistics
+Access real-time security event statistics programmatically:
+
+```python
+from sql_synthesizer.security_audit import security_audit_logger
+
+# Get comprehensive security event statistics
+stats = security_audit_logger.get_event_statistics()
+print(f"Total security events: {stats['total_events']}")
+print(f"SQL injection attempts: {stats['events_by_type'].get('sql_injection_attempt', 0)}")
+print(f"High severity events: {stats['events_by_severity'].get('high', 0)}")
+```
+
 ### Security Best Practices
 1. **Always set a strong SECRET_KEY** in production
 2. **Enable HSTS** when using HTTPS
 3. **Use API keys** for programmatic access
 4. **Monitor rate limiting** metrics
 5. **Review security logs** regularly
+6. **Set up alerting** on high/critical severity security events
+7. **Implement log aggregation** for centralized security monitoring
 
 ## License
 MIT
