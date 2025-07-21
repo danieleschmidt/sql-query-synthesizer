@@ -16,6 +16,22 @@ All notable changes to this project will be documented in this file.
   - Enhanced documentation with new configuration options and feature descriptions
   - Maintained 100% backward compatibility with existing QueryAgent and OpenAI adapter APIs
 
+- **Enhanced SQL Injection Prevention**: Comprehensive multi-layered security improvements
+  - Implemented advanced SQL injection detection with AST-based SQL parsing using sqlparse
+  - Added 20+ sophisticated attack pattern detection including time-based, blind, and obfuscated injections
+  - Context-aware validation that distinguishes SQL statements from natural language queries
+  - Enhanced encoding detection with URL/Unicode decoding to prevent obfuscation attacks
+  - Configurable allowlist validation for tables and columns with regex-based extraction
+  - Rate limiting support for validation requests to prevent DoS attacks
+  - Information schema and system function detection to prevent data exfiltration attempts
+  - Tautology-based injection detection (OR 1=1, 'a'='a', etc.) with semantic analysis
+  - Function-based injection detection (ASCII, SUBSTRING, CONVERT, etc.)
+  - Integrated as configurable drop-in replacement via QUERY_AGENT_USE_ENHANCED_SQL_VALIDATION
+  - Added sqlparse dependency for reliable SQL statement parsing and validation
+  - Created comprehensive test suite with 12 test classes covering all attack vectors
+  - Enhanced error messages with user-friendly security guidance
+  - Maintained 100% backward compatibility with existing validation interfaces
+
 ## [0.7.0] - 2025-07-20
 - **Enterprise Web Application Security**: Comprehensive security hardening for production deployments
   - Added SecurityMiddleware with CSRF protection, rate limiting, and security headers

@@ -60,6 +60,13 @@ class Config:
         self.circuit_breaker_failure_threshold = self._get_int_env("QUERY_AGENT_CIRCUIT_BREAKER_FAILURE_THRESHOLD", 5, min_value=1)
         self.circuit_breaker_recovery_timeout = self._get_float_env("QUERY_AGENT_CIRCUIT_BREAKER_RECOVERY_TIMEOUT", 60.0, min_value=1.0)
         
+        # Enhanced SQL Injection Prevention
+        self.use_enhanced_sql_validation = self._get_bool_env("QUERY_AGENT_USE_ENHANCED_SQL_VALIDATION", True)
+        
+        # Pagination Configuration
+        self.default_page_size = self._get_int_env("QUERY_AGENT_DEFAULT_PAGE_SIZE", 10, min_value=1)
+        self.max_page_size = self._get_int_env("QUERY_AGENT_MAX_PAGE_SIZE", 1000, min_value=1)
+        
         # Security Settings
         self.webapp_secret_key = os.environ.get("QUERY_AGENT_SECRET_KEY", None)
         self.webapp_csrf_enabled = self._get_bool_env("QUERY_AGENT_CSRF_ENABLED", True)
