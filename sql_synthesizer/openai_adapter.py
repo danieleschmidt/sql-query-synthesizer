@@ -12,6 +12,7 @@ except Exception:  # pragma: no cover - optional
 
 from . import metrics
 from .llm_interface import LLMProvider, ProviderError, ProviderTimeoutError, ProviderAuthenticationError
+from .circuit_breaker import CircuitBreaker
 from .user_experience import (
     create_openai_package_missing_error,
     create_empty_question_error,
@@ -22,7 +23,12 @@ class OpenAIAdapter(LLMProvider):
     """OpenAI implementation of the LLM provider interface."""
 
     def __init__(
-        self, api_key: str, model: str = "gpt-3.5-turbo", timeout: float | None = None
+        self, 
+        api_key: str, 
+        model: str = "gpt-3.5-turbo", 
+        timeout: float | None = None,
+        circuit_breaker_failure_threshold: int = 5,
+        circuit_breaker_recovery_timeout: float = 60.0
     ) -> None:
         if not openai:
             raise create_openai_package_missing_error()
@@ -30,6 +36,13 @@ class OpenAIAdapter(LLMProvider):
         self.model = model
         self.timeout = timeout
         self.api_key = api_key
+        
+        # Initialize circuit breaker for resilience
+        self.circuit_breaker = CircuitBreaker(
+            provider_name="openai",
+            failure_threshold=circuit_breaker_failure_threshold,
+            recovery_timeout=circuit_breaker_recovery_timeout
+        )
 
     def generate_sql(
         self, 
@@ -42,6 +55,15 @@ class OpenAIAdapter(LLMProvider):
         question = question.strip()
         if not question:
             raise create_empty_question_error()
+        
+        # Check circuit breaker before making request
+        if not self.circuit_breaker.is_request_allowed():
+            metrics.record_openai_request(0, "circuit_breaker_open")
+            raise ProviderError(
+                f"OpenAI service temporarily unavailable (circuit breaker open). "
+                f"Failures: {self.circuit_breaker.failure_count}/{self.circuit_breaker.failure_threshold}",
+                "openai"
+            )
         
         # Build secure prompt with table context
         table_context = ""
@@ -70,10 +92,17 @@ class OpenAIAdapter(LLMProvider):
                 timeout=self.timeout,
             )
             duration = time.time() - start_time
+            
+            # Record success in circuit breaker and metrics
+            self.circuit_breaker.record_success()
             metrics.record_openai_request(duration, "success")
+            
             return response.choices[0].message.content.strip()
         except Exception as e:
             duration = time.time() - start_time
+            
+            # Record failure in circuit breaker
+            self.circuit_breaker.record_failure()
             
             # Check exception type by name to handle import/mocking issues
             exception_name = type(e).__name__
@@ -112,5 +141,10 @@ class OpenAIAdapter(LLMProvider):
             "supports_function_calling": True,
             "temperature_range": (0.0, 2.0),
             "model": self.model,
-            "timeout": self.timeout
+            "timeout": self.timeout,
+            "circuit_breaker": self.circuit_breaker.get_status()
         }
+    
+    def get_circuit_breaker_status(self) -> Dict[str, Any]:
+        """Get circuit breaker status for monitoring and debugging."""
+        return self.circuit_breaker.get_status()

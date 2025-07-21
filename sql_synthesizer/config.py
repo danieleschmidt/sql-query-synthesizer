@@ -56,6 +56,10 @@ class Config:
         self.db_connect_retries = self._get_int_env("QUERY_AGENT_DB_CONNECT_RETRIES", 3, min_value=0)
         self.db_retry_delay = self._get_float_env("QUERY_AGENT_DB_RETRY_DELAY", 1.0, min_value=0.1)
         
+        # Circuit Breaker Settings for LLM Provider Resilience
+        self.circuit_breaker_failure_threshold = self._get_int_env("QUERY_AGENT_CIRCUIT_BREAKER_FAILURE_THRESHOLD", 5, min_value=1)
+        self.circuit_breaker_recovery_timeout = self._get_float_env("QUERY_AGENT_CIRCUIT_BREAKER_RECOVERY_TIMEOUT", 60.0, min_value=1.0)
+        
         # Security Settings
         self.webapp_secret_key = os.environ.get("QUERY_AGENT_SECRET_KEY", None)
         self.webapp_csrf_enabled = self._get_bool_env("QUERY_AGENT_CSRF_ENABLED", True)
