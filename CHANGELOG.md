@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.0] - 2025-07-23
+- **High-Performance Async I/O Operations**: Comprehensive async support for improved scalability and concurrent request handling
+  - Implemented AsyncQueryAgent with full async support for database operations and OpenAI API calls
+  - Created AsyncQueryService for non-blocking database query execution with connection pooling
+  - Added AsyncOpenAIAdapter for concurrent LLM requests with maintained circuit breaker functionality
+  - Implemented AsyncSQLGeneratorService with fallback mechanisms for robust SQL generation
+  - Added async support for pagination, schema discovery, and cache operations
+  - Enhanced performance through concurrent query execution and non-blocking I/O operations
+  - Support for async database connections (PostgreSQL via asyncpg, SQLite via aiosqlite)
+  - Maintained 100% backward compatibility with existing synchronous APIs
+  - Added comprehensive async test suite with 80+ test cases covering all async operations
+  - Enhanced documentation with async usage examples and best practices
+  - Integrated async context managers for proper resource cleanup and connection management
+  - Added async-compatible caching with TTLCache for improved performance
+  - Implemented async health checks and monitoring for operational visibility
+  - Enhanced metrics collection for async operations with Prometheus integration
+
 ## [0.8.0] - 2025-07-21
 - **LLM Provider Resilience**: Circuit breaker pattern implementation for improved reliability
   - Added circuit breaker pattern to prevent cascading failures when OpenAI API is unavailable

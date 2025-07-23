@@ -14,6 +14,7 @@ Natural-language-to-SQL agent with automatic schema discovery and query validati
 - **Health monitoring** with comprehensive diagnostics and connection statistics
 - **Production-ready error handling** with graceful degradation and recovery
 - **LLM provider resilience** with circuit breaker pattern for OpenAI API failures
+- **High-performance async I/O operations** for improved scalability and concurrent request handling
 
 ## Quick Start
 ```bash
@@ -40,6 +41,21 @@ print(result.explanation)
 print(result.data)
 ```
 
+### Async Query Execution
+```python
+import asyncio
+from sql_synthesizer import AsyncQueryAgent
+
+async def main():
+    async with AsyncQueryAgent(database_url="postgresql+asyncpg://...") as agent:
+        result = await agent.query("Show me the top 5 customers by revenue last quarter")
+        print(result.sql)
+        print(result.explanation)
+        print(result.data)
+
+asyncio.run(main())
+```
+
 ### Paginated Query Results
 ```python
 from sql_synthesizer import QueryAgent
@@ -58,6 +74,31 @@ result = agent.execute_sql_paginated(
     page=1, 
     page_size=10
 )
+```
+
+### Async Paginated Queries
+```python
+import asyncio
+from sql_synthesizer import AsyncQueryAgent
+
+async def main():
+    async with AsyncQueryAgent(database_url="postgresql+asyncpg://...") as agent:
+        # Async query with pagination
+        result = await agent.query_paginated("Show all users", page=2, page_size=20)
+        print(f"Page {result.pagination.page} of {result.pagination.total_pages}")
+        
+        # Concurrent queries for better performance
+        tasks = [
+            agent.query("Count users by region"),
+            agent.query("Show recent orders"),
+            agent.execute_sql("SELECT COUNT(*) FROM products")
+        ]
+        results = await asyncio.gather(*tasks)
+        for result in results:
+            print(f"SQL: {result.sql}")
+            print(f"Data: {result.data}")
+
+asyncio.run(main())
 ```
 Alternatively start an interactive session (database configured in `config/databases.yaml`):
 ```bash

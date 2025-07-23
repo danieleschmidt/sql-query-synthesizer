@@ -3,3 +3,6 @@ PyYAML
 openai
 prometheus-client
 python-dotenv
+asyncio
+aiofiles
+asyncpg
