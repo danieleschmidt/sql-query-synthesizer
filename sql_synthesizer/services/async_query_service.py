@@ -6,6 +6,7 @@ import asyncio
 from typing import List, Any, Optional, Dict
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncConnection
 from sqlalchemy import text
+from sqlalchemy import exc as sqlalchemy_exc
 
 from ..types import QueryResult, PaginationInfo
 from ..cache import TTLCache
@@ -192,7 +193,7 @@ class AsyncQueryService:
                 self.schema_cache.set("tables", tables)
             
             return tables
-        except Exception as e:
+        except (sqlalchemy_exc.SQLAlchemyError, ConnectionError, AttributeError) as e:
             logger.error(f"Failed to discover schema: {e}")
             metrics.record_query_error("schema_discovery_failed")
             return []
@@ -342,7 +343,7 @@ class AsyncQueryService:
                 
                 return query_result
                 
-        except Exception as e:
+        except (sqlalchemy_exc.SQLAlchemyError, ConnectionError, ValueError) as e:
             duration = time.time() - start_time
             logger.error(f"Paginated query execution failed: {e}", extra={"sql": sql, "trace_id": trace_id} if trace_id else {"sql": sql})
             metrics.record_query_error("paginated_query_execution_failed")
@@ -410,7 +411,7 @@ class AsyncQueryService:
             # Return the actual SQL that was executed
             return QueryResult(sql=limited_sql, explanation=explanation, data=data)
             
-        except Exception as e:
+        except (sqlalchemy_exc.SQLAlchemyError, ConnectionError, ValueError) as e:
             duration = time.time() - start_time
             logger.error(f"Query execution failed: {e}", extra={"sql": sql, "trace_id": trace_id} if trace_id else {"sql": sql})
             metrics.record_query_error("query_execution_failed")
@@ -457,7 +458,7 @@ class AsyncQueryService:
         try:
             result = await connection.execute(text(count_sql))
             return result.scalar() or 0
-        except Exception as e:
+        except (sqlalchemy_exc.SQLAlchemyError, ConnectionError) as e:
             logger.warning(f"Failed to get count for pagination, using fallback: {e}")
             # Fallback: execute original query and count results (less efficient)
             result = await connection.execute(text(sql))

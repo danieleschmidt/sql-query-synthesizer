@@ -112,7 +112,7 @@ class DatabaseConnectionManager:
                 )
                 return
                 
-            except Exception as e:
+            except (sqlalchemy_exc.SQLAlchemyError, ConnectionError, OSError) as e:
                 self._connection_stats["failed_connections"] += 1
                 self._connection_stats["last_error"] = str(e)
                 
@@ -181,7 +181,7 @@ class DatabaseConnectionManager:
                 # Execute a simple query to validate connection
                 conn.execute(text("SELECT 1"))
                 logger.debug("Database connection validation successful")
-        except Exception as e:
+        except (sqlalchemy_exc.SQLAlchemyError, ConnectionError, OSError) as e:
             raise DatabaseConnectionError(f"Connection validation failed: {e}")
     
     @property
@@ -229,7 +229,7 @@ class DatabaseConnectionManager:
         except sqlalchemy_exc.OperationalError as e:
             logger.error("Database operational error", extra={"error": str(e)})
             raise DatabaseConnectionError(f"Database operational error: {e}")
-        except Exception as e:
+        except (sqlalchemy_exc.SQLAlchemyError, ConnectionError, OSError) as e:
             logger.error("Unexpected database error", extra={"error": str(e)})
             raise DatabaseConnectionError(f"Unexpected database error: {e}")
         finally:
@@ -281,7 +281,7 @@ class DatabaseConnectionManager:
                     logger.debug("Database health check passed")
                 else:
                     health_status["error"] = "Unexpected health check result"
-        except Exception as e:
+        except (sqlalchemy_exc.SQLAlchemyError, ConnectionError, OSError) as e:
             health_status["error"] = str(e)
             logger.warning("Database health check failed", extra={"error": str(e)})
         
