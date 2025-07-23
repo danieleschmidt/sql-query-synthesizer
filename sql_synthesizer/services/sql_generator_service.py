@@ -4,7 +4,7 @@ import logging
 from typing import List, Optional
 
 from ..generator import naive_generate_sql
-from ..llm_interface import LLMProvider
+from ..llm_interface import LLMProvider, ProviderError, ProviderTimeoutError, ProviderAuthenticationError
 from .. import metrics
 
 logger = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ class SQLGeneratorService:
                 provider_name = self.llm_provider.get_provider_name()
                 logger.info(f"Successfully generated SQL using {provider_name}")
                 return sql
-            except Exception as e:
+            except (ProviderError, ProviderTimeoutError, ProviderAuthenticationError, ValueError) as e:
                 provider_name = self.llm_provider.get_provider_name()
                 logger.warning(f"{provider_name} generation failed, falling back to naive: {e}")
                 metrics.record_query_error("llm_generation_failed")
@@ -68,7 +68,7 @@ class SQLGeneratorService:
             sql = self.llm_provider.generate_sql(question, available_tables)
             # Note: Duration tracking would be handled by caller
             return sql
-        except Exception as e:
+        except (ProviderError, ProviderTimeoutError, ProviderAuthenticationError) as e:
             metrics.record_query_error("llm_api_failed")
             raise
 
@@ -88,7 +88,7 @@ class SQLGeneratorService:
             sql = naive_generate_sql(question, available_tables)
             # Note: Duration tracking would be handled by caller
             return sql
-        except Exception as e:
+        except (ValueError, TypeError, AttributeError) as e:
             logger.error(f"Naive generation failed: {e}")
             metrics.record_query_error("naive_generation_failed")
             

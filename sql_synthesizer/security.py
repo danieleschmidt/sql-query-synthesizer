@@ -22,6 +22,7 @@ from flask import request, jsonify, g, current_app
 from markupsafe import escape
 
 from .config import config
+from .security_audit import security_audit_logger, SecurityEventType, SecurityEventSeverity
 
 logger = logging.getLogger(__name__)
 
@@ -343,6 +344,17 @@ class SecurityMiddleware:
         client_id = self._get_client_id(request)
         if not self.rate_limiter.is_allowed(client_id):
             logger.warning(f"Rate limit exceeded for client: {client_id}")
+            
+            # Log security event for rate limit violation
+            security_audit_logger.log_rate_limit_exceeded(
+                client_identifier=client_id,
+                limit_type="requests_per_minute",
+                current_rate=len(self.rate_limiter.clients.get(client_id, [])),
+                limit_threshold=self.rate_limiter.requests_per_minute,
+                client_ip=request.remote_addr,
+                trace_id=getattr(g, 'trace_id', None)
+            )
+            
             return jsonify({'error': 'Rate limit exceeded'}), 429
         
         # Store rate limit info for response headers
@@ -353,6 +365,16 @@ class SecurityMiddleware:
             api_key = self.api_auth.extract_api_key(request)
             if not self.api_auth.validate_api_key(api_key):
                 logger.warning(f"Invalid API key attempt from client: {client_id}")
+                
+                # Log security event for authentication failure
+                security_audit_logger.log_authentication_failure(
+                    auth_type="API_KEY",
+                    reason="Invalid or missing API key",
+                    client_ip=request.remote_addr,
+                    user_agent=request.headers.get('User-Agent'),
+                    trace_id=getattr(g, 'trace_id', None)
+                )
+                
                 return jsonify({'error': 'Invalid or missing API key'}), 401
         
         # CSRF protection for forms (not API endpoints)
@@ -367,6 +389,19 @@ class SecurityMiddleware:
             
             if not self.csrf.validate_token(csrf_token, session_token):
                 logger.warning(f"CSRF token validation failed for client: {client_id}")
+                
+                # Log security event for CSRF token validation failure
+                security_audit_logger.log_event(
+                    event_type=SecurityEventType.CSRF_TOKEN_VALIDATION_FAILED,
+                    severity=SecurityEventSeverity.MEDIUM,
+                    message="CSRF token validation failed",
+                    client_ip=request.remote_addr,
+                    user_agent=request.headers.get('User-Agent'),
+                    trace_id=getattr(g, 'trace_id', None),
+                    request_path=request.path,
+                    request_method=request.method
+                )
+                
                 return jsonify({'error': 'CSRF token missing or invalid'}), 400
     
     def _after_request(self, response):
@@ -394,7 +429,22 @@ class SecurityMiddleware:
     
     def _handle_request_too_large(self, error):
         """Handle request too large errors."""
-        logger.warning(f"Request too large from client: {self._get_client_id(request)}")
+        client_id = self._get_client_id(request)
+        logger.warning(f"Request too large from client: {client_id}")
+        
+        # Log security event for request size limit
+        security_audit_logger.log_event(
+            event_type=SecurityEventType.REQUEST_SIZE_LIMIT_EXCEEDED,
+            severity=SecurityEventSeverity.MEDIUM,
+            message="Request size limit exceeded",
+            client_ip=request.remote_addr,
+            user_agent=request.headers.get('User-Agent'),
+            trace_id=getattr(g, 'trace_id', None),
+            request_path=request.path,
+            request_method=request.method,
+            content_length=request.headers.get('Content-Length')
+        )
+        
         return jsonify({'error': 'Request too large'}), 413
     
     def _handle_rate_limit(self, error):

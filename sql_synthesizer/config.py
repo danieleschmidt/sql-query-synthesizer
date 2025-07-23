@@ -76,6 +76,12 @@ class Config:
         self.webapp_api_key = os.environ.get("QUERY_AGENT_API_KEY", None)
         self.webapp_max_request_size = self._get_int_env("QUERY_AGENT_MAX_REQUEST_SIZE_MB", 1, min_value=1)
         
+        # Security Audit Logging Settings
+        self.security_audit_enabled = self._get_bool_env("QUERY_AGENT_SECURITY_AUDIT_ENABLED", True)
+        self.security_log_level = os.environ.get("QUERY_AGENT_SECURITY_LOG_LEVEL", "INFO")
+        self.security_log_format = os.environ.get("QUERY_AGENT_SECURITY_LOG_FORMAT", "json")
+        self.audit_log_file = os.environ.get("QUERY_AGENT_AUDIT_LOG_FILE", "/var/log/sql_synthesizer/audit.log")
+        
         # Prometheus Metrics Histogram Buckets
         self.openai_request_buckets = self._get_bucket_env(
             "QUERY_AGENT_OPENAI_REQUEST_BUCKETS",
@@ -180,6 +186,10 @@ class Config:
             "webapp_enable_hsts": self.webapp_enable_hsts,
             "webapp_api_key_required": self.webapp_api_key_required,
             "webapp_max_request_size": self.webapp_max_request_size,
+            "security_audit_enabled": self.security_audit_enabled,
+            "security_log_level": self.security_log_level,
+            "security_log_format": self.security_log_format,
+            "audit_log_file": self.audit_log_file,
             "openai_request_buckets": self.openai_request_buckets,
             "database_query_buckets": self.database_query_buckets,
             "cache_operation_buckets": self.cache_operation_buckets,
