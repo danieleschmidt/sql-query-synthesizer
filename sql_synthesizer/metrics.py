@@ -44,6 +44,18 @@ CACHE_EVICTIONS_TOTAL = Counter("cache_evictions_total", "Number of cache evicti
 CACHE_SIZE = Gauge("cache_size", "Current cache size", ["cache_type"])
 CACHE_HIT_RATE = Gauge("cache_hit_rate", "Cache hit rate", ["cache_type"])
 
+# SQL Generation metrics
+SQL_GENERATION_FALLBACKS_TOTAL = Counter(
+    "sql_generation_fallbacks_total", 
+    "Number of SQL generation fallbacks to naive mode", 
+    ["provider"]
+)
+SQL_GENERATION_ERRORS_TOTAL = Counter(
+    "sql_generation_errors_total", 
+    "Number of SQL generation errors", 
+    ["error_type"]
+)
+
 
 def record_query(duration: float, qtype: str) -> None:
     """Record a completed query with *duration* and *qtype*."""
@@ -96,3 +108,13 @@ def update_cache_metrics(cache_type: str, cache_stats: dict) -> None:
     """Update all cache metrics from cache statistics."""
     CACHE_SIZE.labels(cache_type=cache_type).set(cache_stats["size"])
     CACHE_HIT_RATE.labels(cache_type=cache_type).set(cache_stats["hit_rate"])
+
+
+def record_sql_generation_fallback(provider: str) -> None:
+    """Record SQL generation fallback to naive mode."""
+    SQL_GENERATION_FALLBACKS_TOTAL.labels(provider=provider).inc()
+
+
+def record_sql_generation_error(error_type: str) -> None:
+    """Record SQL generation error."""
+    SQL_GENERATION_ERRORS_TOTAL.labels(error_type=error_type).inc()
