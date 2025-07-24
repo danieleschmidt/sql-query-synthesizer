@@ -1,11 +1,57 @@
-"""Enhanced in-memory TTL cache with performance metrics and optimizations."""
+"""Enhanced cache system with multiple backend support (TTL, Redis, Memcached)."""
 
 from __future__ import annotations
 
 import time
 import threading
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List, Union
 from collections import OrderedDict
+from abc import ABC, abstractmethod
+
+# Optional imports for cache backends
+try:
+    import redis
+except ImportError:
+    redis = None
+
+try:
+    import pymemcache.client.base as pymemcache
+except ImportError:
+    pymemcache = None
+
+
+class CacheError(Exception):
+    """Base exception for cache-related errors."""
+    pass
+
+
+class CacheBackend(ABC):
+    """Abstract base class for cache backends."""
+    
+    @abstractmethod
+    def get(self, key: str) -> Any:
+        """Get value from cache. Raises KeyError if not found."""
+        pass
+    
+    @abstractmethod
+    def set(self, key: str, value: Any) -> None:
+        """Set value in cache."""
+        pass
+    
+    @abstractmethod
+    def clear(self) -> None:
+        """Clear all cache entries."""
+        pass
+    
+    @abstractmethod
+    def cleanup_expired(self) -> Dict[str, int]:
+        """Remove expired entries and return cleanup statistics."""
+        pass
+    
+    @abstractmethod
+    def get_stats(self) -> Dict[str, Any]:
+        """Get cache statistics."""
+        pass
 
 
 class TTLCache:
@@ -137,3 +183,236 @@ class TTLCache:
                 "hit_rate": self.hit_rate,
                 "total_operations": total_ops,
             }
+
+
+class TTLCacheBackend(CacheBackend):
+    """TTL cache backend wrapper implementing the CacheBackend interface."""
+    
+    def __init__(self, ttl: int = 0, max_size: Optional[int] = None):
+        self._cache = TTLCache(ttl=ttl, max_size=max_size)
+    
+    def get(self, key: str) -> Any:
+        """Get value from cache. Raises KeyError if not found."""
+        return self._cache.get(key)
+    
+    def set(self, key: str, value: Any) -> None:
+        """Set value in cache."""
+        self._cache.set(key, value)
+    
+    def clear(self) -> None:
+        """Clear all cache entries."""
+        self._cache.clear()
+    
+    def cleanup_expired(self) -> Dict[str, int]:
+        """Remove expired entries and return cleanup statistics."""
+        cleaned_count = self._cache.cleanup_expired()
+        return {
+            "total_cleaned": cleaned_count,
+            "remaining_size": self._cache.size
+        }
+    
+    def get_stats(self) -> Dict[str, Any]:
+        """Get cache statistics."""
+        return self._cache.get_stats()
+
+
+class RedisCacheBackend(CacheBackend):
+    """Redis cache backend for distributed caching."""
+    
+    def __init__(self, host: str = "localhost", port: int = 6379, db: int = 0, 
+                 ttl: int = 3600, password: Optional[str] = None):
+        if redis is None:
+            raise CacheError("Redis library not installed. Install with: pip install redis")
+        
+        self.ttl = ttl
+        self._hit_count = 0
+        self._miss_count = 0
+        self._lock = threading.RLock()
+        
+        try:
+            self.client = redis.Redis(
+                host=host,
+                port=port,
+                db=db,
+                password=password,
+                decode_responses=True,
+                socket_connect_timeout=5,
+                socket_timeout=5
+            )
+            # Test connection
+            self.client.ping()
+        except (ConnectionError, redis.RedisError) as e:
+            raise CacheError(f"Failed to connect to Redis: {e}")
+    
+    def get(self, key: str) -> Any:
+        """Get value from cache. Raises KeyError if not found."""
+        try:
+            with self._lock:
+                value = self.client.get(key)
+                if value is None:
+                    self._miss_count += 1
+                    raise KeyError(key)
+                
+                self._hit_count += 1
+                return value
+        except redis.RedisError as e:
+            raise CacheError(f"Redis get operation failed: {e}")
+    
+    def set(self, key: str, value: Any) -> None:
+        """Set value in cache with TTL."""
+        try:
+            self.client.setex(key, self.ttl, value)
+        except redis.RedisError as e:
+            raise CacheError(f"Redis set operation failed: {e}")
+    
+    def clear(self) -> None:
+        """Clear all cache entries (flushes current database)."""
+        try:
+            self.client.flushdb()
+        except redis.RedisError as e:
+            raise CacheError(f"Redis clear operation failed: {e}")
+    
+    def cleanup_expired(self) -> Dict[str, int]:
+        """Redis automatically handles TTL, so this is a no-op."""
+        return {"total_cleaned": 0, "remaining_size": -1}  # Size unknown in Redis
+    
+    def get_stats(self) -> Dict[str, Any]:
+        """Get cache statistics."""
+        with self._lock:
+            total_ops = self._hit_count + self._miss_count
+            try:
+                info = self.client.info('memory')
+                memory_usage = info.get('used_memory', 0)
+            except redis.RedisError:
+                memory_usage = -1
+            
+            return {
+                "hit_count": self._hit_count,
+                "miss_count": self._miss_count,
+                "eviction_count": -1,  # Not tracked
+                "size": -1,  # Not easily available
+                "max_size": None,
+                "ttl": self.ttl,
+                "hit_rate": self._hit_count / total_ops if total_ops > 0 else 0.0,
+                "total_operations": total_ops,
+                "memory_usage_bytes": memory_usage,
+                "backend": "redis"
+            }
+
+
+class MemcachedCacheBackend(CacheBackend):
+    """Memcached cache backend for distributed caching."""
+    
+    def __init__(self, servers: List[str], ttl: int = 3600):
+        if pymemcache is None:
+            raise CacheError("pymemcache library not installed. Install with: pip install pymemcache")
+        
+        self.ttl = ttl
+        self._hit_count = 0
+        self._miss_count = 0
+        self._lock = threading.RLock()
+        
+        try:
+            self.client = pymemcache.Client(
+                servers,
+                timeout=5,
+                connect_timeout=5
+            )
+            # Test connection by setting a test key
+            self.client.set("_connection_test", "ok", expire=1)
+        except Exception as e:
+            raise CacheError(f"Failed to connect to Memcached: {e}")
+    
+    def get(self, key: str) -> Any:
+        """Get value from cache. Raises KeyError if not found."""
+        try:
+            with self._lock:
+                value = self.client.get(key)
+                if value is None:
+                    self._miss_count += 1
+                    raise KeyError(key)
+                
+                self._hit_count += 1
+                return value
+        except Exception as e:
+            raise CacheError(f"Memcached get operation failed: {e}")
+    
+    def set(self, key: str, value: Any) -> None:
+        """Set value in cache with TTL."""
+        try:
+            self.client.set(key, value, expire=self.ttl)
+        except Exception as e:
+            raise CacheError(f"Memcached set operation failed: {e}")
+    
+    def clear(self) -> None:
+        """Clear all cache entries."""
+        try:
+            self.client.flush_all()
+        except Exception as e:
+            raise CacheError(f"Memcached clear operation failed: {e}")
+    
+    def cleanup_expired(self) -> Dict[str, int]:
+        """Memcached automatically handles TTL, so this is a no-op."""
+        return {"total_cleaned": 0, "remaining_size": -1}  # Size unknown in Memcached
+    
+    def get_stats(self) -> Dict[str, Any]:
+        """Get cache statistics."""
+        with self._lock:
+            total_ops = self._hit_count + self._miss_count
+            try:
+                stats = self.client.stats()
+                memory_usage = stats.get(b'bytes', 0) if stats else 0
+            except Exception:
+                memory_usage = -1
+            
+            return {
+                "hit_count": self._hit_count,
+                "miss_count": self._miss_count,
+                "eviction_count": -1,  # Not tracked locally
+                "size": -1,  # Not easily available
+                "max_size": None,
+                "ttl": self.ttl,
+                "hit_rate": self._hit_count / total_ops if total_ops > 0 else 0.0,
+                "total_operations": total_ops,
+                "memory_usage_bytes": memory_usage,
+                "backend": "memcached"
+            }
+
+
+def create_cache_backend(backend_type: str, ttl: int = 3600, **kwargs) -> CacheBackend:
+    """Factory function to create cache backends based on configuration.
+    
+    Args:
+        backend_type: Type of cache backend ("memory", "redis", "memcached")
+        ttl: Time-to-live for cache entries in seconds
+        **kwargs: Backend-specific configuration options
+        
+    Returns:
+        CacheBackend: Configured cache backend instance
+        
+    Raises:
+        ValueError: If backend_type is not supported
+        CacheError: If backend initialization fails
+    """
+    backend_type = backend_type.lower().strip()
+    
+    if backend_type == "memory":
+        max_size = kwargs.get("max_size")
+        return TTLCacheBackend(ttl=ttl, max_size=max_size)
+    
+    elif backend_type == "redis":
+        return RedisCacheBackend(
+            host=kwargs.get("redis_host", "localhost"),
+            port=kwargs.get("redis_port", 6379),
+            db=kwargs.get("redis_db", 0),
+            password=kwargs.get("redis_password"),
+            ttl=ttl
+        )
+    
+    elif backend_type == "memcached":
+        servers = kwargs.get("memcached_servers", ["localhost:11211"])
+        return MemcachedCacheBackend(servers=servers, ttl=ttl)
+    
+    else:
+        raise ValueError(f"Unknown cache backend type: {backend_type}. "
+                        f"Supported types: memory, redis, memcached")

@@ -6,49 +6,82 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline';">
     <title>SQL Synthesizer</title>
     <style>
+        /* Base styles */
+        * {
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             max-width: 800px;
-            margin: 40px auto;
+            margin: 0 auto;
             padding: 20px;
             line-height: 1.6;
             color: #333;
+            background-color: #fff;
         }
+        
+        /* Header styles */
         h1 {
             color: #2c3e50;
             border-bottom: 2px solid #3498db;
             padding-bottom: 10px;
+            font-size: 2rem;
+            margin: 20px 0;
         }
+        
         h2 {
             color: #34495e;
             margin-top: 30px;
+            font-size: 1.5rem;
         }
-        form {
+        
+        /* Form container */
+        .form-container {
             background: #f8f9fa;
             padding: 20px;
             border-radius: 8px;
             margin: 20px 0;
         }
-        input[name="question"] {
-            width: 70%;
-            padding: 10px;
+        
+        /* Input group for responsive form layout */
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: stretch;
+        }
+        
+        .input-group input[name="question"] {
+            flex: 1;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 16px;
+            min-height: 44px;
         }
-        input[type="submit"] {
+        
+        .input-group input[type="submit"] {
             background: #3498db;
             color: white;
-            padding: 10px 20px;
+            padding: 12px 20px;
             border: none;
             border-radius: 4px;
             font-size: 16px;
             cursor: pointer;
-            margin-left: 10px;
+            white-space: nowrap;
+            min-height: 44px;
+            transition: background-color 0.2s ease;
         }
-        input[type="submit"]:hover {
+        
+        .input-group input[type="submit"]:hover {
             background: #2980b9;
         }
+        
+        .input-group input[type="submit"]:active {
+            background: #21618c;
+        }
+        
+        /* Code blocks */
         pre {
             background: #f4f4f4;
             border: 1px solid #ddd;
@@ -56,15 +89,27 @@
             padding: 15px;
             overflow-x: auto;
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            word-wrap: break-word;
         }
+        
         .sql-block {
             background: #e8f4fd;
             border-left: 4px solid #3498db;
         }
+        
         .data-block {
             background: #f0f8f0;
             border-left: 4px solid #27ae60;
         }
+        
+        .error-block {
+            color: #e74c3c;
+            background: #fdf2f2;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        /* Examples section */
         .examples {
             background: #fff3cd;
             border: 1px solid #ffeaa7;
@@ -72,12 +117,132 @@
             padding: 15px;
             margin: 20px 0;
         }
+        
         .examples h3 {
             margin-top: 0;
             color: #856404;
+            font-size: 1.2rem;
         }
+        
         .examples ul {
             margin-bottom: 0;
+            padding-left: 20px;
+        }
+        
+        .examples li {
+            margin-bottom: 5px;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+                margin: 0;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+                text-align: center;
+            }
+            
+            h2 {
+                font-size: 1.3rem;
+            }
+            
+            .form-container {
+                padding: 15px;
+            }
+            
+            .input-group {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .input-group input[name="question"] {
+                width: 100%;
+            }
+            
+            .input-group input[type="submit"] {
+                width: 100%;
+                padding: 15px;
+                font-size: 18px;
+            }
+            
+            pre {
+                font-size: 12px;
+                padding: 12px;
+            }
+            
+            .examples {
+                padding: 12px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 1.6rem;
+            }
+            
+            h2 {
+                font-size: 1.2rem;
+            }
+            
+            .form-container {
+                padding: 12px;
+            }
+            
+            .input-group input[name="question"] {
+                font-size: 18px; /* Prevents zoom on iOS */
+                padding: 15px;
+            }
+            
+            .input-group input[type="submit"] {
+                font-size: 18px;
+                padding: 18px;
+            }
+            
+            pre {
+                font-size: 11px;
+                padding: 10px;
+            }
+        }
+        
+        /* Focus styles for accessibility */
+        input:focus {
+            outline: 2px solid #3498db;
+            outline-offset: 2px;
+        }
+        
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            body {
+                background-color: #fff;
+                color: #000;
+            }
+            
+            .examples {
+                background: #ffeb3b;
+                border-color: #f57f17;
+            }
+            
+            .sql-block {
+                background: #e3f2fd;
+            }
+            
+            .data-block {
+                background: #e8f5e8;
+            }
+        }
+        
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            .input-group input[type="submit"] {
+                transition: none;
+            }
         }
     </style>
 </head>
@@ -94,18 +259,22 @@
         </ul>
     </div>
     
-    <form method="post">
-        {% if csrf_token %}
-        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-        {% endif %}
-        <input name="question" 
-               size="{{ input_size }}" 
-               placeholder="Ask a question about your data..."
-               value="{{ question|e if question else '' }}"
-               maxlength="1000"
-               required>
-        <input type="submit" value="Generate SQL">
-    </form>
+    <div class="form-container">
+        <form method="post">
+            {% if csrf_token %}
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            {% endif %}
+            <div class="input-group">
+                <input name="question" 
+                       placeholder="Ask a question about your data..."
+                       value="{{ question|e if question else '' }}"
+                       maxlength="1000"
+                       autocomplete="off"
+                       required>
+                <input type="submit" value="Generate SQL">
+            </div>
+        </form>
+    </div>
     
     {% if sql %}
     <h2>Generated SQL</h2>
@@ -119,7 +288,7 @@
     
     {% if error %}
     <h2 style="color: #e74c3c;">Error</h2>
-    <pre style="color: #e74c3c; background: #fdf2f2; border-left: 4px solid #e74c3c;">{{ error|e }}</pre>
+    <pre class="error-block">{{ error|e }}</pre>
     {% endif %}
 </body>
 </html>

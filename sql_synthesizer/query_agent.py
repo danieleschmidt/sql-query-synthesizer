@@ -20,7 +20,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.exc import SQLAlchemyError, OperationalError, DatabaseError
 
-from .cache import TTLCache
+from .cache import TTLCache, create_cache_backend, CacheError
 from .openai_adapter import OpenAIAdapter
 from .config import config
 from .database import DatabaseConnectionManager
@@ -80,9 +80,40 @@ class QueryAgent:
             from .logging_utils import configure_logging
             configure_logging(enable_json=True)
 
-        # Initialize caches
-        self.schema_cache = TTLCache(schema_cache_ttl)
-        self.query_cache = TTLCache(query_cache_ttl)
+        # Initialize caches using configured backend
+        try:
+            cache_backend_config = {
+                "redis_host": config.redis_host,
+                "redis_port": config.redis_port,
+                "redis_db": config.redis_db,
+                "redis_password": config.redis_password,
+                "memcached_servers": config.memcached_servers,
+                "max_size": config.cache_max_size
+            }
+            
+            # Create schema cache (longer TTL)
+            self.schema_cache = create_cache_backend(
+                backend_type=config.cache_backend,
+                ttl=schema_cache_ttl,
+                **cache_backend_config
+            )
+            
+            # Create query cache (shorter TTL)
+            self.query_cache = create_cache_backend(
+                backend_type=config.cache_backend,
+                ttl=query_cache_ttl,
+                **cache_backend_config
+            )
+            
+            logger.info(f"Initialized {config.cache_backend} cache backend")
+            
+        except (CacheError, ValueError) as e:
+            logger.warning(f"Failed to initialize {config.cache_backend} cache backend: {e}")
+            logger.info("Falling back to memory cache backend")
+            
+            # Fallback to in-memory cache
+            self.schema_cache = create_cache_backend("memory", ttl=schema_cache_ttl, max_size=config.cache_max_size)
+            self.query_cache = create_cache_backend("memory", ttl=query_cache_ttl, max_size=config.cache_max_size)
 
         # Set up automatic cache cleanup if TTL is enabled
         self._cleanup_timer = None

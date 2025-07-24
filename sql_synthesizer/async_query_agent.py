@@ -11,7 +11,7 @@ from .services.async_query_service import AsyncQueryService
 from .services.query_validator_service import QueryValidatorService  
 from .services.async_sql_generator_service import AsyncSQLGeneratorService
 from .async_openai_adapter import AsyncOpenAIAdapter
-from .cache import TTLCache
+from .cache import TTLCache, create_cache_backend, CacheError
 from .types import QueryResult
 from .database import DatabaseConnectionManager
 from .config import config
@@ -73,9 +73,40 @@ class AsyncQueryAgent:
             echo=False
         )
 
-        # Initialize caches
-        self.schema_cache = TTLCache(maxsize=100, ttl=schema_cache_ttl)
-        self.query_cache = TTLCache(maxsize=1000, ttl=query_cache_ttl)
+        # Initialize caches using configured backend
+        try:
+            cache_backend_config = {
+                "redis_host": config.redis_host,
+                "redis_port": config.redis_port,
+                "redis_db": config.redis_db,
+                "redis_password": config.redis_password,
+                "memcached_servers": config.memcached_servers,
+                "max_size": config.cache_max_size
+            }
+            
+            # Create schema cache (longer TTL)
+            self.schema_cache = create_cache_backend(
+                backend_type=config.cache_backend,
+                ttl=schema_cache_ttl,
+                **cache_backend_config
+            )
+            
+            # Create query cache (shorter TTL)
+            self.query_cache = create_cache_backend(
+                backend_type=config.cache_backend,
+                ttl=query_cache_ttl,
+                **cache_backend_config
+            )
+            
+            logger.info(f"Initialized {config.cache_backend} cache backend for async agent")
+            
+        except (CacheError, ValueError) as e:
+            logger.warning(f"Failed to initialize {config.cache_backend} cache backend: {e}")
+            logger.info("Falling back to memory cache backend")
+            
+            # Fallback to in-memory cache
+            self.schema_cache = create_cache_backend("memory", ttl=schema_cache_ttl, max_size=100)
+            self.query_cache = create_cache_backend("memory", ttl=query_cache_ttl, max_size=1000)
 
         # Initialize services
         self.validator = QueryValidatorService()

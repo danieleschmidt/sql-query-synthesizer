@@ -127,6 +127,43 @@ timeout for OpenAI calls.
 
 ## Configuration
 
+### Cache Backend Configuration
+
+The SQL Query Synthesizer supports multiple cache backends for improved performance and scalability:
+
+#### Memory Cache (Default)
+```bash
+export QUERY_AGENT_CACHE_BACKEND=memory
+export QUERY_AGENT_CACHE_TTL=3600
+export QUERY_AGENT_CACHE_MAX_SIZE=1000
+```
+
+#### Redis Cache
+```bash
+export QUERY_AGENT_CACHE_BACKEND=redis
+export QUERY_AGENT_REDIS_HOST=localhost
+export QUERY_AGENT_REDIS_PORT=6379
+export QUERY_AGENT_REDIS_DB=0
+export QUERY_AGENT_REDIS_PASSWORD=your_password  # Optional
+export QUERY_AGENT_CACHE_TTL=3600
+```
+
+#### Memcached Cache
+```bash
+export QUERY_AGENT_CACHE_BACKEND=memcached
+export QUERY_AGENT_MEMCACHED_SERVERS=localhost:11211,cache2:11211
+export QUERY_AGENT_CACHE_TTL=3600
+```
+
+Note: Redis and Memcached require additional dependencies:
+```bash
+# For Redis support
+pip install redis
+
+# For Memcached support  
+pip install pymemcache
+```
+
 ### Database Configuration
 Configure your database connections in `config/databases.yaml`:
 ```yaml
@@ -148,6 +185,9 @@ All configuration options can be customized via environment variables with the `
 | `QUERY_AGENT_MAX_QUESTION_LENGTH` | 1000 | Maximum question length in characters |
 | `QUERY_AGENT_DEFAULT_MAX_ROWS` | 5 | Default maximum rows to return |
 | `QUERY_AGENT_CACHE_CLEANUP_INTERVAL` | 300 | Cache cleanup interval in seconds |
+| `QUERY_AGENT_CACHE_BACKEND` | memory | Cache backend type (memory, redis, memcached) |
+| `QUERY_AGENT_CACHE_TTL` | 3600 | Default cache TTL in seconds |
+| `QUERY_AGENT_CACHE_MAX_SIZE` | 1000 | Maximum cache size for memory backend |
 | `QUERY_AGENT_OPENAI_TIMEOUT` | 30 | OpenAI API timeout in seconds |
 | `QUERY_AGENT_DATABASE_TIMEOUT` | 30 | Database query timeout in seconds |
 | `QUERY_AGENT_SCHEMA_CACHE_TTL` | - | Schema cache TTL override |
@@ -168,6 +208,21 @@ All configuration options can be customized via environment variables with the `
 |---------------------|---------|-------------|
 | `QUERY_AGENT_CIRCUIT_BREAKER_FAILURE_THRESHOLD` | 5 | Number of failures before opening circuit |
 | `QUERY_AGENT_CIRCUIT_BREAKER_RECOVERY_TIMEOUT` | 60.0 | Seconds to wait before attempting recovery |
+
+### Cache Backend Configuration
+
+#### Redis Cache Configuration
+| Environment Variable | Default | Description |
+|---------------------|---------|-------------|
+| `QUERY_AGENT_REDIS_HOST` | localhost | Redis server hostname |
+| `QUERY_AGENT_REDIS_PORT` | 6379 | Redis server port |
+| `QUERY_AGENT_REDIS_DB` | 0 | Redis database number |
+| `QUERY_AGENT_REDIS_PASSWORD` | - | Redis authentication password |
+
+#### Memcached Cache Configuration
+| Environment Variable | Default | Description |
+|---------------------|---------|-------------|
+| `QUERY_AGENT_MEMCACHED_SERVERS` | localhost:11211 | Comma-separated list of Memcached servers |
 
 ### Enhanced SQL Injection Prevention
 | Environment Variable | Default | Description |
