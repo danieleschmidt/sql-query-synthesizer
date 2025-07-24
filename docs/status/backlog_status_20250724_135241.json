@@ -1,0 +1,59 @@
+{
+  "timestamp": "2025-07-24T13:52:41.835433",
+  "backlog_summary": {
+    "total_items": 8,
+    "status_breakdown": {
+      "NEW": 5,
+      "REFINED": 0,
+      "READY": 1,
+      "DOING": 0,
+      "PR": 0,
+      "DONE": 2,
+      "BLOCKED": 0
+    },
+    "risk_breakdown": {
+      "low": 7,
+      "medium": 1,
+      "high": 0
+    },
+    "wsjf_statistics": {
+      "average": 1.92,
+      "max": 4.2,
+      "min": 0.3076923076923077
+    }
+  },
+  "next_actions": [
+    {
+      "id": "cache-backend-configuration",
+      "title": "Add configuration for cache backend (Redis/Memcached)",
+      "type": "architecture",
+      "description": "Support Redis and Memcached for distributed caching beyond current TTLCache",
+      "acceptance_criteria": [
+        "Configurable cache backend via environment variables",
+        "Redis adapter with connection pooling",
+        "Memcached adapter with failover support",
+        "Backward compatibility with TTLCache",
+        "Performance metrics for all cache backends"
+      ],
+      "effort": 8,
+      "value": 5,
+      "time_criticality": 3,
+      "risk_reduction": 5,
+      "status": "READY",
+      "risk_tier": "low",
+      "created_at": "2025-07-24",
+      "links": [
+        "BACKLOG.md:215",
+        "DEVELOPMENT_PLAN.md:56"
+      ],
+      "wsjf_score": 1.625,
+      "aging_multiplier": 1.0,
+      "completed_at": null
+    }
+  ],
+  "health_metrics": {
+    "ready_items": 1,
+    "blocked_items": 0,
+    "high_risk_items": 0
+  }
+}
