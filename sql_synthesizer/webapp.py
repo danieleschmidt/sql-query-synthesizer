@@ -209,6 +209,356 @@ def create_app(agent: QueryAgent) -> Flask:
         data = generate_latest()
         return Response(data, mimetype=CONTENT_TYPE_LATEST)
 
+    @app.get("/openapi.json")
+    def openapi_schema() -> tuple[dict, int]:
+        """OpenAPI 3.0 schema for the SQL Synthesizer API."""
+        schema = {
+            "openapi": "3.0.3",
+            "info": {
+                "title": "SQL Synthesizer API",
+                "version": "1.0.0",
+                "description": "Natural language to SQL query generation API with schema discovery and validation",
+                "contact": {
+                    "name": "SQL Synthesizer",
+                    "url": "https://github.com/your-org/sql-synthesizer"
+                }
+            },
+            "servers": [
+                {
+                    "url": "/",
+                    "description": "Current server"
+                }
+            ],
+            "paths": {
+                "/": {
+                    "get": {
+                        "summary": "Web Interface",
+                        "description": "Interactive web interface for SQL query generation",
+                        "responses": {
+                            "200": {
+                                "description": "HTML web interface",
+                                "content": {
+                                    "text/html": {
+                                        "schema": {"type": "string"}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "post": {
+                        "summary": "Generate SQL Query (Web Form)",
+                        "description": "Generate SQL query from natural language via web form",
+                        "requestBody": {
+                            "required": True,
+                            "content": {
+                                "application/x-www-form-urlencoded": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "question": {
+                                                "type": "string",
+                                                "description": "Natural language question",
+                                                "maxLength": 1000
+                                            },
+                                            "csrf_token": {
+                                                "type": "string",
+                                                "description": "CSRF protection token"
+                                            }
+                                        },
+                                        "required": ["question"]
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "HTML page with query results",
+                                "content": {
+                                    "text/html": {
+                                        "schema": {"type": "string"}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "/api/query": {
+                    "post": {
+                        "summary": "Generate SQL Query (API)",
+                        "description": "Generate SQL query from natural language via JSON API",
+                        "security": [
+                            {"ApiKeyAuth": []}
+                        ],
+                        "requestBody": {
+                            "required": True,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "question": {
+                                                "type": "string",
+                                                "description": "Natural language question about your data",
+                                                "example": "Show me the top 5 customers by revenue",
+                                                "maxLength": 1000
+                                            }
+                                        },
+                                        "required": ["question"]
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Successful query generation",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "sql": {
+                                                    "type": "string",
+                                                    "description": "Generated SQL query"
+                                                },
+                                                "data": {
+                                                    "type": "array",
+                                                    "description": "Query results",
+                                                    "items": {"type": "object"}
+                                                },
+                                                "question": {
+                                                    "type": "string",
+                                                    "description": "Sanitized input question"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "400": {
+                                "description": "Bad request - invalid input",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "error": {
+                                                    "type": "string",
+                                                    "description": "Error message"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "408": {
+                                "description": "Request timeout",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "error": {
+                                                    "type": "string",
+                                                    "description": "Timeout error message"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "429": {
+                                "description": "Rate limit exceeded",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "error": {
+                                                    "type": "string",
+                                                    "description": "Rate limit error message"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "500": {
+                                "description": "Internal server error",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "error": {
+                                                    "type": "string",
+                                                    "description": "Error message"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "503": {
+                                "description": "Service unavailable",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "error": {
+                                                    "type": "string",
+                                                    "description": "Service error message"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "/health": {
+                    "get": {
+                        "summary": "Health Check",
+                        "description": "Check system health and dependencies",
+                        "responses": {
+                            "200": {
+                                "description": "System is healthy",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": ["healthy", "unhealthy"]
+                                                },
+                                                "timestamp": {
+                                                    "type": "number",
+                                                    "description": "Unix timestamp"
+                                                },
+                                                "checks": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "database": {
+                                                            "type": "boolean",
+                                                            "description": "Database connectivity status"
+                                                        },
+                                                        "cache": {
+                                                            "type": "boolean",
+                                                            "description": "Cache system status"
+                                                        },
+                                                        "services": {
+                                                            "type": "boolean",
+                                                            "description": "Core services status"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "503": {
+                                "description": "System is unhealthy",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": ["unhealthy"]
+                                                },
+                                                "timestamp": {
+                                                    "type": "number"
+                                                },
+                                                "error": {
+                                                    "type": "string",
+                                                    "description": "Error description"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "/metrics": {
+                    "get": {
+                        "summary": "Prometheus Metrics",
+                        "description": "Prometheus-compatible metrics for monitoring",
+                        "responses": {
+                            "200": {
+                                "description": "Prometheus metrics",
+                                "content": {
+                                    "text/plain": {
+                                        "schema": {
+                                            "type": "string",
+                                            "description": "Prometheus metrics format"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "components": {
+                "securitySchemes": {
+                    "ApiKeyAuth": {
+                        "type": "apiKey",
+                        "in": "header",
+                        "name": "X-API-Key",
+                        "description": "API key for authentication (optional, configurable)"
+                    }
+                }
+            }
+        }
+        return jsonify(schema), 200
+
+    @app.get("/docs")
+    def swagger_ui() -> str:
+        """Swagger UI for API documentation."""
+        html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>SQL Synthesizer API Documentation</title>
+            <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui.css" />
+            <style>
+                html { box-sizing: border-box; overflow: -moz-scrollbars-vertical; overflow-y: scroll; }
+                *, *:before, *:after { box-sizing: inherit; }
+                body { margin:0; background: #fafafa; }
+            </style>
+        </head>
+        <body>
+            <div id="swagger-ui"></div>
+            <script src="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-bundle.js"></script>
+            <script src="https://unpkg.com/swagger-ui-dist@5.9.0/swagger-ui-standalone-preset.js"></script>
+            <script>
+                window.onload = function() {
+                    const ui = SwaggerUIBundle({
+                        url: '/openapi.json',
+                        dom_id: '#swagger-ui',
+                        deepLinking: true,
+                        presets: [
+                            SwaggerUIBundle.presets.apis,
+                            SwaggerUIStandalonePreset
+                        ],
+                        plugins: [
+                            SwaggerUIBundle.plugins.DownloadUrl
+                        ],
+                        layout: "StandaloneLayout"
+                    });
+                };
+            </script>
+        </body>
+        </html>
+        """
+        return html
+
     return app
 
 

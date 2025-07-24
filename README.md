@@ -119,6 +119,33 @@ available programmatically from ``prometheus_client.REGISTRY``. Use
 ``--openai-timeout`` (or ``QUERY_AGENT_OPENAI_TIMEOUT``) to specify a request
 timeout for OpenAI calls.
 
+## API Documentation
+
+The SQL Synthesizer provides comprehensive API documentation via OpenAPI 3.0:
+
+- **Interactive API Docs**: Visit `/docs` for Swagger UI with interactive API testing
+- **OpenAPI Schema**: Access `/openapi.json` for the complete API specification
+- **API Endpoints**:
+  - `POST /api/query` - Generate SQL from natural language (JSON API)
+  - `GET /health` - System health check with dependency status
+  - `GET /metrics` - Prometheus metrics for monitoring
+  - `GET /` - Interactive web interface
+
+### Example API Usage
+
+```bash
+# Generate SQL query via API
+curl -X POST http://localhost:5000/api/query \
+  -H "Content-Type: application/json" \
+  -d '{"question": "Show me the top 5 customers by revenue"}'
+
+# Check system health
+curl http://localhost:5000/health
+
+# Access interactive documentation
+open http://localhost:5000/docs
+```
+
 ## Supported Queries
 - Aggregations: "What's the average order value by region?"
 - Joins: "List customers with their recent orders"
