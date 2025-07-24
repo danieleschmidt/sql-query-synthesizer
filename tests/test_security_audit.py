@@ -11,7 +11,7 @@ from sql_synthesizer.security_audit import (
     SecurityEvent,
     SecurityEventType,
     SecurityEventSeverity,
-    security_audit_logger
+    get_security_audit_logger
 )
 
 
@@ -387,14 +387,16 @@ class TestGlobalSecurityAuditLogger:
     
     def test_global_logger_exists(self):
         """Test that global security audit logger is available."""
-        assert security_audit_logger is not None
-        assert isinstance(security_audit_logger, SecurityAuditLogger)
-        assert security_audit_logger.logger.name == "security_audit"
+        logger = get_security_audit_logger()
+        assert logger is not None
+        assert isinstance(logger, SecurityAuditLogger)
+        assert logger.logger.name == "security_audit"
     
     def test_global_logger_functionality(self):
         """Test that global logger functions correctly."""
         # This is a basic smoke test since we're using the global instance
-        initial_stats = security_audit_logger.get_event_statistics()
+        logger = get_security_audit_logger()
+        initial_stats = logger.get_event_statistics()
         
         # The global logger might have been used by other tests
         # so we just check that it's functional
