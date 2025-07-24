@@ -92,8 +92,12 @@ class AutonomousBacklogManager:
                 with open(self.backlog_file, 'r') as f:
                     data = yaml.safe_load(f)
                     return data.get('config', default_config)
-        except Exception as e:
-            logger.warning(f"Failed to load config: {e}. Using defaults.")
+        except (FileNotFoundError, PermissionError) as e:
+            logger.warning(f"Cannot access config file: {e}. Using defaults.")
+        except yaml.YAMLError as e:
+            logger.warning(f"Invalid YAML in config file: {e}. Using defaults.")
+        except (OSError, IOError) as e:
+            logger.warning(f"I/O error reading config file: {e}. Using defaults.")
         
         return default_config
     
@@ -123,8 +127,17 @@ class AutonomousBacklogManager:
                     self.backlog.append(item)
                 
                 logger.info(f"Loaded {len(self.backlog)} backlog items")
-        except Exception as e:
-            logger.error(f"Failed to load backlog: {e}")
+        except (FileNotFoundError, PermissionError) as e:
+            logger.warning(f"Cannot access backlog file: {e}")
+            self.backlog = []
+        except yaml.YAMLError as e:
+            logger.error(f"Invalid YAML in backlog file: {e}")
+            self.backlog = []
+        except (ValueError, TypeError, KeyError) as e:
+            logger.error(f"Invalid backlog item structure: {e}")
+            self.backlog = []
+        except (OSError, IOError) as e:
+            logger.error(f"I/O error reading backlog: {e}")
             self.backlog = []
     
     def save_backlog(self) -> None:
@@ -151,8 +164,10 @@ class AutonomousBacklogManager:
                 yaml.dump(data, f, default_flow_style=False, sort_keys=False)
             
             logger.info(f"Saved backlog with {len(self.backlog)} items")
-        except Exception as e:
-            logger.error(f"Failed to save backlog: {e}")
+        except (PermissionError, OSError) as e:
+            logger.error(f"Cannot write backlog file: {e}")
+        except (TypeError, ValueError) as e:
+            logger.error(f"Cannot serialize backlog data: {e}")
     
     def discover_todo_fixme_items(self) -> List[BacklogItem]:
         """Scan codebase for TODO/FIXME comments and convert to backlog items."""
@@ -209,8 +224,12 @@ class AutonomousBacklogManager:
                             new_items.append(new_item)
             
             logger.info(f"Discovered {len(new_items)} TODO/FIXME items")
-        except Exception as e:
-            logger.warning(f"Failed to discover TODO/FIXME items: {e}")
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"Command 'rg' failed with return code {e.returncode}: {e}")
+        except FileNotFoundError:
+            logger.warning("ripgrep (rg) command not found - skipping TODO/FIXME discovery")
+        except (OSError, IOError) as e:
+            logger.warning(f"I/O error during TODO/FIXME discovery: {e}")
         
         return new_items
     
@@ -259,8 +278,12 @@ class AutonomousBacklogManager:
                     new_items.append(new_item)
             
             logger.info(f"Discovered {len(new_items)} failing test items")
-        except Exception as e:
-            logger.warning(f"Failed to discover failing tests: {e}")
+        except subprocess.CalledProcessError as e:
+            logger.info(f"pytest command failed (expected if tests are failing): {e}")
+        except FileNotFoundError:
+            logger.warning("pytest command not found - skipping test failure discovery")
+        except (OSError, IOError) as e:
+            logger.warning(f"I/O error during test discovery: {e}")
         
         return new_items
     
@@ -311,8 +334,14 @@ class AutonomousBacklogManager:
                     pass
             
             logger.info(f"Discovered {len(new_items)} security items")
-        except Exception as e:
-            logger.warning(f"Failed to discover security vulnerabilities: {e}")
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"detect-secrets command failed: {e}")
+        except FileNotFoundError:
+            logger.warning("detect-secrets command not found - skipping security discovery")
+        except (json.JSONDecodeError, KeyError, ValueError) as e:
+            logger.warning(f"Invalid detect-secrets output format: {e}")
+        except (OSError, IOError) as e:
+            logger.warning(f"I/O error during security discovery: {e}")
         
         return new_items
     
@@ -333,8 +362,14 @@ class AutonomousBacklogManager:
             else:
                 logger.warning("Failed to check git status")
                 return False
-        except Exception as e:
-            logger.error(f"Failed to sync repository: {e}")
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Git command failed with return code {e.returncode}: {e}")
+            return False
+        except FileNotFoundError:
+            logger.error("Git command not found - cannot sync repository")
+            return False
+        except (OSError, IOError) as e:
+            logger.error(f"I/O error during repository sync: {e}")
             return False
     
     def get_next_ready_item(self) -> Optional[BacklogItem]:
@@ -420,8 +455,10 @@ class AutonomousBacklogManager:
                 json.dump(report, f, indent=2, default=str)
             
             logger.info(f"Status report saved to {report_file}")
-        except Exception as e:
-            logger.error(f"Failed to save status report: {e}")
+        except (PermissionError, OSError) as e:
+            logger.error(f"Cannot write status report: {e}")
+        except (TypeError, ValueError, AttributeError) as e:
+            logger.error(f"Cannot serialize status report data: {e}")
     
     def continuous_discovery(self) -> None:
         """Perform continuous discovery of new backlog items."""
