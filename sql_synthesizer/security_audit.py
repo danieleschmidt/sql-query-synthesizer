@@ -7,11 +7,15 @@ functionality for monitoring and compliance purposes.
 
 import json
 import logging
+import logging.handlers
 import time
-from datetime import datetime, timezone
+import os
+import glob
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, asdict
+from pathlib import Path
 
 
 class SecurityEventType(Enum):
@@ -84,29 +88,112 @@ class SecurityEvent:
 
 
 class SecurityAuditLogger:
-    """Centralized security audit logging system."""
+    """Centralized security audit logging system with rotation and retention."""
     
-    def __init__(self, logger_name: str = "security_audit"):
+    def __init__(self, logger_name: str = "security_audit", config=None):
         """Initialize the security audit logger.
         
         Args:
             logger_name: Name for the security audit logger
+            config: Configuration object with audit logging settings
         """
         self.logger = logging.getLogger(logger_name)
-        self.logger.setLevel(logging.INFO)
+        self.config = config
         
-        # Create dedicated handler for security events if it doesn't exist
+        # Configure logger level
+        if config and hasattr(config, 'security_log_level'):
+            level = getattr(logging, config.security_log_level.upper(), logging.INFO)
+            self.logger.setLevel(level)
+        else:
+            self.logger.setLevel(logging.INFO)
+        
+        # Create dedicated handlers for security events if they don't exist
         if not self.logger.handlers:
-            handler = logging.StreamHandler()
-            formatter = logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-            )
-            handler.setFormatter(formatter)
-            self.logger.addHandler(handler)
+            self._setup_handlers()
         
         # Track event statistics
         self._event_counts: Dict[SecurityEventType, int] = {}
         self._severity_counts: Dict[SecurityEventSeverity, int] = {}
+        
+        # Perform initial log cleanup if configured
+        self._cleanup_old_logs()
+    
+    def _setup_handlers(self) -> None:
+        """Set up logging handlers with rotation and formatting."""
+        # Always add console handler for immediate visibility
+        console_handler = logging.StreamHandler()
+        console_formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        console_handler.setFormatter(console_formatter)
+        self.logger.addHandler(console_handler)
+        
+        # Add file handler with rotation if configured
+        if self.config and hasattr(self.config, 'audit_log_file'):
+            try:
+                # Ensure log directory exists
+                log_path = Path(self.config.audit_log_file)
+                log_path.parent.mkdir(parents=True, exist_ok=True)
+                
+                # Configure rotating file handler
+                max_bytes = getattr(self.config, 'audit_log_max_bytes', 50 * 1024 * 1024)
+                backup_count = getattr(self.config, 'audit_log_backup_count', 10)
+                
+                file_handler = logging.handlers.RotatingFileHandler(
+                    filename=self.config.audit_log_file,
+                    maxBytes=max_bytes,
+                    backupCount=backup_count,
+                    encoding='utf-8'
+                )
+                
+                # Configure formatter based on config
+                if hasattr(self.config, 'security_log_format') and self.config.security_log_format.lower() == 'json':
+                    # JSON formatter for structured logging
+                    file_formatter = logging.Formatter('%(message)s')
+                else:
+                    # Standard formatter
+                    file_formatter = logging.Formatter(
+                        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+                    )
+                
+                file_handler.setFormatter(file_formatter)
+                self.logger.addHandler(file_handler)
+                
+            except (OSError, PermissionError) as e:
+                # If file logging fails, log to console only
+                self.logger.warning(f"Failed to setup file logging: {e}. Using console only.")
+    
+    def _cleanup_old_logs(self) -> None:
+        """Clean up old audit log files based on retention policy."""
+        if not (self.config and hasattr(self.config, 'audit_log_file') and 
+                hasattr(self.config, 'audit_log_retention_days')):
+            return
+        
+        try:
+            log_path = Path(self.config.audit_log_file)
+            log_dir = log_path.parent
+            log_pattern = f"{log_path.stem}.*"
+            
+            retention_days = self.config.audit_log_retention_days
+            cutoff_date = datetime.now() - timedelta(days=retention_days)
+            
+            # Find and remove old log files
+            removed_count = 0
+            for log_file in log_dir.glob(log_pattern):
+                if log_file.is_file():
+                    file_mtime = datetime.fromtimestamp(log_file.stat().st_mtime)
+                    if file_mtime < cutoff_date:
+                        try:
+                            log_file.unlink()
+                            removed_count += 1
+                        except OSError as e:
+                            self.logger.warning(f"Failed to remove old log file {log_file}: {e}")
+            
+            if removed_count > 0:
+                self.logger.info(f"Cleaned up {removed_count} old audit log files")
+                
+        except Exception as e:
+            self.logger.warning(f"Log cleanup failed: {e}")
     
     def log_event(
         self,
@@ -316,5 +403,12 @@ class SecurityAuditLogger:
         self._severity_counts.clear()
 
 
-# Global security audit logger instance
-security_audit_logger = SecurityAuditLogger()
+# Global security audit logger instance (will be initialized with config)
+security_audit_logger = None
+
+def get_security_audit_logger(config=None):
+    """Get or create the global security audit logger instance."""
+    global security_audit_logger
+    if security_audit_logger is None:
+        security_audit_logger = SecurityAuditLogger(config=config)
+    return security_audit_logger

@@ -22,7 +22,7 @@ from flask import request, jsonify, g, current_app
 from markupsafe import escape
 
 from .config import config
-from .security_audit import security_audit_logger, SecurityEventType, SecurityEventSeverity
+from .security_audit import get_security_audit_logger, SecurityEventType, SecurityEventSeverity
 
 logger = logging.getLogger(__name__)
 
@@ -346,7 +346,7 @@ class SecurityMiddleware:
             logger.warning(f"Rate limit exceeded for client: {client_id}")
             
             # Log security event for rate limit violation
-            security_audit_logger.log_rate_limit_exceeded(
+            get_security_audit_logger(config).log_rate_limit_exceeded(
                 client_identifier=client_id,
                 limit_type="requests_per_minute",
                 current_rate=len(self.rate_limiter.clients.get(client_id, [])),
@@ -367,7 +367,7 @@ class SecurityMiddleware:
                 logger.warning(f"Invalid API key attempt from client: {client_id}")
                 
                 # Log security event for authentication failure
-                security_audit_logger.log_authentication_failure(
+                get_security_audit_logger(config).log_authentication_failure(
                     auth_type="API_KEY",
                     reason="Invalid or missing API key",
                     client_ip=request.remote_addr,
@@ -391,7 +391,7 @@ class SecurityMiddleware:
                 logger.warning(f"CSRF token validation failed for client: {client_id}")
                 
                 # Log security event for CSRF token validation failure
-                security_audit_logger.log_event(
+                get_security_audit_logger(config).log_event(
                     event_type=SecurityEventType.CSRF_TOKEN_VALIDATION_FAILED,
                     severity=SecurityEventSeverity.MEDIUM,
                     message="CSRF token validation failed",
@@ -433,7 +433,7 @@ class SecurityMiddleware:
         logger.warning(f"Request too large from client: {client_id}")
         
         # Log security event for request size limit
-        security_audit_logger.log_event(
+        get_security_audit_logger(config).log_event(
             event_type=SecurityEventType.REQUEST_SIZE_LIMIT_EXCEEDED,
             severity=SecurityEventSeverity.MEDIUM,
             message="Request size limit exceeded",

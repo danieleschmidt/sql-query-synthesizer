@@ -1,0 +1,31 @@
+{
+  "timestamp": "2025-07-24T11:47:07.696382",
+  "backlog_summary": {
+    "total_items": 0,
+    "status_breakdown": {
+      "NEW": 0,
+      "REFINED": 0,
+      "READY": 0,
+      "DOING": 0,
+      "PR": 0,
+      "DONE": 0,
+      "BLOCKED": 0
+    },
+    "risk_breakdown": {
+      "low": 0,
+      "medium": 0,
+      "high": 0
+    },
+    "wsjf_statistics": {
+      "average": 0.0,
+      "max": 0,
+      "min": 0
+    }
+  },
+  "next_actions": [],
+  "health_metrics": {
+    "ready_items": 0,
+    "blocked_items": 0,
+    "high_risk_items": 0
+  }
+}

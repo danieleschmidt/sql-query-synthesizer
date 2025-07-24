@@ -24,7 +24,8 @@ from ..user_experience import (
     create_invalid_table_error,
 )
 from .. import metrics
-from ..security_audit import security_audit_logger, SecurityEventType, SecurityEventSeverity
+from ..security_audit import get_security_audit_logger, SecurityEventType, SecurityEventSeverity
+from ..config import config
 
 logger = logging.getLogger(__name__)
 
@@ -161,7 +162,7 @@ class EnhancedQueryValidatorService:
         # Check for SQL injection patterns
         if self._contains_sql_injection(decoded_question):
             metrics.record_query_error("sql_injection_detected")
-            security_audit_logger.log_sql_injection_attempt(
+            get_security_audit_logger(config).log_sql_injection_attempt(
                 malicious_input=question,
                 detection_method="pattern_matching",
                 client_id=client_id,
@@ -172,7 +173,7 @@ class EnhancedQueryValidatorService:
         # Check for unauthorized table/column references
         if self._contains_unauthorized_references(decoded_question):
             metrics.record_query_error("unauthorized_reference_detected")
-            security_audit_logger.log_event(
+            get_security_audit_logger(config).log_event(
                 event_type=SecurityEventType.UNSAFE_INPUT_DETECTED,
                 severity=SecurityEventSeverity.HIGH,
                 message="Unauthorized table/column reference detected",
@@ -186,7 +187,7 @@ class EnhancedQueryValidatorService:
         # Semantic analysis for suspicious patterns
         if self._contains_suspicious_patterns(decoded_question):
             metrics.record_query_error("suspicious_pattern_detected")
-            security_audit_logger.log_event(
+            get_security_audit_logger(config).log_event(
                 event_type=SecurityEventType.UNSAFE_INPUT_DETECTED,
                 severity=SecurityEventSeverity.MEDIUM,
                 message="Suspicious pattern detected in user input",
@@ -234,7 +235,7 @@ class EnhancedQueryValidatorService:
                 
                 # Check for suspicious semantic patterns
                 if self._contains_sql_suspicious_patterns(sql):
-                    security_audit_logger.log_sql_injection_attempt(
+                    get_security_audit_logger(config).log_sql_injection_attempt(
                         malicious_input=sql,
                         detection_method="ast_semantic_analysis",
                         sql_statement=sql
@@ -251,7 +252,7 @@ class EnhancedQueryValidatorService:
         
         # Additional injection pattern checking
         if self._contains_sql_injection(sql):
-            security_audit_logger.log_sql_injection_attempt(
+            get_security_audit_logger(config).log_sql_injection_attempt(
                 malicious_input=sql,
                 detection_method="sql_pattern_matching",
                 sql_statement=sql
@@ -540,7 +541,7 @@ class EnhancedQueryValidatorService:
         
         # Check current rate
         if len(self.validation_attempts[client_id]) >= self.max_validation_attempts:
-            security_audit_logger.log_rate_limit_exceeded(
+            get_security_audit_logger(config).log_rate_limit_exceeded(
                 client_identifier=client_id,
                 limit_type="validation_attempts_per_minute",
                 current_rate=len(self.validation_attempts[client_id]),

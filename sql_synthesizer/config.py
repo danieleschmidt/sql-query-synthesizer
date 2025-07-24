@@ -93,6 +93,9 @@ class Config:
         self.security_log_level = os.environ.get("QUERY_AGENT_SECURITY_LOG_LEVEL", "INFO")
         self.security_log_format = os.environ.get("QUERY_AGENT_SECURITY_LOG_FORMAT", "json")
         self.audit_log_file = os.environ.get("QUERY_AGENT_AUDIT_LOG_FILE", "/var/log/sql_synthesizer/audit.log")
+        self.audit_log_max_bytes = self._get_int_env("QUERY_AGENT_AUDIT_LOG_MAX_BYTES", 50 * 1024 * 1024, min_value=1024)  # 50MB default
+        self.audit_log_backup_count = self._get_int_env("QUERY_AGENT_AUDIT_LOG_BACKUP_COUNT", 10, min_value=0)
+        self.audit_log_retention_days = self._get_int_env("QUERY_AGENT_AUDIT_LOG_RETENTION_DAYS", 90, min_value=1)
         
         # Prometheus Metrics Histogram Buckets
         self.openai_request_buckets = self._get_bucket_env(
@@ -211,6 +214,9 @@ class Config:
             "security_log_level": self.security_log_level,
             "security_log_format": self.security_log_format,
             "audit_log_file": self.audit_log_file,
+            "audit_log_max_bytes": self.audit_log_max_bytes,
+            "audit_log_backup_count": self.audit_log_backup_count,
+            "audit_log_retention_days": self.audit_log_retention_days,
             "openai_request_buckets": self.openai_request_buckets,
             "database_query_buckets": self.database_query_buckets,
             "cache_operation_buckets": self.cache_operation_buckets,

@@ -6,3 +6,5 @@ python-dotenv
 asyncio
 aiofiles
 asyncpg
+Flask>=2.0
+sqlparse

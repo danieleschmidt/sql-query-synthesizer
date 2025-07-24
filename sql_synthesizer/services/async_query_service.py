@@ -13,7 +13,8 @@ from ..cache import TTLCache
 from .query_validator_service import QueryValidatorService
 from .async_sql_generator_service import AsyncSQLGeneratorService
 from .. import metrics
-from ..security_audit import security_audit_logger, SecurityEventType, SecurityEventSeverity
+from ..security_audit import get_security_audit_logger, SecurityEventType, SecurityEventSeverity
+from ..config import config
 
 logger = logging.getLogger(__name__)
 
@@ -330,7 +331,7 @@ class AsyncQueryService:
                 metrics.record_query(duration, "paginated_query")
                 
                 # Log security audit event for paginated query execution
-                security_audit_logger.log_query_execution(
+                get_security_audit_logger(config).log_query_execution(
                     sql_query=paginated_sql,
                     execution_time_ms=duration * 1000,
                     row_count=len(data),
@@ -400,7 +401,7 @@ class AsyncQueryService:
             metrics.record_query(duration, operation_type)
             
             # Log security audit event for query execution
-            security_audit_logger.log_query_execution(
+            get_security_audit_logger(config).log_query_execution(
                 sql_query=sql,
                 execution_time_ms=duration * 1000,
                 row_count=len(data),
