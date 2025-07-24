@@ -284,8 +284,14 @@ class EnhancedQueryValidatorService:
                 pass  # Keep original if decoding fails
             
             return decoded
+        except UnicodeDecodeError:
+            # Unicode decoding failed, return original
+            return text
+        except ValueError:
+            # URL decoding failed, return original
+            return text
         except Exception:
-            # If any decoding fails, return original
+            # Any other decoding error, return original
             return text
     
     def _contains_sql_injection(self, text: str) -> bool:

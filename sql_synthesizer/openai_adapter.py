@@ -7,7 +7,9 @@ from typing import Dict, Any, Optional
 
 try:
     import openai  # type: ignore
-except Exception:  # pragma: no cover - optional
+except ImportError:  # pragma: no cover - optional dependency
+    openai = None
+except ModuleNotFoundError:  # pragma: no cover - optional dependency
     openai = None
 
 from . import metrics

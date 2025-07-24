@@ -5,6 +5,7 @@ import logging
 from typing import List, Dict, Any, Optional
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 from sqlalchemy import inspect, text
+from sqlalchemy.exc import SQLAlchemyError, OperationalError, DatabaseError
 
 from .services.async_query_service import AsyncQueryService
 from .services.query_validator_service import QueryValidatorService  
@@ -239,8 +240,14 @@ class AsyncQueryAgent:
                     result = await connection.execute(text(f"SELECT COUNT(*) FROM {table}"))
                     count = result.scalar()
                     return table, count
+            except OperationalError as e:
+                logger.warning(f"Table access error for {table}: {e}")
+                return table, 0
+            except DatabaseError as e:
+                logger.warning(f"Database error for {table}: {e}")
+                return table, 0
             except Exception as e:
-                logger.warning(f"Failed to get row count for {table}: {e}")
+                logger.warning(f"Unexpected error for {table}: {e}")
                 return table, 0
 
         # Run all count queries concurrently
@@ -291,8 +298,10 @@ class AsyncQueryAgent:
         try:
             await self.engine.dispose()
             logger.info("Async database connections closed")
+        except AttributeError as e:
+            logger.error(f"Async database engine not properly initialized: {e}")
         except Exception as e:
-            logger.error(f"Error closing async database connections: {e}")
+            logger.error(f"Unexpected error closing async database connections: {e}")
 
     async def __aenter__(self):
         """Async context manager entry."""

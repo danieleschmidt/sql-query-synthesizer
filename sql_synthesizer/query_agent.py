@@ -18,6 +18,7 @@ from sqlalchemy import (
     union_all,
     literal,
 )
+from sqlalchemy.exc import SQLAlchemyError, OperationalError, DatabaseError
 
 from .cache import TTLCache
 from .openai_adapter import OpenAIAdapter
@@ -167,8 +168,12 @@ class QueryAgent:
             stats = self.cleanup_expired_cache_entries()
             if stats["total_cleaned"] > 0:
                 logger.debug(f"Cleaned up {stats['total_cleaned']} expired cache entries")
+        except AttributeError as e:
+            logger.error(f"Cache cleanup failed - cache not properly initialized: {e}")
+        except RuntimeError as e:
+            logger.error(f"Cache cleanup failed - runtime error: {e}")
         except Exception as e:
-            logger.error(f"Error during cache cleanup: {e}")
+            logger.error(f"Unexpected error during cache cleanup: {e}")
         
         # Reschedule the next cleanup
         self._cleanup_timer = None
@@ -188,11 +193,17 @@ class QueryAgent:
             with self.engine.connect() as connection:
                 result = connection.execute(text(f"SELECT COUNT(*) FROM {table}"))
                 return result.scalar()
-        except Exception as e:
-            # Handle database-level errors (e.g., table doesn't exist)
+        except OperationalError as e:
+            # Handle database operational errors (table doesn't exist, connection issues)
             from .user_experience import create_invalid_table_error
             available_tables = self.discover_schema()
             raise create_invalid_table_error(table, available_tables)
+        except DatabaseError as e:
+            logger.error(f"Database error getting row count for {table}: {e}")
+            raise ValueError(f"Unable to access table '{table}': database error")
+        except Exception as e:
+            logger.error(f"Unexpected error getting row count for {table}: {e}")
+            raise RuntimeError(f"Failed to get row count for table '{table}'")
 
     def batch_row_counts(self, tables: List[str]) -> dict[str, int]:
         """Return row counts for multiple tables efficiently."""
@@ -205,8 +216,14 @@ class QueryAgent:
                 try:
                     result = connection.execute(text(f"SELECT COUNT(*) FROM {table}"))
                     counts[table] = result.scalar()
+                except OperationalError as e:
+                    logger.warning(f"Table access error for {table}: {e}")
+                    counts[table] = 0
+                except DatabaseError as e:
+                    logger.warning(f"Database error for {table}: {e}")
+                    counts[table] = 0
                 except Exception as e:
-                    logger.warning(f"Failed to get row count for {table}: {e}")
+                    logger.warning(f"Unexpected error for {table}: {e}")
                     counts[table] = 0
         return counts
 
