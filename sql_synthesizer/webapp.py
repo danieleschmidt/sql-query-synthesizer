@@ -6,6 +6,8 @@ import time
 
 from flask import Flask, request, jsonify, render_template, Response, session
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+from sqlalchemy.exc import SQLAlchemyError, OperationalError, DatabaseError, TimeoutError as SQLTimeoutError
+import openai
 
 from .query_agent import QueryAgent
 from .config import config
@@ -61,26 +63,40 @@ def create_app(agent: QueryAgent) -> Flask:
                 input_size=config.webapp_input_size,
                 question=sanitized_question
             )
+        except SQLTimeoutError as e:
+            logger.error(f"Query timeout: {str(e)}")
+            error_msg = "Query timed out. Please try a simpler question."
+        except OperationalError as e:
+            logger.error(f"Database connection error: {str(e)}")
+            error_msg = "Database connection issue. Please try again later."
+        except DatabaseError as e:
+            logger.error(f"Database error: {str(e)}")
+            error_msg = "Database error occurred. Please try again."
+        except openai.AuthenticationError as e:
+            logger.error(f"OpenAI authentication error: {str(e)}")
+            error_msg = "AI service authentication failed. Please check configuration."
+        except openai.RateLimitError as e:
+            logger.error(f"OpenAI rate limit exceeded: {str(e)}")
+            error_msg = "AI service temporarily unavailable. Please try again later."
+        except openai.APITimeoutError as e:
+            logger.error(f"OpenAI API timeout: {str(e)}")
+            error_msg = "AI service timed out. Please try again."
+        except ValueError as e:
+            logger.error(f"Input validation error: {str(e)}")
+            error_msg = "Invalid query. Please check your question and try again."
         except Exception as e:
             # Log the full error but return sanitized message
-            logger.error(f"Query execution failed: {str(e)}")
-            
-            # Provide user-friendly error without sensitive details
-            if "invalid" in str(e).lower() or "syntax" in str(e).lower():
-                error_msg = "Invalid query. Please check your question and try again."
-            elif "timeout" in str(e).lower():
-                error_msg = "Query timed out. Please try a simpler question."
-            elif "connection" in str(e).lower():
-                error_msg = "Database connection issue. Please try again later."
-            else:
-                error_msg = "An error occurred while processing your query. Please try again."
-            
+            logger.error(f"Unexpected query execution error: {str(e)}")
+            error_msg = "An error occurred while processing your query. Please try again."
+        
+        # Return error response if any exception occurred
+        if 'error_msg' in locals():
             return render_template(
                 "index.html", 
                 error=error_msg, 
                 input_size=config.webapp_input_size,
-                question=sanitized_question
-            ), 500
+                question=sanitized_question if 'sanitized_question' in locals() else ""
+            )
 
     @app.post("/api/query")
     def api_query() -> tuple[str, int]:
@@ -118,25 +134,32 @@ def create_app(agent: QueryAgent) -> Flask:
                 'question': sanitized_question
             }), 200
             
+        except SQLTimeoutError as e:
+            logger.error(f"API query timeout: {str(e)}")
+            return jsonify({'error': 'Query timed out. Please try a simpler question.'}), 408
+        except OperationalError as e:
+            logger.error(f"API database connection error: {str(e)}")
+            return jsonify({'error': 'Database connection issue. Please try again later.'}), 503
+        except DatabaseError as e:
+            logger.error(f"API database error: {str(e)}")
+            return jsonify({'error': 'Database error occurred. Please try again.'}), 500
+        except openai.AuthenticationError as e:
+            logger.error(f"API OpenAI authentication error: {str(e)}")
+            return jsonify({'error': 'AI service authentication failed.'}), 503
+        except openai.RateLimitError as e:
+            logger.error(f"API OpenAI rate limit exceeded: {str(e)}")
+            return jsonify({'error': 'AI service temporarily unavailable. Please try again later.'}), 429
+        except openai.APITimeoutError as e:
+            logger.error(f"API OpenAI timeout: {str(e)}")
+            return jsonify({'error': 'AI service timed out. Please try again.'}), 408
+        except ValueError as e:
+            logger.error(f"API input validation error: {str(e)}")
+            return jsonify({'error': 'Invalid query. Please check your question and try again.'}), 400
         except Exception as e:
             # Log the full error but return sanitized message
-            logger.error(f"API query execution failed: {str(e)}")
+            logger.error(f"Unexpected API query execution error: {str(e)}")
             
-            # Provide user-friendly error without sensitive details
-            if "invalid" in str(e).lower() or "syntax" in str(e).lower():
-                error_msg = "Invalid query. Please check your question and try again."
-                status_code = 400
-            elif "timeout" in str(e).lower():
-                error_msg = "Query timed out. Please try a simpler question."
-                status_code = 408
-            elif "connection" in str(e).lower():
-                error_msg = "Database connection issue. Please try again later."
-                status_code = 503
-            else:
-                error_msg = "An error occurred while processing your query."
-                status_code = 500
-            
-            return jsonify({'error': error_msg}), status_code
+            return jsonify({'error': 'An error occurred while processing your query. Please try again.'}), 500
 
     @app.get("/health")
     def health() -> tuple[dict, int]:
@@ -158,8 +181,22 @@ def create_app(agent: QueryAgent) -> Flask:
             
             return jsonify(public_health), status_code
             
+        except DatabaseError as e:
+            logger.error(f"Health check database error: {str(e)}")
+            return jsonify({
+                'status': 'unhealthy', 
+                'timestamp': time.time(),
+                'error': 'Database health check failed'
+            }), 503
+        except AttributeError as e:
+            logger.error(f"Health check configuration error: {str(e)}")
+            return jsonify({
+                'status': 'unhealthy', 
+                'timestamp': time.time(),
+                'error': 'Service not properly configured'
+            }), 503
         except Exception as e:
-            logger.error(f"Health check failed: {str(e)}")
+            logger.error(f"Unexpected health check error: {str(e)}")
             return jsonify({
                 'status': 'unhealthy', 
                 'timestamp': time.time(),

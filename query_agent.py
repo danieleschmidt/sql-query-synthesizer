@@ -5,6 +5,7 @@ import os
 import sys
 
 from dotenv import load_dotenv
+from sqlalchemy.exc import SQLAlchemyError, OperationalError, DatabaseError
 
 import yaml
 from sql_synthesizer import QueryAgent
@@ -42,6 +43,21 @@ def main(argv: list[str] | None = None) -> None:
     """
     try:
         _main_impl(argv)
+    except KeyboardInterrupt:
+        print("\nInterrupted by user", file=sys.stderr)
+        sys.exit(130)  # Standard exit code for SIGINT
+    except (ImportError, ModuleNotFoundError) as e:
+        print(f"Missing dependency: {e}", file=sys.stderr)
+        sys.exit(1)
+    except FileNotFoundError as e:
+        print(f"File not found: {e}", file=sys.stderr)
+        sys.exit(1)
+    except PermissionError as e:
+        print(f"Permission denied: {e}", file=sys.stderr)
+        sys.exit(1)
+    except ValueError as e:
+        print(f"Invalid configuration: {e}", file=sys.stderr)
+        sys.exit(1)
     except Exception as e:
         print(format_cli_error(e), file=sys.stderr)
         sys.exit(1)
@@ -210,6 +226,18 @@ Common question patterns:
                             print(result.data)
                             if args.output_csv:
                                 save_csv(args.output_csv, result.data)
+                except DatabaseError as e:
+                    print(f"Database error: {format_cli_error(e)}")
+                    print()  # Add blank line for readability
+                except OperationalError as e:
+                    print(f"Database connection error: {format_cli_error(e)}")
+                    print()  # Add blank line for readability
+                except ValueError as e:
+                    print(f"Invalid input: {format_cli_error(e)}")
+                    print()  # Add blank line for readability
+                except FileNotFoundError as e:
+                    print(f"File not found: {format_cli_error(e)}")
+                    print()  # Add blank line for readability
                 except Exception as e:
                     print(format_cli_error(e))
                     print()  # Add blank line for readability

@@ -18,8 +18,9 @@ from sqlalchemy import (
     union_all,
     literal,
 )
+from sqlalchemy.exc import SQLAlchemyError, OperationalError, DatabaseError
 
-from .cache import TTLCache
+from .cache import TTLCache, create_cache_backend, CacheError
 from .openai_adapter import OpenAIAdapter
 from .config import config
 from .database import DatabaseConnectionManager
@@ -79,9 +80,40 @@ class QueryAgent:
             from .logging_utils import configure_logging
             configure_logging(enable_json=True)
 
-        # Initialize caches
-        self.schema_cache = TTLCache(schema_cache_ttl)
-        self.query_cache = TTLCache(query_cache_ttl)
+        # Initialize caches using configured backend
+        try:
+            cache_backend_config = {
+                "redis_host": config.redis_host,
+                "redis_port": config.redis_port,
+                "redis_db": config.redis_db,
+                "redis_password": config.redis_password,
+                "memcached_servers": config.memcached_servers,
+                "max_size": config.cache_max_size
+            }
+            
+            # Create schema cache (longer TTL)
+            self.schema_cache = create_cache_backend(
+                backend_type=config.cache_backend,
+                ttl=schema_cache_ttl,
+                **cache_backend_config
+            )
+            
+            # Create query cache (shorter TTL)
+            self.query_cache = create_cache_backend(
+                backend_type=config.cache_backend,
+                ttl=query_cache_ttl,
+                **cache_backend_config
+            )
+            
+            logger.info(f"Initialized {config.cache_backend} cache backend")
+            
+        except (CacheError, ValueError) as e:
+            logger.warning(f"Failed to initialize {config.cache_backend} cache backend: {e}")
+            logger.info("Falling back to memory cache backend")
+            
+            # Fallback to in-memory cache
+            self.schema_cache = create_cache_backend("memory", ttl=schema_cache_ttl, max_size=config.cache_max_size)
+            self.query_cache = create_cache_backend("memory", ttl=query_cache_ttl, max_size=config.cache_max_size)
 
         # Set up automatic cache cleanup if TTL is enabled
         self._cleanup_timer = None
@@ -167,8 +199,12 @@ class QueryAgent:
             stats = self.cleanup_expired_cache_entries()
             if stats["total_cleaned"] > 0:
                 logger.debug(f"Cleaned up {stats['total_cleaned']} expired cache entries")
+        except AttributeError as e:
+            logger.error(f"Cache cleanup failed - cache not properly initialized: {e}")
+        except RuntimeError as e:
+            logger.error(f"Cache cleanup failed - runtime error: {e}")
         except Exception as e:
-            logger.error(f"Error during cache cleanup: {e}")
+            logger.error(f"Unexpected error during cache cleanup: {e}")
         
         # Reschedule the next cleanup
         self._cleanup_timer = None
@@ -188,11 +224,17 @@ class QueryAgent:
             with self.engine.connect() as connection:
                 result = connection.execute(text(f"SELECT COUNT(*) FROM {table}"))
                 return result.scalar()
-        except Exception as e:
-            # Handle database-level errors (e.g., table doesn't exist)
+        except OperationalError as e:
+            # Handle database operational errors (table doesn't exist, connection issues)
             from .user_experience import create_invalid_table_error
             available_tables = self.discover_schema()
             raise create_invalid_table_error(table, available_tables)
+        except DatabaseError as e:
+            logger.error(f"Database error getting row count for {table}: {e}")
+            raise ValueError(f"Unable to access table '{table}': database error")
+        except Exception as e:
+            logger.error(f"Unexpected error getting row count for {table}: {e}")
+            raise RuntimeError(f"Failed to get row count for table '{table}'")
 
     def batch_row_counts(self, tables: List[str]) -> dict[str, int]:
         """Return row counts for multiple tables efficiently."""
@@ -205,8 +247,14 @@ class QueryAgent:
                 try:
                     result = connection.execute(text(f"SELECT COUNT(*) FROM {table}"))
                     counts[table] = result.scalar()
+                except OperationalError as e:
+                    logger.warning(f"Table access error for {table}: {e}")
+                    counts[table] = 0
+                except DatabaseError as e:
+                    logger.warning(f"Database error for {table}: {e}")
+                    counts[table] = 0
                 except Exception as e:
-                    logger.warning(f"Failed to get row count for {table}: {e}")
+                    logger.warning(f"Unexpected error for {table}: {e}")
                     counts[table] = 0
         return counts
 

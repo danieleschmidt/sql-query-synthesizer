@@ -43,6 +43,18 @@ class Config:
         
         # Cache Configuration
         self.cache_cleanup_interval = self._get_int_env("QUERY_AGENT_CACHE_CLEANUP_INTERVAL", 300, min_value=1)
+        self.cache_backend = os.getenv("QUERY_AGENT_CACHE_BACKEND", "memory").lower().strip()
+        self.cache_ttl = self._get_int_env("QUERY_AGENT_CACHE_TTL", 3600, min_value=0)
+        self.cache_max_size = self._get_int_env("QUERY_AGENT_CACHE_MAX_SIZE", 1000, min_value=1)
+        
+        # Redis Cache Configuration
+        self.redis_host = os.getenv("QUERY_AGENT_REDIS_HOST", "localhost")
+        self.redis_port = self._get_int_env("QUERY_AGENT_REDIS_PORT", 6379, min_value=1)
+        self.redis_db = self._get_int_env("QUERY_AGENT_REDIS_DB", 0, min_value=0)
+        self.redis_password = os.getenv("QUERY_AGENT_REDIS_PASSWORD")
+        
+        # Memcached Cache Configuration  
+        self.memcached_servers = self._get_list_env("QUERY_AGENT_MEMCACHED_SERVERS", ["localhost:11211"])
         
         # Timeout Settings (in seconds)
         self.openai_timeout = self._get_int_env("QUERY_AGENT_OPENAI_TIMEOUT", 30, min_value=1)
@@ -149,6 +161,15 @@ class Config:
             raise ValueError(f"{config_name} must be >= {min_value} (got {value})")
         
         return value
+    
+    def _get_list_env(self, env_var: str, default: list) -> list:
+        """Get list value from environment (comma-separated)."""
+        value_str = os.environ.get(env_var)
+        if value_str is None:
+            return default
+        
+        # Split by comma and strip whitespace
+        return [item.strip() for item in value_str.split(',') if item.strip()]
     
     def _get_bucket_env(self, env_var: str, default: Tuple[float, ...]) -> Tuple[float, ...]:
         """Get histogram bucket values from environment."""

@@ -145,5 +145,9 @@ class AsyncSQLGeneratorService:
             if hasattr(self.llm_provider, 'circuit_breaker'):
                 return self.llm_provider.circuit_breaker.is_request_allowed()
             return True
+        except AttributeError:
+            # Circuit breaker not available or not properly configured
+            return False
         except Exception:
+            # Any other unexpected error in circuit breaker check
             return False

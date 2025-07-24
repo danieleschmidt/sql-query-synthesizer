@@ -5,12 +5,13 @@ import logging
 from typing import List, Dict, Any, Optional
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 from sqlalchemy import inspect, text
+from sqlalchemy.exc import SQLAlchemyError, OperationalError, DatabaseError
 
 from .services.async_query_service import AsyncQueryService
 from .services.query_validator_service import QueryValidatorService  
 from .services.async_sql_generator_service import AsyncSQLGeneratorService
 from .async_openai_adapter import AsyncOpenAIAdapter
-from .cache import TTLCache
+from .cache import TTLCache, create_cache_backend, CacheError
 from .types import QueryResult
 from .database import DatabaseConnectionManager
 from .config import config
@@ -72,9 +73,40 @@ class AsyncQueryAgent:
             echo=False
         )
 
-        # Initialize caches
-        self.schema_cache = TTLCache(maxsize=100, ttl=schema_cache_ttl)
-        self.query_cache = TTLCache(maxsize=1000, ttl=query_cache_ttl)
+        # Initialize caches using configured backend
+        try:
+            cache_backend_config = {
+                "redis_host": config.redis_host,
+                "redis_port": config.redis_port,
+                "redis_db": config.redis_db,
+                "redis_password": config.redis_password,
+                "memcached_servers": config.memcached_servers,
+                "max_size": config.cache_max_size
+            }
+            
+            # Create schema cache (longer TTL)
+            self.schema_cache = create_cache_backend(
+                backend_type=config.cache_backend,
+                ttl=schema_cache_ttl,
+                **cache_backend_config
+            )
+            
+            # Create query cache (shorter TTL)
+            self.query_cache = create_cache_backend(
+                backend_type=config.cache_backend,
+                ttl=query_cache_ttl,
+                **cache_backend_config
+            )
+            
+            logger.info(f"Initialized {config.cache_backend} cache backend for async agent")
+            
+        except (CacheError, ValueError) as e:
+            logger.warning(f"Failed to initialize {config.cache_backend} cache backend: {e}")
+            logger.info("Falling back to memory cache backend")
+            
+            # Fallback to in-memory cache
+            self.schema_cache = create_cache_backend("memory", ttl=schema_cache_ttl, max_size=100)
+            self.query_cache = create_cache_backend("memory", ttl=query_cache_ttl, max_size=1000)
 
         # Initialize services
         self.validator = QueryValidatorService()
@@ -239,8 +271,14 @@ class AsyncQueryAgent:
                     result = await connection.execute(text(f"SELECT COUNT(*) FROM {table}"))
                     count = result.scalar()
                     return table, count
+            except OperationalError as e:
+                logger.warning(f"Table access error for {table}: {e}")
+                return table, 0
+            except DatabaseError as e:
+                logger.warning(f"Database error for {table}: {e}")
+                return table, 0
             except Exception as e:
-                logger.warning(f"Failed to get row count for {table}: {e}")
+                logger.warning(f"Unexpected error for {table}: {e}")
                 return table, 0
 
         # Run all count queries concurrently
@@ -291,8 +329,10 @@ class AsyncQueryAgent:
         try:
             await self.engine.dispose()
             logger.info("Async database connections closed")
+        except AttributeError as e:
+            logger.error(f"Async database engine not properly initialized: {e}")
         except Exception as e:
-            logger.error(f"Error closing async database connections: {e}")
+            logger.error(f"Unexpected error closing async database connections: {e}")
 
     async def __aenter__(self):
         """Async context manager entry."""
