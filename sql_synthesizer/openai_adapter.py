@@ -100,10 +100,20 @@ class OpenAIAdapter(LLMProvider):
             metrics.record_openai_request(duration, "success")
             
             return response.choices[0].message.content.strip()
-        except Exception as e:
+        except openai.RateLimitError as e:
             duration = time.time() - start_time
-            
-            # Record failure in circuit breaker
+            self.circuit_breaker.record_failure()
+            logger.warning(f"OpenAI rate limit exceeded: {e}")
+            metrics.record_openai_request(duration, "rate_limit_error")
+            return None
+        except openai.APITimeoutError as e:
+            duration = time.time() - start_time
+            self.circuit_breaker.record_failure()
+            logger.error(f"OpenAI API timeout: {e}")
+            metrics.record_openai_request(duration, "timeout_error")
+            return None
+        except (openai.APIError, openai.APIConnectionError) as e:
+            duration = time.time() - start_time
             self.circuit_breaker.record_failure()
             
             # Check exception type by name to handle import/mocking issues

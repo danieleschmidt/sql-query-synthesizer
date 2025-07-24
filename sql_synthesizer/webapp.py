@@ -81,13 +81,21 @@ def create_app(agent: QueryAgent) -> Flask:
         except openai.APITimeoutError as e:
             logger.error(f"OpenAI API timeout: {str(e)}")
             error_msg = "AI service timed out. Please try again."
+        except (OperationalError, DatabaseError, SQLTimeoutError) as e:
+            logger.error(f"Database error during query execution: {str(e)}")
+            error_msg = "Database connection or query execution error. Please try again."
+        except openai.RateLimitError as e:
+            logger.warning(f"OpenAI rate limit exceeded: {str(e)}")
+            error_msg = "Rate limit exceeded. Please wait a moment and try again."
+        except (openai.APIError, openai.APIConnectionError) as e:
+            logger.error(f"OpenAI API error: {str(e)}")
+            error_msg = "AI service temporarily unavailable. Please try again later."
         except ValueError as e:
-            logger.error(f"Input validation error: {str(e)}")
-            error_msg = "Invalid query. Please check your question and try again."
-        except Exception as e:
-            # Log the full error but return sanitized message
-            logger.error(f"Unexpected query execution error: {str(e)}")
-            error_msg = "An error occurred while processing your query. Please try again."
+            logger.warning(f"Invalid input during query processing: {str(e)}")
+            error_msg = "Invalid input provided. Please check your query and try again."
+        except (OSError, IOError) as e:
+            logger.error(f"I/O error during query processing: {str(e)}")
+            error_msg = "System I/O error. Please try again."
         
         # Return error response if any exception occurred
         if 'error_msg' in locals():
@@ -152,14 +160,21 @@ def create_app(agent: QueryAgent) -> Flask:
         except openai.APITimeoutError as e:
             logger.error(f"API OpenAI timeout: {str(e)}")
             return jsonify({'error': 'AI service timed out. Please try again.'}), 408
+        except (OperationalError, DatabaseError, SQLTimeoutError) as e:
+            logger.error(f"Database error in API query: {str(e)}")
+            return jsonify({'error': 'Database connection or query execution error'}), 500
+        except openai.RateLimitError as e:
+            logger.warning(f"OpenAI rate limit exceeded in API: {str(e)}")
+            return jsonify({'error': 'Rate limit exceeded. Please wait and try again'}), 429
+        except (openai.APIError, openai.APIConnectionError) as e:
+            logger.error(f"OpenAI API error in API: {str(e)}")
+            return jsonify({'error': 'AI service temporarily unavailable'}), 503
         except ValueError as e:
-            logger.error(f"API input validation error: {str(e)}")
-            return jsonify({'error': 'Invalid query. Please check your question and try again.'}), 400
-        except Exception as e:
-            # Log the full error but return sanitized message
-            logger.error(f"Unexpected API query execution error: {str(e)}")
-            
-            return jsonify({'error': 'An error occurred while processing your query. Please try again.'}), 500
+            logger.warning(f"Invalid input in API query: {str(e)}")
+            return jsonify({'error': 'Invalid input provided'}), 400
+        except (OSError, IOError) as e:
+            logger.error(f"I/O error in API query: {str(e)}")
+            return jsonify({'error': 'System I/O error occurred'}), 500
 
     @app.get("/health")
     def health() -> tuple[dict, int]:
@@ -195,8 +210,20 @@ def create_app(agent: QueryAgent) -> Flask:
                 'timestamp': time.time(),
                 'error': 'Service not properly configured'
             }), 503
-        except Exception as e:
-            logger.error(f"Unexpected health check error: {str(e)}")
+        except (OperationalError, DatabaseError, SQLTimeoutError) as e:
+            logger.error(f"Database error in health check: {str(e)}")
+            return jsonify({
+                'status': 'unhealthy',
+                'error': 'Database connection error'
+            }), 503
+        except (ConnectionError, TimeoutError) as e:
+            logger.error(f"Connection error in health check: {str(e)}")
+            return jsonify({
+                'status': 'unhealthy',
+                'error': 'Service connection error'
+            }), 503
+        except (OSError, IOError) as e:
+            logger.error(f"I/O error in health check: {str(e)}")
             return jsonify({
                 'status': 'unhealthy', 
                 'timestamp': time.time(),

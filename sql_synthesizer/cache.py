@@ -320,8 +320,10 @@ class MemcachedCacheBackend(CacheBackend):
             )
             # Test connection by setting a test key
             self.client.set("_connection_test", "ok", expire=1)
-        except Exception as e:
+        except (ConnectionError, OSError, IOError) as e:
             raise CacheError(f"Failed to connect to Memcached: {e}")
+        except ImportError as e:
+            raise CacheError(f"Memcached dependencies not available: {e}")
     
     def get(self, key: str) -> Any:
         """Get value from cache. Raises KeyError if not found."""
@@ -334,21 +336,25 @@ class MemcachedCacheBackend(CacheBackend):
                 
                 self._hit_count += 1
                 return value
-        except Exception as e:
+        except (ConnectionError, OSError, IOError) as e:
             raise CacheError(f"Memcached get operation failed: {e}")
+        except (ValueError, TypeError) as e:
+            raise CacheError(f"Invalid key or serialization error: {e}")
     
     def set(self, key: str, value: Any) -> None:
         """Set value in cache with TTL."""
         try:
             self.client.set(key, value, expire=self.ttl)
-        except Exception as e:
+        except (ConnectionError, OSError, IOError) as e:
             raise CacheError(f"Memcached set operation failed: {e}")
+        except (ValueError, TypeError) as e:
+            raise CacheError(f"Cannot serialize value for caching: {e}")
     
     def clear(self) -> None:
         """Clear all cache entries."""
         try:
             self.client.flush_all()
-        except Exception as e:
+        except (ConnectionError, OSError, IOError) as e:
             raise CacheError(f"Memcached clear operation failed: {e}")
     
     def cleanup_expired(self) -> Dict[str, int]:

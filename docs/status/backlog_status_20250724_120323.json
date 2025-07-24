@@ -1,14 +1,14 @@
 {
-  "timestamp": "2025-07-24T12:08:36.216706",
+  "timestamp": "2025-07-24T12:03:23.315990",
   "backlog_summary": {
     "total_items": 8,
     "status_breakdown": {
       "NEW": 5,
       "REFINED": 0,
-      "READY": 1,
+      "READY": 2,
       "DOING": 0,
       "PR": 0,
-      "DONE": 2,
+      "DONE": 1,
       "BLOCKED": 0
     },
     "risk_breakdown": {
@@ -23,6 +23,31 @@
     }
   },
   "next_actions": [
+    {
+      "id": "replace-broad-exceptions",
+      "title": "Replace broad exception handling with specific exceptions",
+      "type": "code-quality",
+      "description": "Replace multiple 'except Exception' clauses with specific exception types",
+      "acceptance_criteria": [
+        "All 'except Exception' replaced with specific types",
+        "Better error messages for different exception types",
+        "Logging enhanced with exception context",
+        "Test coverage for all exception paths"
+      ],
+      "effort": 5,
+      "value": 3,
+      "time_criticality": 2,
+      "risk_reduction": 8,
+      "status": "READY",
+      "risk_tier": "low",
+      "created_at": "2025-07-24",
+      "links": [
+        "BACKLOG.md:218"
+      ],
+      "wsjf_score": 2.6,
+      "aging_multiplier": 1.0,
+      "completed_at": null
+    },
     {
       "id": "cache-backend-configuration",
       "title": "Add configuration for cache backend (Redis/Memcached)",
@@ -52,7 +77,7 @@
     }
   ],
   "health_metrics": {
-    "ready_items": 1,
+    "ready_items": 2,
     "blocked_items": 0,
     "high_risk_items": 0
   }
