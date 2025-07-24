@@ -191,6 +191,11 @@ class TTLCacheBackend(CacheBackend):
     def __init__(self, ttl: int = 0, max_size: Optional[int] = None):
         self._cache = TTLCache(ttl=ttl, max_size=max_size)
     
+    @property
+    def ttl(self) -> int:
+        """Get the TTL value for this cache backend."""
+        return self._cache.ttl
+    
     def get(self, key: str) -> Any:
         """Get value from cache. Raises KeyError if not found."""
         return self._cache.get(key)

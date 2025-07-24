@@ -75,21 +75,24 @@ class DatabaseConnectionManager:
             "pool_recycle": config.db_pool_recycle,
             "pool_pre_ping": config.db_pool_pre_ping,
             
-            # Connection timeout
-            "connect_args": {
-                "connect_timeout": config.database_timeout,
-            },
-            
             # Engine configuration
             "echo": False,  # Set to True for SQL debugging
             "future": True,  # Use SQLAlchemy 2.0 style
         }
         
         # Handle database-specific connection arguments
+        connect_args = {}
+        
         if "postgresql" in self.database_url:
-            engine_kwargs["connect_args"]["application_name"] = "sql_synthesizer"
+            connect_args["connect_timeout"] = config.database_timeout
+            connect_args["application_name"] = "sql_synthesizer"
         elif "mysql" in self.database_url:
-            engine_kwargs["connect_args"]["charset"] = "utf8mb4"
+            connect_args["connect_timeout"] = config.database_timeout
+            connect_args["charset"] = "utf8mb4"
+        # SQLite doesn't support connect_timeout, so we skip it
+        
+        if connect_args:
+            engine_kwargs["connect_args"] = connect_args
         
         for attempt in range(config.db_connect_retries + 1):
             try:

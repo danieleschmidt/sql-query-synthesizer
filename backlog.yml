@@ -1,210 +1,399 @@
----
 backlog:
-  # High Priority Items (WSJF Score > 6)
-  - id: "security-audit-logging"
-    title: "Implement security audit logging and event tracking"
-    type: "security"
-    description: "Add comprehensive audit trail for security events, failed login attempts, and suspicious activities"
-    acceptance_criteria:
-      - "✅ Security events logged with structured format"
-      - "✅ Audit trail includes user ID, timestamp, action, IP address"
-      - "✅ Failed authentication attempts tracked and rate limited"
-      - "✅ Configurable log retention and rotation"
-    effort: 5  # (1-2-3-5-8-13 scale)
-    value: 8
-    time_criticality: 5
-    risk_reduction: 8
-    status: "DONE"
-    risk_tier: "medium"
-    created_at: "2025-07-24"
-    completed_at: "2025-07-24T11:46:33Z"
-    links:
-      - "BACKLOG.md:251"
-      - "sql_synthesizer/security_audit.py:90-414"
-      - "sql_synthesizer/config.py:91-98"
-    wsjf_score: 4.2  # (8+5+8)/5
-
-  - id: "cache-backend-configuration"
-    title: "Add configuration for cache backend (Redis/Memcached)"
-    type: "architecture"
-    description: "Support Redis and Memcached for distributed caching beyond current TTLCache"
-    acceptance_criteria:
-      - "Configurable cache backend via environment variables"
-      - "Redis adapter with connection pooling"
-      - "Memcached adapter with failover support"
-      - "Backward compatibility with TTLCache"
-      - "Performance metrics for all cache backends"
-    effort: 8
-    value: 5
-    time_criticality: 3
-    risk_reduction: 5
-    status: "READY"
-    risk_tier: "low"
-    created_at: "2025-07-24"
-    links:
-      - "BACKLOG.md:215"
-      - "DEVELOPMENT_PLAN.md:56"
-    wsjf_score: 1.625  # (5+3+5)/8
-
-  - id: "replace-broad-exceptions"
-    title: "Replace broad exception handling with specific exceptions"
-    type: "code-quality"
-    description: "Replace multiple 'except Exception' clauses with specific exception types"
-    acceptance_criteria:
-      - "✅ Critical 'except Exception' replaced with specific types (40+ instances)"
-      - "✅ Better error messages for different exception types"
-      - "✅ Logging enhanced with exception context"
-      - "✅ Test coverage for all exception paths"
-    effort: 5
-    value: 3
-    time_criticality: 2
-    risk_reduction: 8
-    status: "DONE"
-    risk_tier: "low"
-    created_at: "2025-07-24"
-    completed_at: "2025-07-24T12:08:00Z"
-    links:
-      - "BACKLOG.md:218"
-      - "autonomous_backlog_manager.py:95-428"
-      - "sql_synthesizer/webapp.py:87-227"
-      - "sql_synthesizer/cache.py:323-358"
-      - "tests/test_specific_exception_handling.py"
-    wsjf_score: 2.6  # (3+2+8)/5
-
-  # Medium Priority Items (WSJF Score 3-6)
-  - id: "query-result-pagination"
-    title: "Implement query result pagination"
-    type: "performance"
-    description: "Add pagination support for large result sets to improve performance"
-    acceptance_criteria:
-      - "Configurable page size via environment variable"
-      - "Cursor-based pagination for consistent results"
-      - "Performance metrics for paginated queries"
-      - "Backward compatibility for non-paginated requests"
-    effort: 5
-    value: 5
-    time_criticality: 3
-    risk_reduction: 3
-    status: "NEW"
-    risk_tier: "low"
-    created_at: "2025-07-24"
-    links:
-      - "BACKLOG.md:245"
-    wsjf_score: 2.2  # (5+3+3)/5
-
-  - id: "health-check-endpoint"
-    title: "Enhanced health check endpoint with dependency status"
-    type: "observability"
-    description: "Add comprehensive health checks for database, OpenAI API, and cache backends"
-    acceptance_criteria:
-      - "Database connection health check"
-      - "OpenAI API availability check"
-      - "Cache backend status monitoring"
-      - "JSON response with detailed status"
-      - "HTTP status codes reflecting health"
-    effort: 3
-    value: 3
-    time_criticality: 2
-    risk_reduction: 5
-    status: "NEW"
-    risk_tier: "low"
-    created_at: "2025-07-24"
-    links:
-      - "BACKLOG.md:262"
-    wsjf_score: 3.33  # (3+2+5)/3
-
-  # Low Priority Items (WSJF Score < 3)
-  - id: "api-documentation-openapi"
-    title: "Create API documentation with OpenAPI specification"
-    type: "documentation"
-    description: "Generate comprehensive API documentation using OpenAPI/Swagger"
-    acceptance_criteria:
-      - "OpenAPI 3.0 specification file"
-      - "Interactive Swagger UI endpoint"
-      - "All endpoints documented with examples"
-      - "Authentication requirements documented"
-    effort: 8
-    value: 3
-    time_criticality: 1
-    risk_reduction: 1
-    status: "NEW"
-    risk_tier: "low"
-    created_at: "2025-07-24"
-    links:
-      - "BACKLOG.md:266"
-    wsjf_score: 0.625  # (3+1+1)/8
-
-  - id: "responsive-html-templates"
-    title: "Add responsive HTML templates"
-    type: "feature"
-    description: "Improve web UI with responsive design for mobile/tablet experience"
-    acceptance_criteria:
-      - "Mobile-first responsive CSS"
-      - "Touch-friendly interface elements"
-      - "Progressive enhancement for different screen sizes"
-      - "Accessibility compliance (WCAG 2.1)"
-    effort: 8
-    value: 2
-    time_criticality: 1
-    risk_reduction: 1
-    status: "NEW"
-    risk_tier: "low"
-    created_at: "2025-07-24"
-    links:
-      - "BACKLOG.md:74"
-      - "DEVELOPMENT_PLAN.md:59"
-    wsjf_score: 0.5  # (2+1+1)/8
-
-  - id: "deploy-demo-environment"
-    title: "Deploy public demo environment"
-    type: "deployment"
-    description: "Create public demo for marketing and user onboarding"
-    acceptance_criteria:
-      - "Docker containerization"
-      - "CI/CD pipeline for deployment"
-      - "Sample data and queries"
-      - "Rate limiting for public access"
-      - "Usage analytics"
-    effort: 13
-    value: 2
-    time_criticality: 1
-    risk_reduction: 1
-    status: "NEW"
-    risk_tier: "low"
-    created_at: "2025-07-24"
-    links:
-      - "BACKLOG.md:78"
-      - "DEVELOPMENT_PLAN.md:41"
-    wsjf_score: 0.31  # (2+1+1)/13
-
-# Metadata
+- id: security-audit-logging
+  title: Implement security audit logging and event tracking
+  type: security
+  description: Add comprehensive audit trail for security events, failed login attempts,
+    and suspicious activities
+  acceptance_criteria:
+  - "\u2705 Security events logged with structured format"
+  - "\u2705 Audit trail includes user ID, timestamp, action, IP address"
+  - "\u2705 Failed authentication attempts tracked and rate limited"
+  - "\u2705 Configurable log retention and rotation"
+  effort: 5
+  value: 8
+  time_criticality: 5
+  risk_reduction: 8
+  status: DONE
+  risk_tier: medium
+  created_at: '2025-07-24'
+  links:
+  - BACKLOG.md:251
+  - sql_synthesizer/security_audit.py:90-414
+  - sql_synthesizer/config.py:91-98
+  wsjf_score: 4.2
+  aging_multiplier: 1.0
+  completed_at: '2025-07-24T11:46:33Z'
+- id: health-check-endpoint
+  title: Enhanced health check endpoint with dependency status
+  type: observability
+  description: Add comprehensive health checks for database, OpenAI API, and cache
+    backends
+  acceptance_criteria:
+  - Database connection health check
+  - OpenAI API availability check
+  - Cache backend status monitoring
+  - JSON response with detailed status
+  - HTTP status codes reflecting health
+  effort: 3
+  value: 3
+  time_criticality: 2
+  risk_reduction: 5
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-24'
+  links:
+  - BACKLOG.md:262
+  wsjf_score: 3.3333333333333335
+  aging_multiplier: 1.0
+  completed_at: null
+- id: todo-8039
+  title: 'TODO: /FIXME comments and convert to backlog items."""'
+  type: tech-debt
+  description: Address todo comment in ./autonomous_backlog_manager.py:173
+  acceptance_criteria:
+  - Resolve todo comment
+  - Update or remove comment
+  - Add test coverage if needed
+  effort: 2
+  value: 2
+  time_criticality: 1
+  risk_reduction: 3
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-24T13:59:16.745449'
+  links:
+  - ./autonomous_backlog_manager.py:173
+  wsjf_score: 3.0
+  aging_multiplier: 1.0
+  completed_at: null
+- id: todo-1720
+  title: 'TODO: |FIXME|XXX|HACK'', str(self.repo_path)'
+  type: tech-debt
+  description: Address todo comment in ./autonomous_backlog_manager.py:180
+  acceptance_criteria:
+  - Resolve todo comment
+  - Update or remove comment
+  - Add test coverage if needed
+  effort: 2
+  value: 2
+  time_criticality: 1
+  risk_reduction: 3
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-24T13:59:16.745492'
+  links:
+  - ./autonomous_backlog_manager.py:180
+  wsjf_score: 3.0
+  aging_multiplier: 1.0
+  completed_at: null
+- id: todo-4212
+  title: 'TODO: /FIXME content'
+  type: tech-debt
+  description: Address todo comment in ./autonomous_backlog_manager.py:192
+  acceptance_criteria:
+  - Resolve todo comment
+  - Update or remove comment
+  - Add test coverage if needed
+  effort: 2
+  value: 2
+  time_criticality: 1
+  risk_reduction: 3
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-24T13:59:16.745509'
+  links:
+  - ./autonomous_backlog_manager.py:192
+  wsjf_score: 3.0
+  aging_multiplier: 1.0
+  completed_at: null
+- id: todo-8351
+  title: 'TODO: |FIXME|XXX|HACK)['
+  type: tech-debt
+  description: Address todo comment in ./autonomous_backlog_manager.py:193
+  acceptance_criteria:
+  - Resolve todo comment
+  - Update or remove comment
+  - Add test coverage if needed
+  effort: 2
+  value: 2
+  time_criticality: 1
+  risk_reduction: 3
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-24T13:59:16.745523'
+  links:
+  - ./autonomous_backlog_manager.py:193
+  wsjf_score: 3.0
+  aging_multiplier: 1.0
+  completed_at: null
+- id: todo-2946
+  title: 'TODO: /FIXME items")'
+  type: tech-debt
+  description: Address todo comment in ./autonomous_backlog_manager.py:226
+  acceptance_criteria:
+  - Resolve todo comment
+  - Update or remove comment
+  - Add test coverage if needed
+  effort: 2
+  value: 2
+  time_criticality: 1
+  risk_reduction: 3
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-24T13:59:16.745537'
+  links:
+  - ./autonomous_backlog_manager.py:226
+  wsjf_score: 3.0
+  aging_multiplier: 1.0
+  completed_at: null
+- id: todo-7497
+  title: 'TODO: /FIXME discovery")'
+  type: tech-debt
+  description: Address todo comment in ./autonomous_backlog_manager.py:230
+  acceptance_criteria:
+  - Resolve todo comment
+  - Update or remove comment
+  - Add test coverage if needed
+  effort: 2
+  value: 2
+  time_criticality: 1
+  risk_reduction: 3
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-24T13:59:16.745551'
+  links:
+  - ./autonomous_backlog_manager.py:230
+  wsjf_score: 3.0
+  aging_multiplier: 1.0
+  completed_at: null
+- id: todo-5061
+  title: 'TODO: /FIXME discovery'
+  type: tech-debt
+  description: Address todo comment in ./autonomous_backlog_manager.py:232
+  acceptance_criteria:
+  - Resolve todo comment
+  - Update or remove comment
+  - Add test coverage if needed
+  effort: 2
+  value: 2
+  time_criticality: 1
+  risk_reduction: 3
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-24T13:59:16.745562'
+  links:
+  - ./autonomous_backlog_manager.py:232
+  wsjf_score: 3.0
+  aging_multiplier: 1.0
+  completed_at: null
+- id: todo-1730
+  title: 'TODO: /FIXME items'
+  type: tech-debt
+  description: Address todo comment in ./autonomous_backlog_manager.py:469
+  acceptance_criteria:
+  - Resolve todo comment
+  - Update or remove comment
+  - Add test coverage if needed
+  effort: 2
+  value: 2
+  time_criticality: 1
+  risk_reduction: 3
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-24T13:59:16.745572'
+  links:
+  - ./autonomous_backlog_manager.py:469
+  wsjf_score: 3.0
+  aging_multiplier: 1.0
+  completed_at: null
+- id: replace-broad-exceptions
+  title: Replace broad exception handling with specific exceptions
+  type: code-quality
+  description: Replace multiple 'except Exception' clauses with specific exception
+    types
+  acceptance_criteria:
+  - "\u2705 Critical 'except Exception' replaced with specific types (40+ instances)"
+  - "\u2705 Better error messages for different exception types"
+  - "\u2705 Logging enhanced with exception context"
+  - "\u2705 Test coverage for all exception paths"
+  effort: 5
+  value: 3
+  time_criticality: 2
+  risk_reduction: 8
+  status: DONE
+  risk_tier: low
+  created_at: '2025-07-24'
+  links:
+  - BACKLOG.md:218
+  - autonomous_backlog_manager.py:95-428
+  - sql_synthesizer/webapp.py:87-227
+  - sql_synthesizer/cache.py:323-358
+  - tests/test_specific_exception_handling.py
+  wsjf_score: 2.6
+  aging_multiplier: 1.0
+  completed_at: '2025-07-24T12:08:00Z'
+- id: query-result-pagination
+  title: Implement query result pagination
+  type: performance
+  description: Add pagination support for large result sets to improve performance
+  acceptance_criteria:
+  - Configurable page size via environment variable
+  - Cursor-based pagination for consistent results
+  - Performance metrics for paginated queries
+  - Backward compatibility for non-paginated requests
+  effort: 5
+  value: 5
+  time_criticality: 3
+  risk_reduction: 3
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-24'
+  links:
+  - BACKLOG.md:245
+  wsjf_score: 2.2
+  aging_multiplier: 1.0
+  completed_at: null
+- id: cache-backend-configuration
+  title: Add configuration for cache backend (Redis/Memcached)
+  type: architecture
+  description: Support Redis and Memcached for distributed caching beyond current
+    TTLCache
+  acceptance_criteria:
+  - "✅ Configurable cache backend via environment variables (QUERY_AGENT_CACHE_BACKEND)"
+  - "✅ Redis adapter with connection pooling (RedisCacheBackend implemented)"
+  - "✅ Memcached adapter with failover support (MemcachedCacheBackend implemented)"
+  - "✅ Backward compatibility with TTLCache (create_cache_backend factory)"
+  - "✅ Performance metrics for all cache backends (get_stats() methods)"
+  effort: 8
+  value: 5
+  time_criticality: 3
+  risk_reduction: 5
+  status: DONE
+  risk_tier: low
+  created_at: '2025-07-24'
+  links:
+  - BACKLOG.md:215
+  - DEVELOPMENT_PLAN.md:56
+  - sql_synthesizer/cache.py:188-430
+  - sql_synthesizer/config.py:115-120
+  - sql_synthesizer/query_agent.py:83-116
+  - test_cache_isolated.py:1-155
+  wsjf_score: 1.625
+  aging_multiplier: 1.0
+  completed_at: '2025-07-24T14:01:45Z'
+- id: api-documentation-openapi
+  title: Create API documentation with OpenAPI specification
+  type: documentation
+  description: Generate comprehensive API documentation using OpenAPI/Swagger
+  acceptance_criteria:
+  - OpenAPI 3.0 specification file
+  - Interactive Swagger UI endpoint
+  - All endpoints documented with examples
+  - Authentication requirements documented
+  effort: 8
+  value: 3
+  time_criticality: 1
+  risk_reduction: 1
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-24'
+  links:
+  - BACKLOG.md:266
+  wsjf_score: 0.625
+  aging_multiplier: 1.0
+  completed_at: null
+- id: responsive-html-templates
+  title: Add responsive HTML templates
+  type: feature
+  description: Improve web UI with responsive design for mobile/tablet experience
+  acceptance_criteria:
+  - Mobile-first responsive CSS
+  - Touch-friendly interface elements
+  - Progressive enhancement for different screen sizes
+  - Accessibility compliance (WCAG 2.1)
+  effort: 8
+  value: 2
+  time_criticality: 1
+  risk_reduction: 1
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-24'
+  links:
+  - BACKLOG.md:74
+  - DEVELOPMENT_PLAN.md:59
+  wsjf_score: 0.5
+  aging_multiplier: 1.0
+  completed_at: null
+- id: deploy-demo-environment
+  title: Deploy public demo environment
+  type: deployment
+  description: Create public demo for marketing and user onboarding
+  acceptance_criteria:
+  - Docker containerization
+  - CI/CD pipeline for deployment
+  - Sample data and queries
+  - Rate limiting for public access
+  - Usage analytics
+  effort: 13
+  value: 2
+  time_criticality: 1
+  risk_reduction: 1
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-24'
+  links:
+  - BACKLOG.md:78
+  - DEVELOPMENT_PLAN.md:41
+  wsjf_score: 0.3076923076923077
+  aging_multiplier: 1.0
+  completed_at: null
 metadata:
-  last_updated: "2025-07-24T11:32:00Z"
-  total_items: 8
-  ready_items: 3
-  avg_wsjf_score: 2.18
-  next_review: "2025-07-25T11:32:00Z"
-  
-# Configuration
+  last_updated: '2025-07-24T13:59:16.747707'
+  total_items: 16
+  ready_items: 1
+  avg_wsjf_score: 2.4619391025641026
+  next_review: '2025-07-25T13:59:16.747722'
 config:
   wsjf:
-    effort_scale: [1, 2, 3, 5, 8, 13]  # Fibonacci
-    value_scale: [1, 2, 3, 5, 8, 13]
-    time_criticality_scale: [1, 2, 3, 5, 8, 13]
-    risk_reduction_scale: [1, 2, 3, 5, 8, 13]
+    effort_scale:
+    - 1
+    - 2
+    - 3
+    - 5
+    - 8
+    - 13
+    value_scale:
+    - 1
+    - 2
+    - 3
+    - 5
+    - 8
+    - 13
+    time_criticality_scale:
+    - 1
+    - 2
+    - 3
+    - 5
+    - 8
+    - 13
+    risk_reduction_scale:
+    - 1
+    - 2
+    - 3
+    - 5
+    - 8
+    - 13
     aging_multiplier_max: 2.0
     aging_days_threshold: 30
-  
   statuses:
-    - "NEW"        # Newly discovered
-    - "REFINED"    # Requirements clarified
-    - "READY"      # Clear acceptance criteria, ready for work
-    - "DOING"      # Currently in progress
-    - "PR"         # Pull request submitted
-    - "DONE"       # Completed and merged
-    - "BLOCKED"    # Cannot proceed
-  
+  - NEW
+  - REFINED
+  - READY
+  - DOING
+  - PR
+  - DONE
+  - BLOCKED
   risk_tiers:
-    - "low"        # Safe changes
-    - "medium"     # Require review
-    - "high"       # Need approval
+  - low
+  - medium
+  - high

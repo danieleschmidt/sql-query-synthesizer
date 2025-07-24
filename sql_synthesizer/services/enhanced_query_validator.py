@@ -569,3 +569,60 @@ class EnhancedQueryValidatorService:
             'rate_limit_per_minute': self.max_validation_attempts,
             'sqlparse_available': sqlparse is not None
         }
+    
+    def validate_sql(self, sql: str) -> str:
+        """Backward compatibility method for QueryService interface.
+        
+        This method provides compatibility with the legacy QueryValidatorService
+        interface by delegating to validate_sql_statement.
+        
+        Args:
+            sql: The SQL statement to validate
+            
+        Returns:
+            str: The validated SQL statement
+            
+        Raises:
+            ValueError: If the SQL is unsafe or violates policy
+        """
+        return self.validate_sql_statement(sql)
+    
+    def validate_table_name(self, table_name: str) -> str:
+        """Validate a table name for safety.
+        
+        This method provides compatibility with the legacy QueryValidatorService
+        interface while using enhanced validation logic.
+        
+        Args:
+            table_name: The table name to validate
+            
+        Returns:
+            str: The validated table name
+            
+        Raises:
+            ValueError: If the table name is invalid
+        """
+        if not table_name or not table_name.strip():
+            from ..user_experience import create_invalid_table_error
+            raise create_invalid_table_error("", [])
+
+        table_name = table_name.strip()
+
+        # Use enhanced validation: check for SQL injection patterns
+        if self._contains_sql_injection(table_name):
+            get_security_audit_logger(config).log_sql_injection_attempt(
+                malicious_input=table_name,
+                detection_method="table_name_validation",
+                table_name=table_name
+            )
+            from ..user_experience import create_invalid_table_error
+            raise create_invalid_table_error(table_name, [])
+
+        # Basic alphanumeric validation with underscores
+        import re
+        VALID_TABLE_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+        if not VALID_TABLE_RE.match(table_name):
+            from ..user_experience import create_invalid_table_error
+            raise create_invalid_table_error(table_name, [])
+
+        return table_name
