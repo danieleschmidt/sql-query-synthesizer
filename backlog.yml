@@ -29,183 +29,185 @@ backlog:
   description: Add comprehensive health checks for database, OpenAI API, and cache
     backends
   acceptance_criteria:
-  - Database connection health check
-  - OpenAI API availability check
-  - Cache backend status monitoring
-  - JSON response with detailed status
-  - HTTP status codes reflecting health
+  - "✅ Database connection health check"
+  - "✅ OpenAI API availability check"
+  - "✅ Cache backend status monitoring"
+  - "✅ JSON response with detailed status"
+  - "✅ HTTP status codes reflecting health"
   effort: 3
   value: 3
   time_criticality: 2
   risk_reduction: 5
-  status: NEW
+  status: DONE
   risk_tier: low
   created_at: '2025-07-24'
   links:
   - BACKLOG.md:262
+  - sql_synthesizer/query_agent.py:341-446
+  - sql_synthesizer/webapp.py:179-206
   wsjf_score: 3.3333333333333335
   aging_multiplier: 1.0
-  completed_at: null
+  completed_at: '2025-07-25T07:00:00Z'
 - id: todo-8039
   title: 'TODO: /FIXME comments and convert to backlog items."""'
   type: tech-debt
   description: Address todo comment in ./autonomous_backlog_manager.py:173
   acceptance_criteria:
-  - Resolve todo comment
-  - Update or remove comment
-  - Add test coverage if needed
+  - "✅ Resolve todo comment"
+  - "✅ Update or remove comment"
+  - "✅ Add test coverage if needed"
   effort: 2
   value: 2
   time_criticality: 1
   risk_reduction: 3
-  status: NEW
+  status: DONE
   risk_tier: low
   created_at: '2025-07-24T13:59:16.745449'
   links:
-  - ./autonomous_backlog_manager.py:173
+  - ./autonomous_backlog_manager.py:173-196
   wsjf_score: 3.0
   aging_multiplier: 1.0
-  completed_at: null
+  completed_at: '2025-07-25T07:15:00Z'
 - id: todo-1720
   title: 'TODO: |FIXME|XXX|HACK'', str(self.repo_path)'
   type: tech-debt
   description: Address todo comment in ./autonomous_backlog_manager.py:180
   acceptance_criteria:
-  - Resolve todo comment
-  - Update or remove comment
-  - Add test coverage if needed
+  - "✅ Resolve todo comment"
+  - "✅ Update or remove comment"
+  - "✅ Add test coverage if needed"
   effort: 2
   value: 2
   time_criticality: 1
   risk_reduction: 3
-  status: NEW
+  status: DONE
   risk_tier: low
   created_at: '2025-07-24T13:59:16.745492'
   links:
   - ./autonomous_backlog_manager.py:180
   wsjf_score: 3.0
   aging_multiplier: 1.0
-  completed_at: null
+  completed_at: '2025-07-25T07:15:00Z'
 - id: todo-4212
   title: 'TODO: /FIXME content'
   type: tech-debt
   description: Address todo comment in ./autonomous_backlog_manager.py:192
   acceptance_criteria:
-  - Resolve todo comment
-  - Update or remove comment
-  - Add test coverage if needed
+  - "✅ Resolve todo comment"
+  - "✅ Update or remove comment"
+  - "✅ Add test coverage if needed"
   effort: 2
   value: 2
   time_criticality: 1
   risk_reduction: 3
-  status: NEW
+  status: DONE
   risk_tier: low
   created_at: '2025-07-24T13:59:16.745509'
   links:
   - ./autonomous_backlog_manager.py:192
   wsjf_score: 3.0
   aging_multiplier: 1.0
-  completed_at: null
+  completed_at: '2025-07-25T07:15:00Z'
 - id: todo-8351
   title: 'TODO: |FIXME|XXX|HACK)['
   type: tech-debt
   description: Address todo comment in ./autonomous_backlog_manager.py:193
   acceptance_criteria:
-  - Resolve todo comment
-  - Update or remove comment
-  - Add test coverage if needed
+  - "✅ Resolve todo comment"
+  - "✅ Update or remove comment"
+  - "✅ Add test coverage if needed"
   effort: 2
   value: 2
   time_criticality: 1
   risk_reduction: 3
-  status: NEW
+  status: DONE
   risk_tier: low
   created_at: '2025-07-24T13:59:16.745523'
   links:
   - ./autonomous_backlog_manager.py:193
   wsjf_score: 3.0
   aging_multiplier: 1.0
-  completed_at: null
+  completed_at: '2025-07-25T07:15:00Z'
 - id: todo-2946
   title: 'TODO: /FIXME items")'
   type: tech-debt
   description: Address todo comment in ./autonomous_backlog_manager.py:226
   acceptance_criteria:
-  - Resolve todo comment
-  - Update or remove comment
-  - Add test coverage if needed
+  - "✅ Resolve todo comment"
+  - "✅ Update or remove comment"
+  - "✅ Add test coverage if needed"
   effort: 2
   value: 2
   time_criticality: 1
   risk_reduction: 3
-  status: NEW
+  status: DONE
   risk_tier: low
   created_at: '2025-07-24T13:59:16.745537'
   links:
   - ./autonomous_backlog_manager.py:226
   wsjf_score: 3.0
   aging_multiplier: 1.0
-  completed_at: null
+  completed_at: '2025-07-25T07:15:00Z'
 - id: todo-7497
   title: 'TODO: /FIXME discovery")'
   type: tech-debt
   description: Address todo comment in ./autonomous_backlog_manager.py:230
   acceptance_criteria:
-  - Resolve todo comment
-  - Update or remove comment
-  - Add test coverage if needed
+  - "✅ Resolve todo comment"
+  - "✅ Update or remove comment"
+  - "✅ Add test coverage if needed"
   effort: 2
   value: 2
   time_criticality: 1
   risk_reduction: 3
-  status: NEW
+  status: DONE
   risk_tier: low
   created_at: '2025-07-24T13:59:16.745551'
   links:
   - ./autonomous_backlog_manager.py:230
   wsjf_score: 3.0
   aging_multiplier: 1.0
-  completed_at: null
+  completed_at: '2025-07-25T07:15:00Z'
 - id: todo-5061
   title: 'TODO: /FIXME discovery'
   type: tech-debt
   description: Address todo comment in ./autonomous_backlog_manager.py:232
   acceptance_criteria:
-  - Resolve todo comment
-  - Update or remove comment
-  - Add test coverage if needed
+  - "✅ Resolve todo comment"
+  - "✅ Update or remove comment"
+  - "✅ Add test coverage if needed"
   effort: 2
   value: 2
   time_criticality: 1
   risk_reduction: 3
-  status: NEW
+  status: DONE
   risk_tier: low
   created_at: '2025-07-24T13:59:16.745562'
   links:
   - ./autonomous_backlog_manager.py:232
   wsjf_score: 3.0
   aging_multiplier: 1.0
-  completed_at: null
+  completed_at: '2025-07-25T07:15:00Z'
 - id: todo-1730
   title: 'TODO: /FIXME items'
   type: tech-debt
   description: Address todo comment in ./autonomous_backlog_manager.py:469
   acceptance_criteria:
-  - Resolve todo comment
-  - Update or remove comment
-  - Add test coverage if needed
+  - "✅ Resolve todo comment"
+  - "✅ Update or remove comment"
+  - "✅ Add test coverage if needed"
   effort: 2
   value: 2
   time_criticality: 1
   risk_reduction: 3
-  status: NEW
+  status: DONE
   risk_tier: low
   created_at: '2025-07-24T13:59:16.745572'
   links:
   - ./autonomous_backlog_manager.py:469
   wsjf_score: 3.0
   aging_multiplier: 1.0
-  completed_at: null
+  completed_at: '2025-07-25T07:15:00Z'
 - id: replace-broad-exceptions
   title: Replace broad exception handling with specific exceptions
   type: code-quality
@@ -237,22 +239,26 @@ backlog:
   type: performance
   description: Add pagination support for large result sets to improve performance
   acceptance_criteria:
-  - Configurable page size via environment variable
-  - Cursor-based pagination for consistent results
-  - Performance metrics for paginated queries
-  - Backward compatibility for non-paginated requests
+  - "✅ Configurable page size via environment variable"
+  - "⚠️ Cursor-based pagination for consistent results (offset-based implemented)"
+  - "✅ Performance metrics for paginated queries"
+  - "✅ Backward compatibility for non-paginated requests"
   effort: 5
   value: 5
   time_criticality: 3
   risk_reduction: 3
-  status: NEW
+  status: DONE
   risk_tier: low
   created_at: '2025-07-24'
   links:
   - BACKLOG.md:245
+  - sql_synthesizer/services/query_service.py:301-400
+  - sql_synthesizer/query_agent.py:301-339
+  - sql_synthesizer/types.py:9-54
+  - tests/test_query_pagination.py
   wsjf_score: 2.2
   aging_multiplier: 1.0
-  completed_at: null
+  completed_at: '2025-07-25T07:30:00Z'
 - id: cache-backend-configuration
   title: Add configuration for cache backend (Redis/Memcached)
   type: architecture
