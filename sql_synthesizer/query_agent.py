@@ -345,6 +345,9 @@ class QueryAgent:
         Returns:
             Dict containing health status of all components
         """
+        # Check OpenAI API availability
+        openai_health = self._check_openai_api_health()
+        
         health_status = {
             "database": self.db_manager.health_check(),
             "caches": {
@@ -364,8 +367,10 @@ class QueryAgent:
                 "generator": {
                     "healthy": True,
                     "llm_provider_available": self.generator.llm_provider is not None
-                }
-            }
+                },
+                "openai_api": openai_health
+            },
+            "timestamp": time.time()
         }
         
         # Overall health status
@@ -374,7 +379,8 @@ class QueryAgent:
             health_status["caches"]["schema_cache"]["healthy"] and
             health_status["caches"]["query_cache"]["healthy"] and
             health_status["services"]["validator"]["healthy"] and
-            health_status["services"]["generator"]["healthy"]
+            health_status["services"]["generator"]["healthy"] and
+            health_status["services"]["openai_api"]["healthy"]
         )
         
         return health_status
@@ -387,3 +393,55 @@ class QueryAgent:
             Dict containing connection pool statistics
         """
         return self.db_manager.get_connection_stats()
+    
+    def _check_openai_api_health(self) -> Dict[str, Any]:
+        """
+        Check OpenAI API availability and health.
+        
+        Returns:
+            Dict containing OpenAI API health status
+        """
+        health_info = {
+            "healthy": False,
+            "available": False,
+            "error": None,
+            "response_time_ms": None
+        }
+        
+        # Check if adapter exists and has API key
+        if not self.generator or not self.generator.llm_provider:
+            health_info["error"] = "OpenAI adapter not initialized"
+            return health_info
+        
+        # Get API key from environment or adapter
+        api_key = os.environ.get("OPENAI_API_KEY")
+        if not api_key:
+            health_info["error"] = "OpenAI API key not configured"
+            return health_info
+        
+        try:
+            # Perform a simple API call to check availability
+            start_time = time.time()
+            
+            # Try to get models list as a lightweight check
+            import openai
+            client = openai.OpenAI(api_key=api_key)
+            
+            # Make a minimal API call with timeout
+            models = client.models.list()
+            
+            end_time = time.time()
+            response_time_ms = int((end_time - start_time) * 1000)
+            
+            health_info.update({
+                "healthy": True,
+                "available": True,
+                "response_time_ms": response_time_ms
+            })
+            
+        except Exception as e:
+            # Log the error but don't expose sensitive details
+            logger.warning(f"OpenAI API health check failed: {str(e)}")
+            health_info["error"] = f"API unavailable: {type(e).__name__}"
+        
+        return health_info

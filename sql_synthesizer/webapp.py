@@ -184,13 +184,22 @@ def create_app(agent: QueryAgent) -> Flask:
             status_code = 200 if health_status.get('overall_healthy', False) else 503
             
             # Remove sensitive information from health response
+            services = health_status.get('services', {})
+            caches = health_status.get('caches', {})
+            
+            # Aggregate cache health status
+            cache_healthy = (
+                caches.get('schema_cache', {}).get('healthy', False) and
+                caches.get('query_cache', {}).get('healthy', False)
+            )
+            
             public_health = {
                 'status': 'healthy' if health_status.get('overall_healthy', False) else 'unhealthy',
                 'timestamp': health_status.get('timestamp', time.time()),
                 'components': {
                     'database': health_status.get('database', {}).get('healthy', False),
-                    'cache': True,  # Simplified cache status
-                    'services': True  # Simplified services status
+                    'cache': cache_healthy,
+                    'openai_api': services.get('openai_api', {}).get('healthy', False)
                 }
             }
             
