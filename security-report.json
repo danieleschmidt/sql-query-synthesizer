@@ -1,0 +1,65 @@
+{
+  "timestamp": "/root/repo",
+  "summary": {
+    "total_checks": 6,
+    "passed": 1,
+    "failed": 5,
+    "pass_rate": 16.67
+  },
+  "severity_breakdown": {
+    "high": 0,
+    "medium": 3,
+    "low": 2
+  },
+  "results": [
+    {
+      "check_name": "SQL Injection Prevention",
+      "passed": false,
+      "details": "Unable to run SQL injection check",
+      "severity": "medium",
+      "file_path": null,
+      "line_number": null
+    },
+    {
+      "check_name": "Hardcoded Credentials",
+      "passed": false,
+      "details": "Unable to run credential check",
+      "severity": "medium",
+      "file_path": null,
+      "line_number": null
+    },
+    {
+      "check_name": "Secrets Management",
+      "passed": true,
+      "details": "Proper environment variable setup detected",
+      "severity": "medium",
+      "file_path": null,
+      "line_number": null
+    },
+    {
+      "check_name": "Safe Logging",
+      "passed": false,
+      "details": "Unable to run logging check",
+      "severity": "medium",
+      "file_path": null,
+      "line_number": null
+    },
+    {
+      "check_name": "Software Composition Analysis",
+      "passed": false,
+      "details": "OWASP Dependency-Check not installed",
+      "severity": "low",
+      "file_path": null,
+      "line_number": null
+    },
+    {
+      "check_name": "Static Application Security Testing",
+      "passed": false,
+      "details": "CodeQL not installed locally - relies on GitHub CI",
+      "severity": "low",
+      "file_path": null,
+      "line_number": null
+    }
+  ],
+  "status": "PASS"
+}
