@@ -70,15 +70,18 @@ class DatabaseConnectionManager:
         """Initialize SQLAlchemy engine with connection pooling and error handling."""
         engine_kwargs = {
             # Connection pool configuration
-            "pool_size": config.db_pool_size,
-            "max_overflow": config.db_max_overflow,
-            "pool_recycle": config.db_pool_recycle,
             "pool_pre_ping": config.db_pool_pre_ping,
+            "pool_recycle": config.db_pool_recycle,
             
             # Engine configuration
             "echo": False,  # Set to True for SQL debugging
             "future": True,  # Use SQLAlchemy 2.0 style
         }
+        
+        # Only add pool parameters for databases that support connection pooling
+        if not self.database_url.startswith("sqlite"):
+            engine_kwargs["pool_size"] = config.db_pool_size
+            engine_kwargs["max_overflow"] = config.db_max_overflow
         
         # Handle database-specific connection arguments
         connect_args = {}

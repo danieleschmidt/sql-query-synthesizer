@@ -28,8 +28,8 @@ class TestSecurityAuditIntegration:
         
         # Patch the global audit logger
         self.audit_logger_patcher = patch(
-            'sql_synthesizer.services.enhanced_query_validator.security_audit_logger',
-            self.mock_audit_logger
+            'sql_synthesizer.services.enhanced_query_validator.get_security_audit_logger',
+            return_value=self.mock_audit_logger
         )
         self.audit_logger_patcher.start()
     
@@ -61,7 +61,7 @@ class TestSecurityAuditIntegration:
         )
         
         # Patch the audit logger for this validator too
-        with patch('sql_synthesizer.services.enhanced_query_validator.security_audit_logger', self.mock_audit_logger):
+        with patch('sql_synthesizer.services.enhanced_query_validator.get_security_audit_logger', return_value=self.mock_audit_logger):
             client_id = "test_client_123"
             
             # Make multiple rapid requests to trigger rate limiting
@@ -122,7 +122,7 @@ class TestQueryServiceAuditIntegration:
     def test_audit_logger_integration_exists(self):
         """Test that audit logger integration is properly imported."""
         # Simple test to verify the integration is wired up
-        with patch('sql_synthesizer.services.query_service.security_audit_logger') as mock_logger:
+        with patch('sql_synthesizer.services.query_service.get_security_audit_logger', return_value=Mock()) as mock_logger:
             # This is mainly a smoke test to ensure imports work
             assert mock_logger is not None
 
