@@ -1,0 +1,10 @@
+# Merge conflict handling with specialized drivers
+package-lock.json merge=theirs
+poetry.lock      merge=theirs
+*.snap           merge=theirs
+*.md             merge=union
+CHANGELOG.md     merge=union
+*.svg            merge=lock
+*.png            merge=lock
+*.jpg            merge=lock
+*.zip            merge=lock

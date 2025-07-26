@@ -1,0 +1,28 @@
+{
+  "timestamp": "2025-07-26T22:43:20.665239",
+  "completed_ids": [],
+  "coverage_delta": "+5.2%",
+  "flaky_tests": [],
+  "ci_summary": "stable",
+  "open_prs": 0,
+  "risks_or_blocks": [
+    "No significant risks identified"
+  ],
+  "backlog_size_by_status": {
+    "DONE": 15,
+    "BLOCKED": 1
+  },
+  "avg_cycle_time": 0.0,
+  "wsjf_snapshot": [],
+  "dora": {
+    "deploy_frequency": 0.7333333333333333,
+    "lead_time": 2.6702272727272724,
+    "change_failure_rate": 13.636363636363635,
+    "mean_time_to_recovery": 0.0,
+    "measurement_period_days": 30
+  },
+  "rerere_auto_resolved_total": 0,
+  "merge_driver_hits_total": 0,
+  "ci_failure_rate": 15.0,
+  "pr_backoff_state": "monitoring"
+}

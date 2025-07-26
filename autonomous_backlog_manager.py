@@ -42,6 +42,7 @@ class BacklogItem:
     wsjf_score: float = 0.0
     aging_multiplier: float = 1.0
     completed_at: Optional[str] = None
+    blocked_reason: Optional[str] = None
 
     def calculate_wsjf(self, aging_days: int = 0, aging_threshold: int = 30, max_multiplier: float = 2.0) -> float:
         """Calculate Weighted Shortest Job First score with aging factor."""

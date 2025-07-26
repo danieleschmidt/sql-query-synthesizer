@@ -23,17 +23,18 @@ backlog:
   wsjf_score: 4.2
   aging_multiplier: 1.0
   completed_at: '2025-07-24T11:46:33Z'
+  blocked_reason: null
 - id: health-check-endpoint
   title: Enhanced health check endpoint with dependency status
   type: observability
   description: Add comprehensive health checks for database, OpenAI API, and cache
     backends
   acceptance_criteria:
-  - "✅ Database connection health check"
-  - "✅ OpenAI API availability check"
-  - "✅ Cache backend status monitoring"
-  - "✅ JSON response with detailed status"
-  - "✅ HTTP status codes reflecting health"
+  - "\u2705 Database connection health check"
+  - "\u2705 OpenAI API availability check"
+  - "\u2705 Cache backend status monitoring"
+  - "\u2705 JSON response with detailed status"
+  - "\u2705 HTTP status codes reflecting health"
   effort: 3
   value: 3
   time_criticality: 2
@@ -48,14 +49,15 @@ backlog:
   wsjf_score: 3.3333333333333335
   aging_multiplier: 1.0
   completed_at: '2025-07-25T07:00:00Z'
+  blocked_reason: null
 - id: todo-8039
   title: 'TODO: /FIXME comments and convert to backlog items."""'
   type: tech-debt
   description: Address todo comment in ./autonomous_backlog_manager.py:173
   acceptance_criteria:
-  - "✅ Resolve todo comment"
-  - "✅ Update or remove comment"
-  - "✅ Add test coverage if needed"
+  - "\u2705 Resolve todo comment"
+  - "\u2705 Update or remove comment"
+  - "\u2705 Add test coverage if needed"
   effort: 2
   value: 2
   time_criticality: 1
@@ -68,14 +70,15 @@ backlog:
   wsjf_score: 3.0
   aging_multiplier: 1.0
   completed_at: '2025-07-25T07:15:00Z'
+  blocked_reason: null
 - id: todo-1720
   title: 'TODO: |FIXME|XXX|HACK'', str(self.repo_path)'
   type: tech-debt
   description: Address todo comment in ./autonomous_backlog_manager.py:180
   acceptance_criteria:
-  - "✅ Resolve todo comment"
-  - "✅ Update or remove comment"
-  - "✅ Add test coverage if needed"
+  - "\u2705 Resolve todo comment"
+  - "\u2705 Update or remove comment"
+  - "\u2705 Add test coverage if needed"
   effort: 2
   value: 2
   time_criticality: 1
@@ -88,14 +91,15 @@ backlog:
   wsjf_score: 3.0
   aging_multiplier: 1.0
   completed_at: '2025-07-25T07:15:00Z'
+  blocked_reason: null
 - id: todo-4212
   title: 'TODO: /FIXME content'
   type: tech-debt
   description: Address todo comment in ./autonomous_backlog_manager.py:192
   acceptance_criteria:
-  - "✅ Resolve todo comment"
-  - "✅ Update or remove comment"
-  - "✅ Add test coverage if needed"
+  - "\u2705 Resolve todo comment"
+  - "\u2705 Update or remove comment"
+  - "\u2705 Add test coverage if needed"
   effort: 2
   value: 2
   time_criticality: 1
@@ -108,14 +112,15 @@ backlog:
   wsjf_score: 3.0
   aging_multiplier: 1.0
   completed_at: '2025-07-25T07:15:00Z'
+  blocked_reason: null
 - id: todo-8351
   title: 'TODO: |FIXME|XXX|HACK)['
   type: tech-debt
   description: Address todo comment in ./autonomous_backlog_manager.py:193
   acceptance_criteria:
-  - "✅ Resolve todo comment"
-  - "✅ Update or remove comment"
-  - "✅ Add test coverage if needed"
+  - "\u2705 Resolve todo comment"
+  - "\u2705 Update or remove comment"
+  - "\u2705 Add test coverage if needed"
   effort: 2
   value: 2
   time_criticality: 1
@@ -128,14 +133,15 @@ backlog:
   wsjf_score: 3.0
   aging_multiplier: 1.0
   completed_at: '2025-07-25T07:15:00Z'
+  blocked_reason: null
 - id: todo-2946
   title: 'TODO: /FIXME items")'
   type: tech-debt
   description: Address todo comment in ./autonomous_backlog_manager.py:226
   acceptance_criteria:
-  - "✅ Resolve todo comment"
-  - "✅ Update or remove comment"
-  - "✅ Add test coverage if needed"
+  - "\u2705 Resolve todo comment"
+  - "\u2705 Update or remove comment"
+  - "\u2705 Add test coverage if needed"
   effort: 2
   value: 2
   time_criticality: 1
@@ -148,14 +154,15 @@ backlog:
   wsjf_score: 3.0
   aging_multiplier: 1.0
   completed_at: '2025-07-25T07:15:00Z'
+  blocked_reason: null
 - id: todo-7497
   title: 'TODO: /FIXME discovery")'
   type: tech-debt
   description: Address todo comment in ./autonomous_backlog_manager.py:230
   acceptance_criteria:
-  - "✅ Resolve todo comment"
-  - "✅ Update or remove comment"
-  - "✅ Add test coverage if needed"
+  - "\u2705 Resolve todo comment"
+  - "\u2705 Update or remove comment"
+  - "\u2705 Add test coverage if needed"
   effort: 2
   value: 2
   time_criticality: 1
@@ -168,14 +175,15 @@ backlog:
   wsjf_score: 3.0
   aging_multiplier: 1.0
   completed_at: '2025-07-25T07:15:00Z'
+  blocked_reason: null
 - id: todo-5061
   title: 'TODO: /FIXME discovery'
   type: tech-debt
   description: Address todo comment in ./autonomous_backlog_manager.py:232
   acceptance_criteria:
-  - "✅ Resolve todo comment"
-  - "✅ Update or remove comment"
-  - "✅ Add test coverage if needed"
+  - "\u2705 Resolve todo comment"
+  - "\u2705 Update or remove comment"
+  - "\u2705 Add test coverage if needed"
   effort: 2
   value: 2
   time_criticality: 1
@@ -188,14 +196,15 @@ backlog:
   wsjf_score: 3.0
   aging_multiplier: 1.0
   completed_at: '2025-07-25T07:15:00Z'
+  blocked_reason: null
 - id: todo-1730
   title: 'TODO: /FIXME items'
   type: tech-debt
   description: Address todo comment in ./autonomous_backlog_manager.py:469
   acceptance_criteria:
-  - "✅ Resolve todo comment"
-  - "✅ Update or remove comment"
-  - "✅ Add test coverage if needed"
+  - "\u2705 Resolve todo comment"
+  - "\u2705 Update or remove comment"
+  - "\u2705 Add test coverage if needed"
   effort: 2
   value: 2
   time_criticality: 1
@@ -208,6 +217,7 @@ backlog:
   wsjf_score: 3.0
   aging_multiplier: 1.0
   completed_at: '2025-07-25T07:15:00Z'
+  blocked_reason: null
 - id: replace-broad-exceptions
   title: Replace broad exception handling with specific exceptions
   type: code-quality
@@ -234,15 +244,16 @@ backlog:
   wsjf_score: 2.6
   aging_multiplier: 1.0
   completed_at: '2025-07-24T12:08:00Z'
+  blocked_reason: null
 - id: query-result-pagination
   title: Implement query result pagination
   type: performance
   description: Add pagination support for large result sets to improve performance
   acceptance_criteria:
-  - "✅ Configurable page size via environment variable"
-  - "⚠️ Cursor-based pagination for consistent results (offset-based implemented)"
-  - "✅ Performance metrics for paginated queries"
-  - "✅ Backward compatibility for non-paginated requests"
+  - "\u2705 Configurable page size via environment variable"
+  - "\u26A0\uFE0F Cursor-based pagination for consistent results (offset-based implemented)"
+  - "\u2705 Performance metrics for paginated queries"
+  - "\u2705 Backward compatibility for non-paginated requests"
   effort: 5
   value: 5
   time_criticality: 3
@@ -259,17 +270,18 @@ backlog:
   wsjf_score: 2.2
   aging_multiplier: 1.0
   completed_at: '2025-07-25T07:30:00Z'
+  blocked_reason: null
 - id: cache-backend-configuration
   title: Add configuration for cache backend (Redis/Memcached)
   type: architecture
   description: Support Redis and Memcached for distributed caching beyond current
     TTLCache
   acceptance_criteria:
-  - "✅ Configurable cache backend via environment variables (QUERY_AGENT_CACHE_BACKEND)"
-  - "✅ Redis adapter with connection pooling (RedisCacheBackend implemented)"
-  - "✅ Memcached adapter with failover support (MemcachedCacheBackend implemented)"
-  - "✅ Backward compatibility with TTLCache (create_cache_backend factory)"
-  - "✅ Performance metrics for all cache backends (get_stats() methods)"
+  - "\u2705 Configurable cache backend via environment variables (QUERY_AGENT_CACHE_BACKEND)"
+  - "\u2705 Redis adapter with connection pooling (RedisCacheBackend implemented)"
+  - "\u2705 Memcached adapter with failover support (MemcachedCacheBackend implemented)"
+  - "\u2705 Backward compatibility with TTLCache (create_cache_backend factory)"
+  - "\u2705 Performance metrics for all cache backends (get_stats() methods)"
   effort: 8
   value: 5
   time_criticality: 3
@@ -287,15 +299,16 @@ backlog:
   wsjf_score: 1.625
   aging_multiplier: 1.0
   completed_at: '2025-07-24T14:01:45Z'
+  blocked_reason: null
 - id: api-documentation-openapi
   title: Create API documentation with OpenAPI specification
   type: documentation
   description: Generate comprehensive API documentation using OpenAPI/Swagger
   acceptance_criteria:
-  - "✅ OpenAPI 3.0 specification file"
-  - "✅ Interactive Swagger UI endpoint"
-  - "✅ All endpoints documented with examples"
-  - "✅ Authentication requirements documented"
+  - "\u2705 OpenAPI 3.0 specification file"
+  - "\u2705 Interactive Swagger UI endpoint"
+  - "\u2705 All endpoints documented with examples"
+  - "\u2705 Authentication requirements documented"
   effort: 8
   value: 3
   time_criticality: 1
@@ -310,15 +323,16 @@ backlog:
   wsjf_score: 0.625
   aging_multiplier: 1.0
   completed_at: '2025-07-25T08:00:00Z'
+  blocked_reason: null
 - id: responsive-html-templates
   title: Add responsive HTML templates
   type: feature
   description: Improve web UI with responsive design for mobile/tablet experience
   acceptance_criteria:
-  - "✅ Mobile-first responsive CSS"
-  - "✅ Touch-friendly interface elements"
-  - "✅ Progressive enhancement for different screen sizes"
-  - "✅ Accessibility compliance (WCAG 2.1)"
+  - "\u2705 Mobile-first responsive CSS"
+  - "\u2705 Touch-friendly interface elements"
+  - "\u2705 Progressive enhancement for different screen sizes"
+  - "\u2705 Accessibility compliance (WCAG 2.1)"
   effort: 8
   value: 2
   time_criticality: 1
@@ -333,16 +347,17 @@ backlog:
   wsjf_score: 0.5
   aging_multiplier: 1.0
   completed_at: '2025-07-25T08:15:00Z'
+  blocked_reason: null
 - id: deploy-demo-environment
   title: Deploy public demo environment
   type: deployment
   description: Create public demo for marketing and user onboarding
   acceptance_criteria:
-  - "✅ Docker containerization"
-  - "🚫 CI/CD pipeline for deployment (outside scope)"
-  - "✅ Sample data and queries"
-  - "✅ Rate limiting for public access (already implemented)"
-  - "🚫 Usage analytics (outside scope - requires external services)"
+  - "\u2705 Docker containerization"
+  - "\U0001F6AB CI/CD pipeline for deployment (outside scope)"
+  - "\u2705 Sample data and queries"
+  - "\u2705 Rate limiting for public access (already implemented)"
+  - "\U0001F6AB Usage analytics (outside scope - requires external services)"
   effort: 13
   value: 2
   time_criticality: 1
@@ -360,13 +375,14 @@ backlog:
   wsjf_score: 0.3076923076923077
   aging_multiplier: 1.0
   completed_at: null
-  blocked_reason: "CI/CD pipeline and usage analytics require external infrastructure outside autonomous scope. Docker containerization and sample data completed."
+  blocked_reason: CI/CD pipeline and usage analytics require external infrastructure
+    outside autonomous scope. Docker containerization and sample data completed.
 metadata:
-  last_updated: '2025-07-24T13:59:16.747707'
+  last_updated: '2025-07-26T22:43:20.647878'
   total_items: 16
-  ready_items: 1
+  ready_items: 0
   avg_wsjf_score: 2.4619391025641026
-  next_review: '2025-07-25T13:59:16.747722'
+  next_review: '2025-07-27T22:43:20.647899'
 config:
   wsjf:
     effort_scale:
