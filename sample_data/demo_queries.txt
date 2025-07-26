@@ -1,0 +1,63 @@
+# SQL Synthesizer Demo Queries
+
+These are example natural language queries that demonstrate the capabilities of the SQL Synthesizer for demo environments.
+
+## Basic Queries
+- "How many users are there?"
+- "Show me all products"
+- "List the first 10 orders"
+- "What tables are available?"
+
+## Aggregation Queries  
+- "What's the total revenue this month?"
+- "How many orders were placed today?"
+- "Show me the average order value"
+- "Count customers by region"
+
+## Join Queries
+- "Show customers with their orders"
+- "List products and their categories"  
+- "Find orders with customer details"
+- "Show users who have placed orders"
+
+## Time-based Queries
+- "Show orders from last week"
+- "Find customers who registered this month"
+- "What were yesterday's sales?"
+- "Show monthly revenue trends"
+
+## Complex Queries
+- "Top 5 customers by total spending"
+- "Products that haven't been ordered"
+- "Customers with more than 3 orders"
+- "Average order value by customer segment"
+
+## Data Analysis
+- "Which products are most popular?"
+- "Show customers who haven't ordered recently"
+- "Find the highest value orders"
+- "Calculate customer lifetime value"
+
+## Sample Questions for Different Industries
+
+### E-commerce
+- "What's our best selling product category?"
+- "Show abandoned carts from this week"
+- "Find customers eligible for loyalty rewards"
+
+### SaaS Business
+- "How many active users do we have?"
+- "Show user engagement metrics"
+- "Find users who haven't logged in for 30 days"
+
+### Content Platform
+- "What are the most viewed articles?"
+- "Show user content creation trends"
+- "Find popular content by category"
+
+## Error Handling Examples
+- "Invalid table name test"
+- "Complex query with syntax issues"
+- "Ambiguous column references"
+
+These queries are designed to showcase the natural language processing capabilities and help users understand what types of questions they can ask.

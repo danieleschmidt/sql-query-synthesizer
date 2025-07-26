@@ -292,67 +292,75 @@ backlog:
   type: documentation
   description: Generate comprehensive API documentation using OpenAPI/Swagger
   acceptance_criteria:
-  - OpenAPI 3.0 specification file
-  - Interactive Swagger UI endpoint
-  - All endpoints documented with examples
-  - Authentication requirements documented
+  - "✅ OpenAPI 3.0 specification file"
+  - "✅ Interactive Swagger UI endpoint"
+  - "✅ All endpoints documented with examples"
+  - "✅ Authentication requirements documented"
   effort: 8
   value: 3
   time_criticality: 1
   risk_reduction: 1
-  status: NEW
+  status: DONE
   risk_tier: low
   created_at: '2025-07-24'
   links:
   - BACKLOG.md:266
+  - sql_synthesizer/webapp.py:248-596
+  - tests/test_openapi_docs.py
   wsjf_score: 0.625
   aging_multiplier: 1.0
-  completed_at: null
+  completed_at: '2025-07-25T08:00:00Z'
 - id: responsive-html-templates
   title: Add responsive HTML templates
   type: feature
   description: Improve web UI with responsive design for mobile/tablet experience
   acceptance_criteria:
-  - Mobile-first responsive CSS
-  - Touch-friendly interface elements
-  - Progressive enhancement for different screen sizes
-  - Accessibility compliance (WCAG 2.1)
+  - "✅ Mobile-first responsive CSS"
+  - "✅ Touch-friendly interface elements"
+  - "✅ Progressive enhancement for different screen sizes"
+  - "✅ Accessibility compliance (WCAG 2.1)"
   effort: 8
   value: 2
   time_criticality: 1
   risk_reduction: 1
-  status: NEW
+  status: DONE
   risk_tier: low
   created_at: '2025-07-24'
   links:
   - BACKLOG.md:74
   - DEVELOPMENT_PLAN.md:59
+  - sql_synthesizer/templates/index.html:1-294
   wsjf_score: 0.5
   aging_multiplier: 1.0
-  completed_at: null
+  completed_at: '2025-07-25T08:15:00Z'
 - id: deploy-demo-environment
   title: Deploy public demo environment
   type: deployment
   description: Create public demo for marketing and user onboarding
   acceptance_criteria:
-  - Docker containerization
-  - CI/CD pipeline for deployment
-  - Sample data and queries
-  - Rate limiting for public access
-  - Usage analytics
+  - "✅ Docker containerization"
+  - "🚫 CI/CD pipeline for deployment (outside scope)"
+  - "✅ Sample data and queries"
+  - "✅ Rate limiting for public access (already implemented)"
+  - "🚫 Usage analytics (outside scope - requires external services)"
   effort: 13
   value: 2
   time_criticality: 1
   risk_reduction: 1
-  status: NEW
+  status: BLOCKED
   risk_tier: low
   created_at: '2025-07-24'
   links:
   - BACKLOG.md:78
   - DEVELOPMENT_PLAN.md:41
+  - Dockerfile:1-50
+  - .dockerignore:1-40
+  - sample_data/demo_queries.txt
+  - sample_data/README.md
   wsjf_score: 0.3076923076923077
   aging_multiplier: 1.0
   completed_at: null
+  blocked_reason: "CI/CD pipeline and usage analytics require external infrastructure outside autonomous scope. Docker containerization and sample data completed."
 metadata:
   last_updated: '2025-07-24T13:59:16.747707'
   total_items: 16
