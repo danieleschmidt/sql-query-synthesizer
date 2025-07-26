@@ -8,9 +8,20 @@ from sql_synthesizer import metrics
 @pytest.fixture
 def mock_engine():
     """Mock database engine for testing."""
-    with patch('sql_synthesizer.query_agent.create_engine') as mock_create:
+    with patch('sql_synthesizer.database.create_engine') as mock_create, \
+         patch('sql_synthesizer.database.event') as mock_event:
         mock_engine = Mock()
         mock_create.return_value = mock_engine
+        
+        # Mock the event system to avoid issues with pool events
+        mock_event.listens_for = Mock()
+        
+        # Mock the connection context manager
+        mock_connection = Mock()
+        mock_context_manager = Mock()
+        mock_context_manager.__enter__ = Mock(return_value=mock_connection)
+        mock_context_manager.__exit__ = Mock(return_value=None)
+        mock_engine.connect.return_value = mock_context_manager
         
         # Mock inspector for both query_agent and query_service
         mock_inspector = Mock()

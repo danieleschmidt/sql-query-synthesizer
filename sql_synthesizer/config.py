@@ -81,7 +81,7 @@ class Config:
         
         # Security Settings
         self.webapp_secret_key = os.environ.get("QUERY_AGENT_SECRET_KEY", None)
-        self.webapp_csrf_enabled = self._get_bool_env("QUERY_AGENT_CSRF_ENABLED", True)
+        self.webapp_csrf_enabled = self._get_bool_env("QUERY_AGENT_CSRF_ENABLED", False)
         self.webapp_rate_limit = self._get_int_env("QUERY_AGENT_RATE_LIMIT_PER_MINUTE", 60, min_value=1)
         self.webapp_enable_hsts = self._get_bool_env("QUERY_AGENT_ENABLE_HSTS", False)
         self.webapp_api_key_required = self._get_bool_env("QUERY_AGENT_API_KEY_REQUIRED", False)
