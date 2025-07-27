@@ -1,0 +1,189 @@
+version: '3.8'
+
+services:
+  # =============================================================================
+  # SQL Synthesizer Application
+  # =============================================================================
+  sql-synthesizer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sql-synthesizer-app
+    ports:
+      - "5000:5000"
+    environment:
+      - QUERY_AGENT_WEBAPP_PORT=5000
+      - QUERY_AGENT_CACHE_BACKEND=redis
+      - QUERY_AGENT_REDIS_HOST=redis
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/sqlsynth_dev
+      - QUERY_AGENT_SECRET_KEY=dev-secret-key-change-in-production
+      - FLASK_ENV=development
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    networks:
+      - sqlsynth-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5000/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # =============================================================================
+  # PostgreSQL Database
+  # =============================================================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: sql-synthesizer-db
+    environment:
+      - POSTGRES_DB=sqlsynth_dev
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      - sqlsynth-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d sqlsynth_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # =============================================================================
+  # Redis Cache
+  # =============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: sql-synthesizer-cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./config/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - sqlsynth-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # =============================================================================
+  # Monitoring: Prometheus
+  # =============================================================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: sql-synthesizer-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - sqlsynth-network
+    restart: unless-stopped
+
+  # =============================================================================
+  # Monitoring: Grafana
+  # =============================================================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: sql-synthesizer-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - sqlsynth-network
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+  # =============================================================================
+  # Development Tools: pgAdmin
+  # =============================================================================
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: sql-synthesizer-pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@sqlsynth.local
+      - PGADMIN_DEFAULT_PASSWORD=admin
+      - PGADMIN_CONFIG_SERVER_MODE=False
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - sqlsynth-network
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    profiles:
+      - dev
+
+  # =============================================================================
+  # Load Testing: Artillery
+  # =============================================================================
+  load-test:
+    image: node:18-alpine
+    container_name: sql-synthesizer-loadtest
+    working_dir: /app
+    volumes:
+      - ./tests/load:/app
+    command: sh -c "npm install -g artillery && artillery run load-test.yml"
+    networks:
+      - sqlsynth-network
+    depends_on:
+      - sql-synthesizer
+    profiles:
+      - test
+
+# =============================================================================
+# VOLUMES
+# =============================================================================
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+# =============================================================================
+# NETWORKS
+# =============================================================================
+networks:
+  sqlsynth-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
