@@ -244,7 +244,7 @@ class AutonomousBacklogManager:
         try:
             # Run pytest to get test results
             result = subprocess.run([
-                'python', '-m', 'pytest', '--tb=no', '-v', '--disable-warnings'
+                'python3', '-m', 'pytest', '--tb=no', '-v', '--disable-warnings'
             ], capture_output=True, text=True, cwd=self.repo_path, 
             env={**os.environ, 'PYTHONPATH': str(self.repo_path)})
             
