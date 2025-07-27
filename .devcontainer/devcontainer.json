@@ -1,0 +1,83 @@
+{
+  "name": "SQL Synthesizer Development",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.pylint",
+        "ms-python.black-formatter",
+        "ms-python.isort",
+        "ms-python.mypy-type-checker",
+        "ms-vscode.vscode-json",
+        "bradlc.vscode-tailwindcss",
+        "redhat.vscode-yaml",
+        "ms-vscode.makefile-tools",
+        "ms-azuretools.vscode-docker",
+        "github.vscode-pull-request-github",
+        "github.copilot",
+        "visualstudioexptteam.vscodeintellicode",
+        "ms-python.pytest",
+        "charliermarsh.ruff"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.terminal.activateEnvironment": true,
+        "python.testing.pytestEnabled": true,
+        "python.testing.unittestEnabled": false,
+        "python.testing.pytestArgs": ["tests"],
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": true,
+        "python.formatting.provider": "black",
+        "python.formatting.blackArgs": ["--line-length", "88"],
+        "python.sortImports.args": ["--profile", "black"],
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.organizeImports": true
+        },
+        "files.exclude": {
+          "**/__pycache__": true,
+          "**/*.pyc": true,
+          ".pytest_cache": true,
+          ".mypy_cache": true,
+          ".coverage": true,
+          "htmlcov": true
+        }
+      }
+    }
+  },
+  "postCreateCommand": "pip install -e . && pip install -r requirements-dev.txt && pre-commit install",
+  "postStartCommand": "git config --global --add safe.directory ${containerWorkspaceFolder}",
+  "remoteUser": "vscode",
+  "mounts": [
+    "source=${localWorkspaceFolder}/.devcontainer/cache,target=/home/vscode/.cache,type=bind,consistency=cached"
+  ],
+  "containerEnv": {
+    "PYTHONPATH": "${containerWorkspaceFolder}",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONUNBUFFERED": "1"
+  },
+  "forwardPorts": [5000, 8080, 9090],
+  "portsAttributes": {
+    "5000": {
+      "label": "Flask Web App",
+      "protocol": "http"
+    },
+    "8080": {
+      "label": "Alternative Web Port",
+      "protocol": "http"
+    },
+    "9090": {
+      "label": "Metrics/Monitoring",
+      "protocol": "http"
+    }
+  }
+}

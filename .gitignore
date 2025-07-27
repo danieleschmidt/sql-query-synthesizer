@@ -193,3 +193,76 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# =============================================================================
+# SQL SYNTHESIZER SPECIFIC
+# =============================================================================
+
+# Application data and logs
+logs/
+data/
+*.log
+*.log.*
+
+# Configuration files containing secrets
+config/local.yaml
+config/production.yaml
+.env.local
+.env.production
+
+# Database files
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+
+# Security reports
+security-report.json
+bandit-report.json
+safety-report.json
+*-ci-report.json
+
+# Performance reports
+benchmark.json
+load-test-results/
+
+# Cache directories
+.cache/
+cache/
+
+# Docker volumes and data
+docker-data/
+postgres-data/
+redis-data/
+
+# Monitoring data
+prometheus-data/
+grafana-data/
+
+# Development artifacts
+.devcontainer/cache/
+.secrets.baseline
+
+# IDE and editor specific
+.idea/
+*.swp
+*.swo
+*~
+
+# OS specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Backup files
+*.bak
+*.backup
+*.tmp
+
+# Local development overrides
+docker-compose.override.yml
+docker-compose.local.yml
