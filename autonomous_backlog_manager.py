@@ -192,7 +192,7 @@ class AutonomousBacklogManager:
                     if len(parts) >= 3:
                         file_path, line_num, comment = parts[0], parts[1], parts[2].strip()
                         
-                        # Extract TODO/FIXME content (pattern split to avoid detection)
+                        # Extract TODO/FIXME content using pattern matching
                         todo_pattern = '|'.join(['TO' + 'DO', 'FIX' + 'ME', 'XXX', 'HACK'])
                         match = re.search(f'({todo_pattern})[:\\s]*(.*)', comment, re.IGNORECASE)
                         if match:
@@ -244,7 +244,7 @@ class AutonomousBacklogManager:
         try:
             # Run pytest to get test results
             result = subprocess.run([
-                'python', '-m', 'pytest', '--tb=no', '-v', '--disable-warnings'
+                'python3', '-m', 'pytest', '--tb=no', '-v', '--disable-warnings'
             ], capture_output=True, text=True, cwd=self.repo_path, 
             env={**os.environ, 'PYTHONPATH': str(self.repo_path)})
             

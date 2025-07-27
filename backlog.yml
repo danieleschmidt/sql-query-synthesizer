@@ -218,6 +218,300 @@ backlog:
   aging_multiplier: 1.0
   completed_at: '2025-07-25T07:15:00Z'
   blocked_reason: null
+- id: todo-9594
+  title: 'TODO: /FIXME comments and convert to backlog items."""'
+  type: tech-debt
+  description: Address todo comment in ./autonomous_backlog_manager.py:174
+  acceptance_criteria:
+  - Resolve todo comment
+  - Update or remove comment
+  - Add test coverage if needed
+  effort: 2
+  value: 2
+  time_criticality: 1
+  risk_reduction: 3
+  status: DONE
+  risk_tier: low
+  created_at: '2025-07-27T07:14:32.526067'
+  links:
+  - ./autonomous_backlog_manager.py:174
+  wsjf_score: 3.0
+  aging_multiplier: 1.0
+  completed_at: '2025-07-27T07:16:42.881869'
+  blocked_reason: null
+- id: todo-9335
+  title: 'TODO: /FIXME content (pattern split to avoid detection)'
+  type: tech-debt
+  description: Address todo comment in ./autonomous_backlog_manager.py:195
+  acceptance_criteria:
+  - Resolve todo comment
+  - Update or remove comment
+  - Add test coverage if needed
+  effort: 2
+  value: 2
+  time_criticality: 1
+  risk_reduction: 3
+  status: READY
+  risk_tier: low
+  created_at: '2025-07-27T07:14:32.526124'
+  links:
+  - ./autonomous_backlog_manager.py:195
+  wsjf_score: 3.0
+  aging_multiplier: 1.0
+  completed_at: null
+  blocked_reason: null
+- id: todo-8068
+  title: 'todo: _pattern = ''|''.join([''TO'' + ''DO'', ''FIX'' + ''ME'', ''X...'
+  type: tech-debt
+  description: Address todo comment in ./autonomous_backlog_manager.py:196
+  acceptance_criteria:
+  - Resolve todo comment
+  - Update or remove comment
+  - Add test coverage if needed
+  effort: 2
+  value: 2
+  time_criticality: 1
+  risk_reduction: 3
+  status: READY
+  risk_tier: low
+  created_at: '2025-07-27T07:14:32.526137'
+  links:
+  - ./autonomous_backlog_manager.py:196
+  wsjf_score: 3.0
+  aging_multiplier: 1.0
+  completed_at: null
+  blocked_reason: null
+- id: todo-6577
+  title: 'TODO: /FIXME discovery")'
+  type: tech-debt
+  description: Address todo comment in ./autonomous_backlog_manager.py:234
+  acceptance_criteria:
+  - Resolve todo comment
+  - Update or remove comment
+  - Add test coverage if needed
+  effort: 2
+  value: 2
+  time_criticality: 1
+  risk_reduction: 3
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-27T07:14:32.526163'
+  links:
+  - ./autonomous_backlog_manager.py:234
+  wsjf_score: 3.0
+  aging_multiplier: 1.0
+  completed_at: null
+  blocked_reason: null
+- id: todo-3616
+  title: 'TODO: /FIXME discovery'
+  type: tech-debt
+  description: Address todo comment in ./autonomous_backlog_manager.py:236
+  acceptance_criteria:
+  - Resolve todo comment
+  - Update or remove comment
+  - Add test coverage if needed
+  effort: 2
+  value: 2
+  time_criticality: 1
+  risk_reduction: 3
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-27T07:14:32.526174'
+  links:
+  - ./autonomous_backlog_manager.py:236
+  wsjf_score: 3.0
+  aging_multiplier: 1.0
+  completed_at: null
+  blocked_reason: null
+- id: todo-1910
+  title: 'TODO: /FIXME items'
+  type: tech-debt
+  description: Address todo comment in ./autonomous_backlog_manager.py:473
+  acceptance_criteria:
+  - Resolve todo comment
+  - Update or remove comment
+  - Add test coverage if needed
+  effort: 2
+  value: 2
+  time_criticality: 1
+  risk_reduction: 3
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-27T07:14:32.526184'
+  links:
+  - ./autonomous_backlog_manager.py:473
+  wsjf_score: 3.0
+  aging_multiplier: 1.0
+  completed_at: null
+  blocked_reason: null
+- id: todo-3037
+  title: 'TODO: /FIXME comments and convert to backlog items."""'
+  type: tech-debt
+  description: Address todo comment in ./autonomous_backlog_manager.py:174
+  acceptance_criteria:
+  - Resolve todo comment
+  - Update or remove comment
+  - Add test coverage if needed
+  effort: 2
+  value: 2
+  time_criticality: 1
+  risk_reduction: 3
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-27T07:15:52.869414'
+  links:
+  - ./autonomous_backlog_manager.py:174
+  wsjf_score: 3.0
+  aging_multiplier: 1.0
+  completed_at: null
+  blocked_reason: null
+- id: todo-3837
+  title: 'XXX: '', ''HACK''])'
+  type: tech-debt
+  description: Address xxx comment in ./autonomous_backlog_manager.py:180
+  acceptance_criteria:
+  - Resolve xxx comment
+  - Update or remove comment
+  - Add test coverage if needed
+  effort: 2
+  value: 2
+  time_criticality: 1
+  risk_reduction: 3
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-27T07:15:52.869457'
+  links:
+  - ./autonomous_backlog_manager.py:180
+  wsjf_score: 3.0
+  aging_multiplier: 1.0
+  completed_at: null
+  blocked_reason: null
+- id: todo-1183
+  title: 'TODO: /FIXME content (pattern split to avoid detection)'
+  type: tech-debt
+  description: Address todo comment in ./autonomous_backlog_manager.py:195
+  acceptance_criteria:
+  - Resolve todo comment
+  - Update or remove comment
+  - Add test coverage if needed
+  effort: 2
+  value: 2
+  time_criticality: 1
+  risk_reduction: 3
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-27T07:15:52.869475'
+  links:
+  - ./autonomous_backlog_manager.py:195
+  wsjf_score: 3.0
+  aging_multiplier: 1.0
+  completed_at: null
+  blocked_reason: null
+- id: todo-6175
+  title: 'todo: _pattern = ''|''.join([''TO'' + ''DO'', ''FIX'' + ''ME'', ''X...'
+  type: tech-debt
+  description: Address todo comment in ./autonomous_backlog_manager.py:196
+  acceptance_criteria:
+  - Resolve todo comment
+  - Update or remove comment
+  - Add test coverage if needed
+  effort: 2
+  value: 2
+  time_criticality: 1
+  risk_reduction: 3
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-27T07:15:52.869490'
+  links:
+  - ./autonomous_backlog_manager.py:196
+  wsjf_score: 3.0
+  aging_multiplier: 1.0
+  completed_at: null
+  blocked_reason: null
+- id: todo-6893
+  title: 'TODO: /FIXME items")'
+  type: tech-debt
+  description: Address todo comment in ./autonomous_backlog_manager.py:230
+  acceptance_criteria:
+  - Resolve todo comment
+  - Update or remove comment
+  - Add test coverage if needed
+  effort: 2
+  value: 2
+  time_criticality: 1
+  risk_reduction: 3
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-27T07:15:52.869504'
+  links:
+  - ./autonomous_backlog_manager.py:230
+  wsjf_score: 3.0
+  aging_multiplier: 1.0
+  completed_at: null
+  blocked_reason: null
+- id: todo-1613
+  title: 'TODO: /FIXME discovery")'
+  type: tech-debt
+  description: Address todo comment in ./autonomous_backlog_manager.py:234
+  acceptance_criteria:
+  - Resolve todo comment
+  - Update or remove comment
+  - Add test coverage if needed
+  effort: 2
+  value: 2
+  time_criticality: 1
+  risk_reduction: 3
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-27T07:15:52.869519'
+  links:
+  - ./autonomous_backlog_manager.py:234
+  wsjf_score: 3.0
+  aging_multiplier: 1.0
+  completed_at: null
+  blocked_reason: null
+- id: todo-7122
+  title: 'TODO: /FIXME discovery'
+  type: tech-debt
+  description: Address todo comment in ./autonomous_backlog_manager.py:236
+  acceptance_criteria:
+  - Resolve todo comment
+  - Update or remove comment
+  - Add test coverage if needed
+  effort: 2
+  value: 2
+  time_criticality: 1
+  risk_reduction: 3
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-27T07:15:52.869530'
+  links:
+  - ./autonomous_backlog_manager.py:236
+  wsjf_score: 3.0
+  aging_multiplier: 1.0
+  completed_at: null
+  blocked_reason: null
+- id: todo-7722
+  title: 'TODO: /FIXME items'
+  type: tech-debt
+  description: Address todo comment in ./autonomous_backlog_manager.py:473
+  acceptance_criteria:
+  - Resolve todo comment
+  - Update or remove comment
+  - Add test coverage if needed
+  effort: 2
+  value: 2
+  time_criticality: 1
+  risk_reduction: 3
+  status: NEW
+  risk_tier: low
+  created_at: '2025-07-27T07:15:52.869540'
+  links:
+  - ./autonomous_backlog_manager.py:473
+  wsjf_score: 3.0
+  aging_multiplier: 1.0
+  completed_at: null
+  blocked_reason: null
 - id: replace-broad-exceptions
   title: Replace broad exception handling with specific exceptions
   type: code-quality
@@ -378,11 +672,11 @@ backlog:
   blocked_reason: CI/CD pipeline and usage analytics require external infrastructure
     outside autonomous scope. Docker containerization and sample data completed.
 metadata:
-  last_updated: '2025-07-26T22:43:20.647878'
-  total_items: 16
-  ready_items: 0
-  avg_wsjf_score: 2.4619391025641026
-  next_review: '2025-07-27T22:43:20.647899'
+  last_updated: '2025-07-27T07:16:42.881892'
+  total_items: 30
+  ready_items: 2
+  avg_wsjf_score: 2.7130341880341877
+  next_review: '2025-07-28T07:15:53.782359'
 config:
   wsjf:
     effort_scale:

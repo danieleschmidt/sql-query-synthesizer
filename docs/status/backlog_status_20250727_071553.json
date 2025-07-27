@@ -1,14 +1,14 @@
 {
-  "timestamp": "2025-07-27T07:16:57.340311",
+  "timestamp": "2025-07-27T07:15:53.821497",
   "backlog_summary": {
     "total_items": 30,
     "status_breakdown": {
       "NEW": 11,
       "REFINED": 0,
       "READY": 2,
-      "DOING": 0,
+      "DOING": 1,
       "PR": 0,
-      "DONE": 16,
+      "DONE": 15,
       "BLOCKED": 1
     },
     "risk_breakdown": {
