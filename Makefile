@@ -34,6 +34,19 @@ dev: ## Start development server
 	@echo "Starting development server..."
 	python -m sql_synthesizer.webapp --debug
 
+quick: ## Quick development cycle (format, lint, test)
+	@echo "Running quick development cycle..."
+	ruff --fix sql_synthesizer/
+	pytest tests/ --tb=short -x
+	@echo "✅ Quick cycle complete!"
+
+check: ## Run all checks (lint, type check, security)
+	@echo "Running all quality checks..."
+	ruff sql_synthesizer/
+	mypy sql_synthesizer/
+	bandit -r sql_synthesizer/ -ll
+	@echo "✅ All checks passed!"
+
 dev-docker: ## Start development environment with Docker Compose
 	@echo "Starting development environment..."
 	docker-compose up --build

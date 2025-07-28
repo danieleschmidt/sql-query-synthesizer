@@ -64,6 +64,12 @@ docs = [
 query-agent = "query_agent:main"
 query-agent-web = "sql_synthesizer.webapp:main"
 
+# Development convenience scripts (use with: python -m <script>)
+[project.entry-points."console_scripts"]
+sql-synthesizer = "sql_synthesizer.webapp:main"
+sql-test = "pytest:main"
+sql-lint = "ruff:main"
+
 [project.urls]
 "Homepage" = "https://github.com/yourorg/sql-synthesizer"
 "Bug Reports" = "https://github.com/yourorg/sql-synthesizer/issues"
