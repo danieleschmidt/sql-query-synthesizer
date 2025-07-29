@@ -1,6 +1,6 @@
 # Multi-stage build for SQL Synthesizer
 # Production-ready container with security and performance optimizations
-FROM python:3.11-slim as builder
+FROM python:3.13-slim as builder
 
 # Set working directory
 WORKDIR /app
@@ -17,7 +17,7 @@ COPY requirements.txt requirements-dev.txt ./
 RUN pip install --no-cache-dir --user -r requirements.txt
 
 # Production stage
-FROM python:3.11-slim
+FROM python:3.13-slim
 
 # Create non-root user for security
 RUN groupadd -r sqlsynthuser && useradd -r -g sqlsynthuser sqlsynthuser
