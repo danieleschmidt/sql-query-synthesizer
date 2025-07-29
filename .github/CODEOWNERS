@@ -1,0 +1,39 @@
+# Code Owners - Automated Reviewer Assignment
+# 
+# This file defines individuals or teams that are responsible for code in this repository.
+# Code owners are automatically requested for review when someone opens a pull request
+# that modifies code that they own.
+
+# Global owners - these users will be requested as reviewers for any changes
+* @sql-synthesizer-team
+
+# Core infrastructure
+/sql_synthesizer/ @sql-synthesizer-team @backend-team
+/tests/ @sql-synthesizer-team @qa-team
+
+# Configuration and deployment
+/docker-compose.yml @sql-synthesizer-team @devops-team
+/Dockerfile @sql-synthesizer-team @devops-team
+/pyproject.toml @sql-synthesizer-team @backend-team
+/requirements*.txt @sql-synthesizer-team @backend-team
+
+# Documentation
+/docs/ @sql-synthesizer-team @documentation-team
+/README.md @sql-synthesizer-team @documentation-team
+/ARCHITECTURE.md @sql-synthesizer-team @architecture-team
+
+# Security and compliance
+/sql_synthesizer/security*.py @sql-synthesizer-team @security-team
+/.pre-commit-config.yaml @sql-synthesizer-team @security-team
+/SECURITY.md @sql-synthesizer-team @security-team
+
+# CI/CD and workflows (when implemented)
+/.github/ @sql-synthesizer-team @devops-team
+
+# Database and migrations
+/config/databases.yaml @sql-synthesizer-team @database-team
+/sql_synthesizer/database.py @sql-synthesizer-team @database-team
+
+# Performance and monitoring
+/sql_synthesizer/metrics.py @sql-synthesizer-team @sre-team
+/sql_synthesizer/cache.py @sql-synthesizer-team @performance-team
