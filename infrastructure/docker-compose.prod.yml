@@ -1,0 +1,397 @@
+# Production Docker Compose Configuration for SQL Synthesizer
+# Optimized for production deployment with security and performance enhancements
+
+version: '3.8'
+
+services:
+  # =============================================================================
+  # SQL Synthesizer Application (Production)
+  # =============================================================================
+  sql-synthesizer:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: production  # Use production stage if multi-stage
+    image: sql-synthesizer:${VERSION:-latest}
+    container_name: sql-synthesizer-prod
+    restart: unless-stopped
+    
+    # Security: Run as non-root user
+    user: "1000:1000"
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    
+    # Production ports (use reverse proxy in real production)
+    ports:
+      - "5000:5000"
+    
+    # Production environment variables
+    environment:
+      # Application configuration
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+      - QUERY_AGENT_WEBAPP_PORT=5000
+      
+      # Database configuration
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      
+      # Cache configuration
+      - QUERY_AGENT_CACHE_BACKEND=redis
+      - QUERY_AGENT_REDIS_HOST=redis
+      - QUERY_AGENT_REDIS_PORT=6379
+      - QUERY_AGENT_CACHE_TTL=3600
+      
+      # Security configuration
+      - QUERY_AGENT_SECRET_KEY=${SECRET_KEY}
+      - QUERY_AGENT_CSRF_ENABLED=true
+      - QUERY_AGENT_ENABLE_HSTS=true
+      - QUERY_AGENT_API_KEY_REQUIRED=true
+      - QUERY_AGENT_API_KEY=${API_KEY}
+      - QUERY_AGENT_RATE_LIMIT_PER_MINUTE=30
+      
+      # Performance tuning
+      - QUERY_AGENT_DB_POOL_SIZE=20
+      - QUERY_AGENT_DB_MAX_OVERFLOW=30
+      - QUERY_AGENT_DB_POOL_RECYCLE=3600
+      - QUERY_AGENT_DEFAULT_PAGE_SIZE=20
+      - QUERY_AGENT_MAX_PAGE_SIZE=100
+      
+      # Monitoring
+      - QUERY_AGENT_OPENAI_TIMEOUT=30
+      - QUERY_AGENT_DATABASE_TIMEOUT=30
+    
+    # Production secrets (use external secret management in real production)
+    env_file:
+      - .env.prod
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5000/health', timeout=5).raise_for_status()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    
+    # Dependencies
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    
+    # Volume mounts
+    volumes:
+      - app_logs:/app/logs
+      - app_data:/app/data
+    
+    # Networking
+    networks:
+      - sqlsynth-network
+    
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+    
+    # Read-only root filesystem (comment out if app needs to write to filesystem)
+    # read_only: true
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+
+  # =============================================================================
+  # PostgreSQL Database (Production)
+  # =============================================================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: sql-synthesizer-db-prod
+    restart: unless-stopped
+    
+    # Security: Run as non-root user
+    user: postgres
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    
+    # Production environment
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-sqlsynth_prod}
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256 --data-checksums
+      
+      # Performance tuning
+      - POSTGRES_SHARED_BUFFERS=256MB
+      - POSTGRES_EFFECTIVE_CACHE_SIZE=1GB
+      - POSTGRES_WORK_MEM=4MB
+      - POSTGRES_MAINTENANCE_WORK_MEM=64MB
+      - POSTGRES_MAX_CONNECTIONS=100
+    
+    # Persistent storage
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+      - postgres_backups:/backups
+      - ./sql/init:/docker-entrypoint-initdb.d:ro
+      - ./config/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+    
+    # Health check
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ${POSTGRES_DB:-sqlsynth_prod}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    
+    # Networking
+    networks:
+      - sqlsynth-network
+    
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+    
+    # Backup command (can be run manually or via cron)
+    # docker-compose exec postgres pg_dump -U postgres sqlsynth_prod > /backups/backup_$(date +%Y%m%d_%H%M%S).sql
+
+  # =============================================================================
+  # Redis Cache (Production)
+  # =============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: sql-synthesizer-cache-prod
+    restart: unless-stopped
+    
+    # Security: Run as non-root user
+    user: redis
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    
+    # Production configuration
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --requirepass ${REDIS_PASSWORD}
+    
+    # Persistent storage
+    volumes:
+      - redis_data_prod:/data
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+    
+    # Networking
+    networks:
+      - sqlsynth-network
+    
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+
+  # =============================================================================
+  # Reverse Proxy / Load Balancer (Nginx)
+  # =============================================================================
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: sql-synthesizer-nginx
+    restart: unless-stopped
+    
+    # Ports
+    ports:
+      - "80:80"
+      - "443:443"
+    
+    # Configuration
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./config/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./ssl/certs:/etc/nginx/ssl:ro
+      - nginx_logs:/var/log/nginx
+    
+    # Dependencies
+    depends_on:
+      - sql-synthesizer
+    
+    # Networking
+    networks:
+      - sqlsynth-network
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # =============================================================================
+  # Monitoring: Prometheus (Production)
+  # =============================================================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: sql-synthesizer-prometheus-prod
+    restart: unless-stopped
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.2'
+          memory: 256M
+    
+    # Configuration
+    volumes:
+      - ./monitoring/prometheus.prod.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data_prod:/prometheus
+    
+    # Command with production settings
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=90d'
+      - '--storage.tsdb.retention.size=10GB'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    
+    # Networking
+    networks:
+      - sqlsynth-network
+    
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+
+  # =============================================================================
+  # Log Aggregation: Fluentd
+  # =============================================================================
+  fluentd:
+    build:
+      context: ./logging/fluentd
+      dockerfile: Dockerfile
+    container_name: sql-synthesizer-fluentd
+    restart: unless-stopped
+    
+    # Volumes for log collection
+    volumes:
+      - app_logs:/app/logs:ro
+      - nginx_logs:/nginx/logs:ro
+      - ./logging/fluentd/conf:/fluentd/etc:ro
+      - fluentd_buffer:/fluentd/buffer
+    
+    # Environment
+    environment:
+      - FLUENTD_CONF=fluent.conf
+    
+    # Networking
+    networks:
+      - sqlsynth-network
+    
+    # Ports for log forwarding
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+
+# =============================================================================
+# VOLUMES (Production)
+# =============================================================================
+volumes:
+  postgres_data_prod:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/sql-synthesizer/data/postgres
+  
+  postgres_backups:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/sql-synthesizer/backups
+  
+  redis_data_prod:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/sql-synthesizer/data/redis
+  
+  prometheus_data_prod:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/sql-synthesizer/data/prometheus
+  
+  app_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/sql-synthesizer/logs
+  
+  app_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/sql-synthesizer/data/app
+  
+  nginx_logs:
+    driver: local
+  
+  fluentd_buffer:
+    driver: local
+
+# =============================================================================
+# NETWORKS
+# =============================================================================
+networks:
+  sqlsynth-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+          gateway: 172.25.0.1
