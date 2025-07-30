@@ -1,0 +1,64 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Query Agent CLI",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/query_agent.py",
+      "args": ["--interactive"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "QUERY_AGENT_CONFIG": "${workspaceFolder}/config/databases.yaml",
+        "QUERY_AGENT_ENV": "development"
+      }
+    },
+    {
+      "name": "Python: Web Application",
+      "type": "python",
+      "request": "launch",
+      "module": "sql_synthesizer.webapp",
+      "args": ["--debug"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "FLASK_ENV": "development",
+        "FLASK_DEBUG": "1",
+        "QUERY_AGENT_WEBAPP_PORT": "5000"
+      }
+    },
+    {
+      "name": "Python: Current File",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Python: Pytest Current File",
+      "type": "python",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["${file}", "-v"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Docker: Web Application",
+      "type": "docker",
+      "request": "launch",
+      "preLaunchTask": "docker-run: debug",
+      "python": {
+        "pathMappings": [
+          {
+            "localRoot": "${workspaceFolder}",
+            "remoteRoot": "/app"
+          }
+        ],
+        "projectType": "flask"
+      }
+    }
+  ]
+}

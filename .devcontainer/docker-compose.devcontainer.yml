@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  sql-synthesizer:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: development
+    volumes:
+      - ..:/workspace:cached
+      - vscode-extensions:/root/.vscode-server/extensions
+      - vscode-extensions-insiders:/root/.vscode-server-insiders/extensions
+    environment:
+      - QUERY_AGENT_CONFIG=/workspace/config/databases.yaml
+      - QUERY_AGENT_ENV=development
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/sql_synthesizer_dev
+      - REDIS_URL=redis://redis:6379/0
+      - PYTHONPATH=/workspace
+    command: sleep infinity
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - dev-network
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: sql_synthesizer_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-dev-data:/var/lib/postgresql/data
+    networks:
+      - dev-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-dev-data:/data
+    networks:
+      - dev-network
+
+volumes:
+  vscode-extensions:
+  vscode-extensions-insiders:
+  postgres-dev-data:
+  redis-dev-data:
+
+networks:
+  dev-network:
+    driver: bridge
