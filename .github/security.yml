@@ -1,0 +1,80 @@
+# Security Policy Configuration
+# This file configures automated security features for the repository
+
+# Security advisories configuration
+security_advisories:
+  enabled: true
+  private_vulnerability_reporting: true
+
+# Dependency scanning
+dependency_scanning:
+  enabled: true
+  package_ecosystems:
+    - pip
+    - docker
+    - github-actions
+  
+  # Auto-dismiss advisories for dev dependencies with low severity
+  auto_dismiss:
+    dev_dependencies: true
+    severity_threshold: "low"
+
+# Secret scanning
+secret_scanning:
+  enabled: true
+  push_protection: true
+  
+  # Custom patterns for SQL Synthesizer specific secrets
+  custom_patterns:
+    - name: "OpenAI API Key"
+      regex: "sk-[a-zA-Z0-9]{48}"
+    - name: "Database Connection String"
+      regex: "(postgresql|mysql|sqlite)://[^\\s]+"
+    - name: "Flask Secret Key"
+      regex: "SECRET_KEY\\s*=\\s*['\"][^'\"]+['\"]"
+
+# Code scanning with CodeQL
+code_scanning:
+  enabled: true
+  languages:
+    - python
+  
+  # Custom queries for SQL injection and database security
+  query_packs:
+    - "security-and-quality"
+    - "security-extended"
+  
+  # Scheduled scans
+  schedule:
+    - cron: "0 6 * * 1"  # Weekly on Monday
+
+# Branch protection rules (to be configured in repository settings)
+branch_protection:
+  default_branch: "main"
+  required_reviews: 2
+  dismiss_stale_reviews: true
+  require_code_owner_reviews: true
+  required_status_checks:
+    - "CI / test"
+    - "Security / security"
+  enforce_admins: false
+  restrict_pushes: true
+  allowed_push_teams:
+    - "sql-synthesizer-team"
+
+# Security contacts
+security_contacts:
+  - "security@sqlsynthesizer.com"
+  - "@security-team"
+
+# Vulnerability disclosure
+vulnerability_disclosure:
+  policy_url: "https://github.com/yourorg/sql-synthesizer/blob/main/SECURITY.md"
+  contact_email: "security@sqlsynthesizer.com"
+  preferred_languages: ["en"]
+  
+  # Coordinated disclosure timeline
+  disclosure_timeline:
+    initial_response: "1 business day"
+    status_update: "weekly"
+    fix_timeline: "90 days"
