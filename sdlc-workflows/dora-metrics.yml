@@ -1,0 +1,599 @@
+name: DORA Metrics Collection & Analysis
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Collect metrics daily at 1 AM UTC
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  # ============================================================================
+  # DORA Metrics Collection
+  # ============================================================================
+  collect-dora-metrics:
+    name: Collect DORA Metrics
+    runs-on: ubuntu-latest
+    outputs:
+      deployment-frequency: ${{ steps.metrics.outputs.deployment-frequency }}
+      lead-time: ${{ steps.metrics.outputs.lead-time }}
+      mttr: ${{ steps.metrics.outputs.mttr }}
+      change-failure-rate: ${{ steps.metrics.outputs.change-failure-rate }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Need full history for metrics calculation
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests python-dateutil PyYAML
+    
+    - name: Calculate DORA Metrics
+      id: metrics
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        python << 'EOF'
+        import json
+        import os
+        import requests
+        from datetime import datetime, timedelta
+        from dateutil.parser import parse
+        
+        # GitHub API setup
+        token = os.environ.get('GITHUB_TOKEN')
+        headers = {'Authorization': f'token {token}', 'Accept': 'application/vnd.github.v3+json'}
+        repo = os.environ.get('GITHUB_REPOSITORY')
+        base_url = f'https://api.github.com/repos/{repo}'
+        
+        # Calculate time ranges
+        now = datetime.utcnow()
+        thirty_days_ago = now - timedelta(days=30)
+        seven_days_ago = now - timedelta(days=7)
+        
+        print("🔍 Collecting DORA Metrics...")
+        
+        # 1. DEPLOYMENT FREQUENCY
+        print("\n📊 Calculating Deployment Frequency...")
+        
+        # Get successful workflow runs for deployment
+        deployments_url = f'{base_url}/actions/workflows/ci.yml/runs?status=success&created={thirty_days_ago.isoformat()}..*'
+        response = requests.get(deployments_url, headers=headers)
+        
+        if response.status_code == 200:
+            deployments = response.json()['workflow_runs']
+            # Filter for main branch deployments
+            main_deployments = [d for d in deployments if d['head_branch'] == 'main']
+            
+            deployment_count = len(main_deployments)
+            deployment_frequency = deployment_count / 30  # Per day
+            
+            print(f"   Deployments in last 30 days: {deployment_count}")
+            print(f"   Deployment frequency: {deployment_frequency:.2f} per day")
+        else:
+            deployment_frequency = 0
+            print("   Unable to fetch deployment data")
+        
+        # 2. LEAD TIME FOR CHANGES
+        print("\n⏱️  Calculating Lead Time for Changes...")
+        
+        # Get merged PRs in the last 30 days
+        prs_url = f'{base_url}/pulls?state=closed&sort=updated&direction=desc'
+        response = requests.get(prs_url, headers=headers)
+        
+        lead_times = []
+        if response.status_code == 200:
+            prs = response.json()
+            
+            for pr in prs:
+                if pr['merged_at'] and pr['created_at']:
+                    created = parse(pr['created_at'])
+                    merged = parse(pr['merged_at'])
+                    
+                    # Only consider PRs from last 30 days
+                    if created >= thirty_days_ago:
+                        lead_time_hours = (merged - created).total_seconds() / 3600
+                        lead_times.append(lead_time_hours)
+        
+        avg_lead_time = sum(lead_times) / len(lead_times) if lead_times else 0
+        print(f"   PRs analyzed: {len(lead_times)}")
+        print(f"   Average lead time: {avg_lead_time:.2f} hours")
+        
+        # 3. MEAN TIME TO RECOVERY (MTTR)
+        print("\n🔧 Calculating Mean Time to Recovery...")
+        
+        # Get issues labeled as 'bug' or 'hotfix' that were closed
+        issues_url = f'{base_url}/issues?state=closed&labels=bug,hotfix&since={thirty_days_ago.isoformat()}'
+        response = requests.get(issues_url, headers=headers)
+        
+        recovery_times = []
+        if response.status_code == 200:
+            issues = response.json()
+            
+            for issue in issues:
+                if issue['created_at'] and issue['closed_at']:
+                    created = parse(issue['created_at'])
+                    closed = parse(issue['closed_at'])
+                    
+                    recovery_time_hours = (closed - created).total_seconds() / 3600
+                    recovery_times.append(recovery_time_hours)
+        
+        avg_mttr = sum(recovery_times) / len(recovery_times) if recovery_times else 0
+        print(f"   Incidents analyzed: {len(recovery_times)}")
+        print(f"   Average MTTR: {avg_mttr:.2f} hours")
+        
+        # 4. CHANGE FAILURE RATE
+        print("\n❌ Calculating Change Failure Rate...")
+        
+        # Get failed workflows in last 30 days
+        failed_runs_url = f'{base_url}/actions/workflows/ci.yml/runs?status=failure&created={thirty_days_ago.isoformat()}..*'
+        response = requests.get(failed_runs_url, headers=headers)
+        
+        failed_deployments = 0
+        if response.status_code == 200:
+            failed_runs = response.json()['workflow_runs']
+            failed_deployments = len([r for r in failed_runs if r['head_branch'] == 'main'])
+        
+        total_attempts = deployment_count + failed_deployments
+        change_failure_rate = (failed_deployments / total_attempts * 100) if total_attempts > 0 else 0
+        
+        print(f"   Failed deployments: {failed_deployments}")
+        print(f"   Total deployment attempts: {total_attempts}")
+        print(f"   Change failure rate: {change_failure_rate:.2f}%")
+        
+        # Categorize performance levels according to DORA research
+        def categorize_deployment_frequency(freq):
+            if freq >= 1:
+                return "Elite"
+            elif freq >= 0.14:  # Once per week
+                return "High"
+            elif freq >= 0.03:  # Once per month
+                return "Medium"
+            else:
+                return "Low"
+        
+        def categorize_lead_time(hours):
+            if hours <= 24:
+                return "Elite"
+            elif hours <= 168:  # One week
+                return "High"
+            elif hours <= 720:  # One month
+                return "Medium"
+            else:
+                return "Low"
+        
+        def categorize_mttr(hours):
+            if hours <= 1:
+                return "Elite"
+            elif hours <= 24:
+                return "High"
+            elif hours <= 168:  # One week
+                return "Medium"
+            else:
+                return "Low"
+        
+        def categorize_change_failure_rate(rate):
+            if rate <= 5:
+                return "Elite"
+            elif rate <= 10:
+                return "High"
+            elif rate <= 15:
+                return "Medium"
+            else:
+                return "Low"
+        
+        # Generate performance categories
+        deployment_freq_category = categorize_deployment_frequency(deployment_frequency)
+        lead_time_category = categorize_lead_time(avg_lead_time)
+        mttr_category = categorize_mttr(avg_mttr)
+        change_failure_category = categorize_change_failure_rate(change_failure_rate)
+        
+        print(f"\n🏆 DORA Performance Categories:")
+        print(f"   Deployment Frequency: {deployment_freq_category}")
+        print(f"   Lead Time: {lead_time_category}")
+        print(f"   MTTR: {mttr_category}")
+        print(f"   Change Failure Rate: {change_failure_category}")
+        
+        # Output metrics for use in other jobs
+        with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+            f.write(f"deployment-frequency={deployment_frequency:.3f}\n")
+            f.write(f"lead-time={avg_lead_time:.2f}\n")
+            f.write(f"mttr={avg_mttr:.2f}\n")  
+            f.write(f"change-failure-rate={change_failure_rate:.2f}\n")
+        
+        # Save detailed metrics
+        metrics_data = {
+            "timestamp": now.isoformat(),
+            "period": "30_days",
+            "metrics": {
+                "deployment_frequency": {
+                    "value": deployment_frequency,
+                    "unit": "per_day",
+                    "category": deployment_freq_category,
+                    "raw_count": deployment_count
+                },
+                "lead_time_for_changes": {
+                    "value": avg_lead_time,
+                    "unit": "hours",
+                    "category": lead_time_category,
+                    "sample_size": len(lead_times)
+                },
+                "mean_time_to_recovery": {
+                    "value": avg_mttr,
+                    "unit": "hours", 
+                    "category": mttr_category,
+                    "sample_size": len(recovery_times)
+                },
+                "change_failure_rate": {
+                    "value": change_failure_rate,
+                    "unit": "percentage",
+                    "category": change_failure_category,
+                    "failed_count": failed_deployments,
+                    "total_count": total_attempts
+                }
+            }
+        }
+        
+        with open('dora-metrics.json', 'w') as f:
+            json.dump(metrics_data, f, indent=2)
+        
+        print(f"\n✅ DORA metrics collection completed!")
+        EOF
+    
+    - name: Upload DORA metrics data
+      uses: actions/upload-artifact@v3
+      with:
+        name: dora-metrics-data
+        path: dora-metrics.json
+
+  # ============================================================================
+  # DORA Metrics Analysis & Reporting
+  # ============================================================================
+  analyze-dora-metrics:
+    name: Analyze DORA Metrics
+    runs-on: ubuntu-latest
+    needs: collect-dora-metrics
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Download metrics data
+      uses: actions/download-artifact@v3
+      with:
+        name: dora-metrics-data
+        path: metrics-data/
+    
+    - name: Generate DORA metrics report
+      run: |
+        python << 'EOF'
+        import json
+        from datetime import datetime
+        
+        # Load metrics data
+        with open('metrics-data/dora-metrics.json', 'r') as f:
+            data = json.load(f)
+        
+        metrics = data['metrics']
+        
+        # Generate comprehensive report
+        report = f"""# DORA Metrics Report
+        
+        **Generated**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}  
+        **Period**: Last 30 days  
+        **Repository**: {data.get('repository', 'sql-query-synthesizer')}
+        
+        ## Executive Summary
+        
+        This report provides DevOps Research and Assessment (DORA) metrics analysis for our software delivery performance.
+        
+        ## 📊 Key Metrics
+        
+        ### 1. Deployment Frequency
+        - **Value**: {metrics['deployment_frequency']['value']:.3f} deployments per day
+        - **Category**: **{metrics['deployment_frequency']['category']}**
+        - **Total Deployments**: {metrics['deployment_frequency']['raw_count']} in 30 days
+        
+        {self.get_deployment_frequency_insight(metrics['deployment_frequency']['category'])}
+        
+        ### 2. Lead Time for Changes
+        - **Value**: {metrics['lead_time_for_changes']['value']:.2f} hours
+        - **Category**: **{metrics['lead_time_for_changes']['category']}**
+        - **Sample Size**: {metrics['lead_time_for_changes']['sample_size']} PRs analyzed
+        
+        {self.get_lead_time_insight(metrics['lead_time_for_changes']['category'])}
+        
+        ### 3. Mean Time to Recovery (MTTR)
+        - **Value**: {metrics['mean_time_to_recovery']['value']:.2f} hours
+        - **Category**: **{metrics['mean_time_to_recovery']['category']}**
+        - **Incidents Analyzed**: {metrics['mean_time_to_recovery']['sample_size']}
+        
+        {self.get_mttr_insight(metrics['mean_time_to_recovery']['category'])}
+        
+        ### 4. Change Failure Rate
+        - **Value**: {metrics['change_failure_rate']['value']:.2f}%
+        - **Category**: **{metrics['change_failure_rate']['category']}**
+        - **Failed/Total**: {metrics['change_failure_rate']['failed_count']}/{metrics['change_failure_rate']['total_count']}
+        
+        {self.get_change_failure_insight(metrics['change_failure_rate']['category'])}
+        
+        ## 🏆 Overall Performance Assessment
+        
+        {self.generate_overall_assessment(metrics)}
+        
+        ## 📈 Trend Analysis
+        
+        ### Performance Categories Distribution:
+        - **Elite**: {sum(1 for m in metrics.values() if m['category'] == 'Elite')}/4 metrics
+        - **High**: {sum(1 for m in metrics.values() if m['category'] == 'High')}/4 metrics  
+        - **Medium**: {sum(1 for m in metrics.values() if m['category'] == 'Medium')}/4 metrics
+        - **Low**: {sum(1 for m in metrics.values() if m['category'] == 'Low')}/4 metrics
+        
+        ## 🎯 Improvement Recommendations
+        
+        {self.generate_recommendations(metrics)}
+        
+        ## 📋 Action Items
+        
+        ### Immediate Actions (Next 30 days):
+        - Monitor deployment frequency trends
+        - Optimize CI/CD pipeline performance
+        - Implement automated testing improvements
+        - Enhance monitoring and alerting systems
+        
+        ### Medium-term Goals (Next 90 days):
+        - Achieve Elite performance in at least 2 metrics
+        - Reduce lead time through process optimization
+        - Implement advanced deployment strategies
+        - Enhance incident response procedures
+        
+        ### Long-term Objectives (Next 6 months):
+        - Achieve Elite performance across all DORA metrics
+        - Implement predictive analytics for deployment success
+        - Advanced automation and self-healing systems
+        - Continuous improvement culture establishment
+        
+        ## 📊 Historical Context
+        
+        > This report establishes baseline metrics. Future reports will include trend analysis and historical comparisons.
+        
+        ## 🔗 Additional Resources
+        
+        - [DORA State of DevOps Report](https://cloud.google.com/devops/state-of-devops)
+        - [Measuring DevOps Performance](https://cloud.google.com/solutions/devops/devops-measurement)
+        - [Project SDLC Documentation](./SDLC_CHECKPOINT_STRATEGY.md)
+        
+        ---
+        
+        **Next Report**: {(datetime.now().replace(day=1) + timedelta(days=32)).replace(day=1).strftime('%Y-%m-%d')}
+        """
+        
+        # Helper methods for generating insights
+        def get_deployment_frequency_insight(category):
+            insights = {
+                "Elite": "🟢 **Excellent!** Your team is deploying multiple times per day, indicating a mature CI/CD pipeline.",
+                "High": "🟡 **Good!** Weekly deployments show solid delivery capability with room for improvement.",
+                "Medium": "🟠 **Fair.** Monthly deployments suggest opportunities to optimize delivery pipeline.",
+                "Low": "🔴 **Needs Improvement.** Infrequent deployments may indicate process bottlenecks."
+            }
+            return insights.get(category, "")
+        
+        def get_lead_time_insight(category):
+            insights = {
+                "Elite": "🟢 **Outstanding!** Sub-day lead times indicate highly efficient development processes.",
+                "High": "🟡 **Good!** Weekly lead times show good development velocity.",
+                "Medium": "🟠 **Moderate.** Monthly lead times suggest opportunities for process optimization.",
+                "Low": "🔴 **Needs Focus.** Long lead times may indicate process inefficiencies."
+            }
+            return insights.get(category, "")
+        
+        def get_mttr_insight(category):
+            insights = {
+                "Elite": "🟢 **Excellent!** Sub-hour recovery times demonstrate exceptional incident response.",
+                "High": "🟡 **Strong!** Same-day recovery shows good incident management capabilities.", 
+                "Medium": "🟠 **Adequate.** Weekly recovery times indicate room for improvement.",
+                "Low": "🔴 **Critical.** Long recovery times require immediate attention to incident response."
+            }
+            return insights.get(category, "")
+        
+        def get_change_failure_insight(category):
+            insights = {
+                "Elite": "🟢 **Superior!** Very low failure rates indicate excellent quality processes.",
+                "High": "🟡 **Good!** Low failure rates show solid quality control.",
+                "Medium": "🟠 **Acceptable.** Moderate failure rates suggest quality improvements needed.",
+                "Low": "🔴 **Concerning.** High failure rates require immediate quality focus."
+            }
+            return insights.get(category, "")
+        
+        def generate_overall_assessment(metrics):
+            categories = [m['category'] for m in metrics.values()]
+            elite_count = categories.count('Elite')
+            high_count = categories.count('High')
+            
+            if elite_count >= 3:
+                return "🏆 **ELITE PERFORMER** - Your team demonstrates world-class software delivery performance!"
+            elif elite_count >= 2 or (elite_count >= 1 and high_count >= 2):
+                return "🥈 **HIGH PERFORMER** - Strong delivery performance with opportunities for elite status!"
+            elif high_count >= 2:
+                return "🥉 **MEDIUM PERFORMER** - Solid foundation with clear improvement opportunities!"
+            else:
+                return "📈 **DEVELOPING** - Focus on foundational improvements to enhance delivery performance!"
+        
+        def generate_recommendations(metrics):
+            recommendations = []
+            
+            for metric_name, metric_data in metrics.items():
+                category = metric_data['category']
+                
+                if category in ['Low', 'Medium']:
+                    if metric_name == 'deployment_frequency':
+                        recommendations.append("- **Increase Deployment Frequency**: Implement automated deployment pipelines and reduce batch sizes")
+                    elif metric_name == 'lead_time_for_changes':
+                        recommendations.append("- **Reduce Lead Time**: Optimize code review processes and automate testing")
+                    elif metric_name == 'mean_time_to_recovery':
+                        recommendations.append("- **Improve MTTR**: Enhance monitoring, alerting, and incident response procedures")
+                    elif metric_name == 'change_failure_rate':
+                        recommendations.append("- **Reduce Failure Rate**: Strengthen testing practices and implement progressive deployment")
+            
+            if not recommendations:
+                recommendations.append("- **Maintain Excellence**: Continue current practices and explore advanced DevOps techniques")
+                recommendations.append("- **Share Knowledge**: Document and share your successful practices with other teams")
+            
+            return '\n'.join(recommendations)
+        
+        with open('dora-report.md', 'w') as f:
+            f.write(report)
+        
+        print("✅ DORA metrics report generated successfully!")
+        EOF
+    
+    - name: Create or update DORA metrics issue
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const report = fs.readFileSync('dora-report.md', 'utf8');
+          
+          // Check for existing DORA metrics issue
+          const { data: issues } = await github.rest.issues.listForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            labels: 'dora-metrics',
+            state: 'open'
+          });
+          
+          const currentMonth = new Date().toISOString().substring(0, 7);
+          const existingIssue = issues.find(issue => 
+            issue.title.includes(currentMonth)
+          );
+          
+          if (existingIssue) {
+            // Update existing issue
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: existingIssue.number,
+              body: `## Updated DORA Metrics Report\n\n${report}`
+            });
+          } else {
+            // Create new DORA metrics issue
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `📊 DORA Metrics Report - ${currentMonth}`,
+              body: report,
+              labels: ['dora-metrics', 'metrics', 'automated', 'monthly-report']
+            });
+          }
+    
+    - name: Upload DORA report
+      uses: actions/upload-artifact@v3
+      with:
+        name: dora-metrics-report
+        path: dora-report.md
+
+  # ============================================================================
+  # DORA Metrics Dashboard Update
+  # ============================================================================
+  update-metrics-dashboard:
+    name: Update Metrics Dashboard
+    runs-on: ubuntu-latest
+    needs: [collect-dora-metrics, analyze-dora-metrics]
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Download metrics artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: dora-metrics-data
+        path: metrics-data/
+    
+    - name: Update metrics dashboard
+      run: |
+        # Create or update DORA metrics dashboard
+        cat > docs/DORA_METRICS_DASHBOARD.md << 'EOF'
+        # DORA Metrics Dashboard
+        
+        **Last Updated**: $(date)
+        **Auto-generated**: This dashboard is automatically updated daily
+        
+        ## Current Performance
+        
+        | Metric | Value | Category | Trend |
+        |--------|-------|----------|-------|
+        | Deployment Frequency | ${{ needs.collect-dora-metrics.outputs.deployment-frequency }}/day | - | ↗️ |
+        | Lead Time | ${{ needs.collect-dora-metrics.outputs.lead-time }}h | - | ↗️ |
+        | MTTR | ${{ needs.collect-dora-metrics.outputs.mttr }}h | - | ↗️ |
+        | Change Failure Rate | ${{ needs.collect-dora-metrics.outputs.change-failure-rate }}% | - | ↗️ |
+        
+        ## Quick Actions
+        
+        - [View Latest Report](../issues?q=is%3Aopen+label%3Adora-metrics)
+        - [SDLC Strategy](./SDLC_CHECKPOINT_STRATEGY.md)  
+        - [CI/CD Workflows](../.github/workflows/)
+        
+        ## Performance Targets
+        
+        | Metric | Elite | High | Medium | Low |
+        |--------|-------|------|--------|-----|
+        | Deployment Frequency | >1/day | >1/week | >1/month | <1/month |
+        | Lead Time | <1 day | <1 week | <1 month | >1 month |
+        | MTTR | <1 hour | <1 day | <1 week | >1 week |
+        | Change Failure Rate | <5% | <10% | <15% | >15% |
+        
+        ---
+        *This dashboard is updated automatically by the DORA metrics workflow.*
+        EOF
+    
+    - name: Commit dashboard updates
+      if: github.event_name == 'schedule'
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        
+        if git diff --quiet docs/DORA_METRICS_DASHBOARD.md; then
+          echo "No changes to dashboard"
+          exit 0
+        fi
+        
+        git add docs/DORA_METRICS_DASHBOARD.md
+        git commit -m "chore: update DORA metrics dashboard
+        
+        - Deployment frequency: ${{ needs.collect-dora-metrics.outputs.deployment-frequency }}/day
+        - Lead time: ${{ needs.collect-dora-metrics.outputs.lead-time }}h
+        - MTTR: ${{ needs.collect-dora-metrics.outputs.mttr }}h
+        - Change failure rate: ${{ needs.collect-dora-metrics.outputs.change-failure-rate }}%
+        
+        🤖 Automated metrics update"
+        
+        git push origin main
+    
+    - name: Summary
+      run: |
+        echo "## 📊 DORA Metrics Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+        echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Deployment Frequency | ${{ needs.collect-dora-metrics.outputs.deployment-frequency }}/day |" >> $GITHUB_STEP_SUMMARY
+        echo "| Lead Time | ${{ needs.collect-dora-metrics.outputs.lead-time }}h |" >> $GITHUB_STEP_SUMMARY
+        echo "| MTTR | ${{ needs.collect-dora-metrics.outputs.mttr }}h |" >> $GITHUB_STEP_SUMMARY
+        echo "| Change Failure Rate | ${{ needs.collect-dora-metrics.outputs.change-failure-rate }}% |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "✅ DORA metrics collection and analysis completed successfully!" >> $GITHUB_STEP_SUMMARY

@@ -1,52 +1,114 @@
 # Security Policy Configuration
 # This file configures automated security features for the repository
+# Enhanced for SDLC checkpoint strategy compliance
 
 # Security advisories configuration
 security_advisories:
   enabled: true
   private_vulnerability_reporting: true
+  auto_review: true
+  severity_thresholds:
+    critical: "immediate_action"
+    high: "24_hours"
+    medium: "7_days"
+    low: "30_days"
 
-# Dependency scanning
+# Enhanced dependency scanning with SDLC integration
 dependency_scanning:
   enabled: true
   package_ecosystems:
     - pip
-    - docker
+    - docker  
     - github-actions
+    - terraform
+  
+  # SDLC checkpoint integration
+  checkpoint_integration:
+    block_on_critical: true
+    block_on_high: true
+    auto_remediation: true
   
   # Auto-dismiss advisories for dev dependencies with low severity
   auto_dismiss:
     dev_dependencies: true
     severity_threshold: "low"
+    
+  # Enhanced vulnerability management
+  vulnerability_management:
+    sla_critical: "4_hours"
+    sla_high: "24_hours" 
+    sla_medium: "7_days"
+    sla_low: "30_days"
 
-# Secret scanning
+# Enhanced secret scanning with custom patterns
 secret_scanning:
   enabled: true
   push_protection: true
   
-  # Custom patterns for SQL Synthesizer specific secrets
+  # Enhanced custom patterns for SQL Synthesizer
   custom_patterns:
     - name: "OpenAI API Key"
-      regex: "sk-[a-zA-Z0-9]{48}"
+      regex: "sk-[a-zA-Z0-9]{48,51}"
+      severity: "critical"
     - name: "Database Connection String"
-      regex: "(postgresql|mysql|sqlite)://[^\\s]+"
+      regex: "(postgresql|mysql|sqlite)://[^\\s]+:[^\\s]+@[^\\s]+/[^\\s]+"
+      severity: "high"
     - name: "Flask Secret Key"
-      regex: "SECRET_KEY\\s*=\\s*['\"][^'\"]+['\"]"
+      regex: "SECRET_KEY\\s*=\\s*['\"][^'\"]{16,}['\"]"
+      severity: "high"
+    - name: "JWT Secret"
+      regex: "JWT_SECRET[_KEY]*\\s*=\\s*['\"][^'\"]+['\"]"
+      severity: "high"
+    - name: "Redis URL with Auth"
+      regex: "redis://[^\\s]*:[^\\s]*@[^\\s]+"
+      severity: "medium"
+    - name: "SQL Synthesizer API Key" 
+      regex: "QUERY_AGENT_API_KEY\\s*=\\s*['\"][^'\"]+['\"]"
+      severity: "high"
+  
+  # Advanced scanning configuration
+  advanced_scanning:
+    entropy_detection: true
+    historical_scanning: true
+    exclude_paths:
+      - "tests/fixtures/*"
+      - "docs/examples/*"
+      - ".github/workflows/test-data/*"
 
-# Code scanning with CodeQL
+# Enhanced code scanning with CodeQL
 code_scanning:
   enabled: true
   languages:
     - python
+    - javascript  # For any frontend components
+    - dockerfile
   
-  # Custom queries for SQL injection and database security
+  # Enhanced security query packs
   query_packs:
     - "security-and-quality"
     - "security-extended"
+    - "sql-injection"
+    - "command-injection"
+    - "path-injection"
+    - "authentication"
+    - "authorization"
   
-  # Scheduled scans
+  # SDLC checkpoint integration
+  checkpoint_integration:
+    block_on_critical: true
+    block_on_high: true
+    require_review: true
+  
+  # Enhanced scheduled scans
   schedule:
     - cron: "0 6 * * 1"  # Weekly on Monday
+    - cron: "0 18 * * 5" # Weekly on Friday evening
+  
+  # Scan configuration
+  scan_configuration:
+    timeout_minutes: 45
+    ram: 8192
+    threads: 4
 
 # Branch protection rules (to be configured in repository settings)
 branch_protection:
