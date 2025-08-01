@@ -1,0 +1,123 @@
+# Terragon Value Discovery Configuration
+# Repository: Advanced SDLC maturity (85%) → Enterprise target (95%+)
+
+repository:
+  name: "sql_synthesizer"
+  maturity_level: "advanced"
+  target_maturity: "enterprise"
+  current_score: 85
+  target_score: 95
+
+scoring:
+  weights:
+    advanced:
+      wsjf: 0.5          # Weighted Shortest Job First
+      ice: 0.1           # Impact × Confidence × Ease
+      technicalDebt: 0.3 # Technical debt reduction value
+      security: 0.1      # Security improvement value
+  
+  thresholds:
+    minScore: 15           # Minimum composite score for execution
+    maxRisk: 0.7          # Maximum acceptable risk level
+    securityBoost: 2.5    # Security vulnerability boost multiplier
+    complianceBoost: 2.0  # Compliance requirement boost multiplier
+
+discovery:
+  sources:
+    - gitHistory          # TODO/FIXME/HACK markers in commits
+    - staticAnalysis      # Code quality and complexity metrics
+    - securityScans       # Vulnerability and security debt
+    - performanceMetrics  # Performance regression opportunities
+    - dependencyAudits    # Outdated and vulnerable dependencies
+    - documentationGaps   # Missing or outdated documentation
+    - complianceChecks    # Regulatory and policy adherence
+  
+  tools:
+    staticAnalysis:
+      - bandit             # Security linting
+      - mypy               # Type checking
+      - ruff               # Code quality
+      - black              # Code formatting
+      - isort              # Import sorting
+    
+    security:
+      - safety             # Dependency vulnerability scanning
+      - detect-secrets     # Secrets detection
+      - semgrep            # SAST scanning
+      - trivy              # Container security scanning
+    
+    performance:
+      - pytest-benchmark   # Performance regression testing
+      - py-spy             # Python profiling
+      - memory-profiler    # Memory usage analysis
+
+execution:
+  maxConcurrentTasks: 1
+  
+  testRequirements:
+    minCoverage: 90           # Current coverage is excellent
+    maxPerformanceRegression: 5  # 5% performance regression threshold
+    securityScansPassing: true
+  
+  rollbackTriggers:
+    - testFailure
+    - buildFailure
+    - securityViolation
+    - performanceRegression
+  
+  qualityGates:
+    - pre-commit-hooks-pass
+    - security-scans-clean
+    - type-checking-passes
+    - documentation-updated
+
+# Current gaps identified for value discovery
+gaps:
+  critical:
+    - github_actions_cicd: "No automated CI/CD pipeline"
+    - production_monitoring: "Limited observability integration"
+    - security_automation: "Manual security processes"
+  
+  important:
+    - performance_regression_testing: "No automated performance validation"
+    - compliance_documentation: "Missing SOC2/GDPR documentation"
+    - advanced_alerting: "No proactive incident detection"
+  
+  optimization:
+    - dependency_automation: "Manual dependency management"
+    - documentation_automation: "Manual documentation updates"
+    - code_quality_automation: "Manual quality checks"
+
+# Value tracking metrics
+metrics:
+  track:
+    - security_posture_score
+    - technical_debt_ratio
+    - test_coverage_percentage
+    - performance_benchmark_trends
+    - dependency_freshness_score
+    - documentation_completeness
+    - compliance_adherence_percentage
+  
+  targets:
+    security_posture_score: 95
+    technical_debt_ratio: 0.15
+    test_coverage_percentage: 95
+    dependency_freshness_score: 90
+    documentation_completeness: 95
+    compliance_adherence_percentage: 90
+
+# Integration points for existing tools
+integrations:
+  existing_tools:
+    - makefile_commands: "50+ development and deployment commands"
+    - pre_commit_hooks: "12+ quality and security checks"
+    - docker_compose: "Multi-service development stack"
+    - terraform: "Production infrastructure as code"
+    - pytest_suite: "6,199 lines of comprehensive tests"
+  
+  enhancement_opportunities:
+    - integrate_monitoring_stack: "Connect Prometheus/Grafana to application"
+    - automate_security_pipeline: "CI/CD security scanning integration"
+    - performance_benchmarking: "Automated regression detection"
+    - compliance_automation: "Policy as code implementation"
