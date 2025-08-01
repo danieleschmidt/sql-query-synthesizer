@@ -1,0 +1,584 @@
+name: CI/CD Pipeline with SDLC Checkpoints
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.11"
+  NODE_VERSION: "18"
+
+# Define SDLC checkpoint stages
+jobs:
+  # ============================================================================
+  # CHECKPOINT 1: Code Quality & Standards
+  # ============================================================================
+  code-quality:
+    name: "Checkpoint 1: Code Quality"
+    runs-on: ubuntu-latest
+    outputs:
+      quality-gate: ${{ steps.quality-check.outputs.passed }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml', '**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[dev]
+    
+    - name: Code formatting check
+      run: |
+        echo "Checking code formatting..."
+        black --check sql_synthesizer/ tests/
+        isort --check-only sql_synthesizer/ tests/
+    
+    - name: Linting with Ruff
+      run: |
+        echo "Running Ruff linter..."
+        ruff sql_synthesizer/
+    
+    - name: Type checking with MyPy
+      run: |
+        echo "Running type checking..."
+        mypy sql_synthesizer/
+    
+    - name: Pylint analysis
+      run: |
+        echo "Running Pylint analysis..."
+        pylint sql_synthesizer/ --output-format=json > pylint-report.json || true
+        pylint sql_synthesizer/
+    
+    - name: Pre-commit hooks validation
+      run: |
+        echo "Validating pre-commit hooks..."
+        pre-commit run --all-files
+    
+    - name: Quality gate decision
+      id: quality-check
+      run: |
+        echo "✅ Code quality checkpoint passed"
+        echo "passed=true" >> $GITHUB_OUTPUT
+    
+    - name: Upload quality reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: quality-reports
+        path: pylint-report.json
+
+  # ============================================================================
+  # CHECKPOINT 2: Security & Vulnerability Assessment
+  # ============================================================================
+  security:
+    name: "Checkpoint 2: Security Assessment"
+    runs-on: ubuntu-latest
+    needs: code-quality
+    if: needs.code-quality.outputs.quality-gate == 'true'
+    outputs:
+      security-gate: ${{ steps.security-check.outputs.passed }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[dev]
+    
+    - name: Bandit security linter
+      run: |
+        echo "Running Bandit security analysis..."
+        bandit -r sql_synthesizer/ -f json -o bandit-report.json
+        bandit -r sql_synthesizer/
+    
+    - name: Safety dependency check
+      run: |
+        echo "Checking dependencies for vulnerabilities..."
+        safety check --json --output safety-report.json
+        safety check
+    
+    - name: Secret detection
+      run: |
+        echo "Scanning for secrets..."
+        pip install detect-secrets
+        detect-secrets scan --all-files --baseline .secrets.baseline
+    
+    - name: Trivy filesystem scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-fs-results.sarif'
+    
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-fs-results.sarif'
+    
+    - name: Semgrep security analysis
+      uses: returntocorp/semgrep-action@v1
+      with:
+        config: >-
+          p/security-audit
+          p/secrets
+          p/python
+          p/flask
+          p/sql-injection
+    
+    - name: Security gate decision
+      id: security-check
+      run: |
+        echo "✅ Security checkpoint passed"
+        echo "passed=true" >> $GITHUB_OUTPUT
+    
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          bandit-report.json
+          safety-report.json
+          trivy-fs-results.sarif
+
+  # ============================================================================
+  # CHECKPOINT 3: Unit & Integration Testing
+  # ============================================================================
+  testing:
+    name: "Checkpoint 3: Testing"
+    runs-on: ubuntu-latest
+    needs: [code-quality, security]
+    if: needs.security.outputs.security-gate == 'true'
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+        test-type: ['unit', 'integration']
+    
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    outputs:
+      testing-gate: ${{ steps.test-results.outputs.passed }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-${{ matrix.python-version }}-pip-${{ hashFiles('**/pyproject.toml') }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[dev,redis]
+    
+    - name: Wait for services
+      run: |
+        echo "Waiting for PostgreSQL..."
+        timeout 30s bash -c 'until pg_isready -h localhost -p 5432; do sleep 1; done'
+        echo "Waiting for Redis..."
+        timeout 30s bash -c 'until redis-cli -h localhost -p 6379 ping; do sleep 1; done'
+    
+    - name: Run unit tests
+      if: matrix.test-type == 'unit'
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+        REDIS_URL: redis://localhost:6379/0
+        QUERY_AGENT_CACHE_BACKEND: redis
+      run: |
+        echo "Running unit tests..."
+        pytest tests/ -v -m "not integration" --cov=sql_synthesizer --cov-report=xml --cov-report=html --junitxml=junit-${{ matrix.python-version }}-unit.xml
+    
+    - name: Run integration tests
+      if: matrix.test-type == 'integration'
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+        REDIS_URL: redis://localhost:6379/0
+        QUERY_AGENT_CACHE_BACKEND: redis
+      run: |
+        echo "Running integration tests..."
+        pytest tests/ -v -m "integration" --junitxml=junit-${{ matrix.python-version }}-integration.xml
+    
+    - name: Test results evaluation
+      id: test-results
+      if: matrix.python-version == '3.11' && matrix.test-type == 'unit'
+      run: |
+        echo "✅ Testing checkpoint passed"
+        echo "passed=true" >> $GITHUB_OUTPUT
+    
+    - name: Upload coverage to Codecov
+      if: matrix.python-version == '3.11' && matrix.test-type == 'unit'
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: true
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results-${{ matrix.python-version }}-${{ matrix.test-type }}
+        path: |
+          junit-*.xml
+          coverage.xml
+          htmlcov/
+
+  # ============================================================================
+  # CHECKPOINT 4: Performance & Load Testing
+  # ============================================================================
+  performance:
+    name: "Checkpoint 4: Performance"
+    runs-on: ubuntu-latest
+    needs: [testing]
+    if: needs.testing.outputs.testing-gate == 'true'
+    
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: benchmark_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    outputs:
+      performance-gate: ${{ steps.perf-check.outputs.passed }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[dev]
+        pip install pytest-benchmark
+    
+    - name: Wait for PostgreSQL
+      run: timeout 30s bash -c 'until pg_isready -h localhost -p 5432; do sleep 1; done'
+    
+    - name: Run performance benchmarks
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/benchmark_db
+      run: |
+        echo "Running performance benchmarks..."
+        pytest benchmarks/ --benchmark-only --benchmark-json=benchmark-results.json
+    
+    - name: Store benchmark results
+      uses: benchmark-action/github-action-benchmark@v1
+      with:
+        name: Python Benchmark
+        tool: 'pytest'
+        output-file-path: benchmark-results.json
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        auto-push: true
+        comment-on-alert: true
+        alert-threshold: '150%'
+        fail-threshold: '200%'
+    
+    - name: Performance gate decision
+      id: perf-check
+      run: |
+        echo "✅ Performance checkpoint passed"
+        echo "passed=true" >> $GITHUB_OUTPUT
+    
+    - name: Upload performance reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: performance-reports
+        path: benchmark-results.json
+
+  # ============================================================================
+  # CHECKPOINT 5: Build & Containerization
+  # ============================================================================
+  build:
+    name: "Checkpoint 5: Build & Container"
+    runs-on: ubuntu-latest
+    needs: [performance]
+    if: needs.performance.outputs.performance-gate == 'true'
+    outputs:
+      build-gate: ${{ steps.build-check.outputs.passed }}
+      image-digest: ${{ steps.build-push.outputs.digest }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install build dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build twine
+    
+    - name: Build Python package
+      run: |
+        echo "Building Python package..."
+        python -m build
+        twine check dist/*
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ghcr.io/${{ github.repository }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix=sha-
+          type=raw,value=latest,enable={{is_default_branch}}
+    
+    - name: Build and push Docker image
+      id: build-push
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        platforms: |
+          linux/amd64
+          linux/arm64
+    
+    - name: Container security scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ghcr.io/${{ github.repository }}:latest
+        format: 'sarif'
+        output: 'container-scan-results.sarif'
+    
+    - name: Upload container scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'container-scan-results.sarif'
+    
+    - name: Build gate decision
+      id: build-check
+      run: |
+        echo "✅ Build & containerization checkpoint passed"
+        echo "passed=true" >> $GITHUB_OUTPUT
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifacts
+        path: |
+          dist/
+          container-scan-results.sarif
+
+  # ============================================================================
+  # CHECKPOINT 6: Deployment Readiness
+  # ============================================================================
+  deployment-readiness:
+    name: "Checkpoint 6: Deployment Readiness"
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: needs.build.outputs.build-gate == 'true' && github.ref == 'refs/heads/main'
+    environment: staging
+    outputs:
+      deployment-gate: ${{ steps.deploy-check.outputs.passed }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Container smoke test
+      run: |
+        echo "Running container smoke tests..."
+        docker run --rm ghcr.io/${{ github.repository }}:latest python -c "
+        import sql_synthesizer
+        print('✅ Module import successful')
+        print(f'Version: {sql_synthesizer.__version__}')
+        "
+    
+    - name: Health check validation
+      run: |
+        echo "Validating health check endpoints..."
+        # Start container in background for testing
+        docker run -d --name test-container -p 5000:5000 \
+          -e DATABASE_URL=sqlite:///test.db \
+          ghcr.io/${{ github.repository }}:latest
+        
+        # Wait for service to be ready
+        sleep 10
+        
+        # Test health endpoint
+        curl -f http://localhost:5000/health || exit 1
+        
+        # Test metrics endpoint
+        curl -f http://localhost:5000/metrics || exit 1
+        
+        # Cleanup
+        docker stop test-container
+        docker rm test-container
+    
+    - name: Configuration validation
+      run: |
+        echo "Validating deployment configurations..."
+        # Check if all required environment variables are documented
+        # Validate Terraform configurations
+        cd infrastructure/terraform
+        terraform fmt -check
+        terraform validate
+    
+    - name: Deployment readiness decision
+      id: deploy-check
+      run: |
+        echo "✅ Deployment readiness checkpoint passed"
+        echo "passed=true" >> $GITHUB_OUTPUT
+
+  # ============================================================================
+  # FINAL CHECKPOINT: SDLC Summary & Metrics
+  # ============================================================================
+  sdlc-summary:
+    name: "SDLC Completion Summary"
+    runs-on: ubuntu-latest
+    needs: [code-quality, security, testing, performance, build, deployment-readiness]
+    if: always()
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Generate SDLC report
+      run: |
+        echo "# SDLC Checkpoint Summary" > sdlc-report.md
+        echo "" >> sdlc-report.md
+        echo "## Pipeline Execution: $(date)" >> sdlc-report.md
+        echo "" >> sdlc-report.md
+        echo "### Checkpoint Status:" >> sdlc-report.md
+        echo "- ✅ Code Quality: ${{ needs.code-quality.result }}" >> sdlc-report.md
+        echo "- ✅ Security Assessment: ${{ needs.security.result }}" >> sdlc-report.md
+        echo "- ✅ Testing: ${{ needs.testing.result }}" >> sdlc-report.md
+        echo "- ✅ Performance: ${{ needs.performance.result }}" >> sdlc-report.md
+        echo "- ✅ Build & Container: ${{ needs.build.result }}" >> sdlc-report.md
+        echo "- ✅ Deployment Readiness: ${{ needs.deployment-readiness.result }}" >> sdlc-report.md
+        echo "" >> sdlc-report.md
+        echo "### Artifacts Generated:" >> sdlc-report.md
+        echo "- Code quality reports" >> sdlc-report.md
+        echo "- Security scan results (SARIF)" >> sdlc-report.md
+        echo "- Test coverage reports" >> sdlc-report.md
+        echo "- Performance benchmarks" >> sdlc-report.md
+        echo "- Container images" >> sdlc-report.md
+        echo "- Build artifacts" >> sdlc-report.md
+    
+    - name: Upload SDLC report
+      uses: actions/upload-artifact@v3
+      with:
+        name: sdlc-completion-report
+        path: sdlc-report.md
+    
+    - name: Post summary to PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const report = fs.readFileSync('sdlc-report.md', 'utf8');
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: report
+          });
+    
+    - name: Final status
+      run: |
+        if [[ "${{ needs.code-quality.result }}" == "success" && 
+              "${{ needs.security.result }}" == "success" && 
+              "${{ needs.testing.result }}" == "success" && 
+              "${{ needs.performance.result }}" == "success" && 
+              "${{ needs.build.result }}" == "success" ]]; then
+          echo "🎉 All SDLC checkpoints passed successfully!"
+          exit 0
+        else
+          echo "❌ One or more SDLC checkpoints failed"
+          exit 1
+        fi
