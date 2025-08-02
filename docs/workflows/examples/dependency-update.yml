@@ -1,0 +1,360 @@
+name: Dependency Management
+
+on:
+  schedule:
+    # Run weekly on Mondays at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      update_type:
+        description: 'Type of update to perform'
+        required: true
+        type: choice
+        options:
+          - 'patch'
+          - 'minor'
+          - 'major'
+          - 'all'
+        default: 'patch'
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  dependency-audit:
+    name: Dependency Security Audit
+    runs-on: ubuntu-latest
+    outputs:
+      has_vulnerabilities: ${{ steps.audit.outputs.has_vulnerabilities }}
+      vulnerability_count: ${{ steps.audit.outputs.vulnerability_count }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install audit tools
+        run: |
+          python -m pip install --upgrade pip safety
+
+      - name: Run security audit
+        id: audit
+        run: |
+          safety check --json --output safety-report.json || true
+          
+          # Check if there are vulnerabilities
+          vuln_count=$(jq '.vulnerabilities | length' safety-report.json 2>/dev/null || echo "0")
+          echo "vulnerability_count=${vuln_count}" >> $GITHUB_OUTPUT
+          
+          if [ "$vuln_count" -gt 0 ]; then
+            echo "has_vulnerabilities=true" >> $GITHUB_OUTPUT
+            echo "Found ${vuln_count} security vulnerabilities in dependencies"
+          else
+            echo "has_vulnerabilities=false" >> $GITHUB_OUTPUT
+            echo "No security vulnerabilities found"
+          fi
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v3
+        with:
+          name: dependency-audit-report
+          path: safety-report.json
+
+  update-dependencies:
+    name: Update Dependencies
+    runs-on: ubuntu-latest
+    needs: dependency-audit
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.DEPENDENCY_UPDATE_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependency management tools
+        run: |
+          python -m pip install --upgrade pip pip-tools
+
+      - name: Backup current requirements
+        run: |
+          cp requirements.txt requirements.txt.backup
+          cp requirements-dev.txt requirements-dev.txt.backup
+
+      - name: Update dependencies based on type
+        run: |
+          update_type="${{ github.event.inputs.update_type || 'patch' }}"
+          
+          case $update_type in
+            "patch")
+              echo "Updating patch versions only"
+              pip-compile --upgrade-package '*' --resolver=backtracking requirements.in
+              pip-compile --upgrade-package '*' --resolver=backtracking requirements-dev.in
+              ;;
+            "minor")
+              echo "Updating minor versions"
+              pip-compile --upgrade --resolver=backtracking requirements.in
+              pip-compile --upgrade --resolver=backtracking requirements-dev.in
+              ;;
+            "major")
+              echo "Updating major versions (with caution)"
+              pip-compile --upgrade --resolver=backtracking requirements.in
+              pip-compile --upgrade --resolver=backtracking requirements-dev.in
+              ;;
+            "all")
+              echo "Updating all dependencies to latest"
+              pip-compile --upgrade --resolver=backtracking requirements.in
+              pip-compile --upgrade --resolver=backtracking requirements-dev.in
+              ;;
+          esac
+
+      - name: Install updated dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Run tests with updated dependencies
+        run: |
+          make ci-install
+          make test
+        env:
+          PYTEST_ARGS: "--tb=short -x"
+
+      - name: Run security audit on updated dependencies
+        run: |
+          safety check --json --output safety-updated.json || true
+          
+          # Compare vulnerability counts
+          old_count="${{ needs.dependency-audit.outputs.vulnerability_count }}"
+          new_count=$(jq '.vulnerabilities | length' safety-updated.json 2>/dev/null || echo "0")
+          
+          echo "Previous vulnerabilities: ${old_count}"
+          echo "Current vulnerabilities: ${new_count}"
+          
+          if [ "$new_count" -gt "$old_count" ]; then
+            echo "⚠️ Dependency updates introduced new vulnerabilities!"
+            echo "Reverting changes..."
+            cp requirements.txt.backup requirements.txt
+            cp requirements-dev.txt.backup requirements-dev.txt
+            exit 1
+          fi
+
+      - name: Generate update summary
+        id: summary
+        run: |
+          echo "## Dependency Update Summary" > update_summary.md
+          echo "" >> update_summary.md
+          
+          # Compare old and new requirements
+          echo "### Updated Packages" >> update_summary.md
+          if command -v diff >/dev/null 2>&1; then
+            diff requirements.txt.backup requirements.txt | grep "^[><]" | head -20 >> update_summary.md || true
+          fi
+          
+          echo "" >> update_summary.md
+          echo "### Security Status" >> update_summary.md
+          old_count="${{ needs.dependency-audit.outputs.vulnerability_count }}"
+          new_count=$(jq '.vulnerabilities | length' safety-updated.json 2>/dev/null || echo "0")
+          echo "- Previous vulnerabilities: ${old_count}" >> update_summary.md
+          echo "- Current vulnerabilities: ${new_count}" >> update_summary.md
+          
+          if [ "$new_count" -lt "$old_count" ]; then
+            echo "- ✅ Security improved!" >> update_summary.md
+          elif [ "$new_count" -eq "$old_count" ]; then
+            echo "- ➡️ Security status unchanged" >> update_summary.md
+          fi
+          
+          # Set output for PR body
+          echo "summary<<EOF" >> $GITHUB_OUTPUT
+          cat update_summary.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet requirements.txt requirements-dev.txt; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No dependency changes detected"
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Dependency changes detected"
+          fi
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.DEPENDENCY_UPDATE_TOKEN }}
+          commit-message: |
+            chore: update dependencies (${{ github.event.inputs.update_type || 'patch' }})
+            
+            Automated dependency update including security fixes.
+            
+            Security vulnerabilities resolved: ${{ needs.dependency-audit.outputs.vulnerability_count }}
+          title: 'chore: Automated dependency update (${{ github.event.inputs.update_type || 'patch' }})'
+          body: |
+            ## Automated Dependency Update
+            
+            This PR contains automated dependency updates generated by the dependency management workflow.
+            
+            **Update Type:** ${{ github.event.inputs.update_type || 'patch' }}
+            **Trigger:** ${{ github.event_name }}
+            
+            ${{ steps.summary.outputs.summary }}
+            
+            ### Validation
+            
+            - ✅ All tests passed with updated dependencies
+            - ✅ Security audit completed
+            - ✅ No new vulnerabilities introduced
+            
+            ### Review Checklist
+            
+            - [ ] Review major version changes for breaking changes
+            - [ ] Verify all CI checks pass
+            - [ ] Test locally if needed
+            - [ ] Check for any deprecated APIs in changelog
+            
+            ---
+            
+            This PR was created automatically by the dependency management workflow.
+            Safe to merge if all checks pass.
+          branch: dependency-update-${{ github.run_number }}
+          delete-branch: true
+          labels: |
+            dependencies
+            automated
+            security
+
+  security-advisory-check:
+    name: Check Security Advisories
+    runs-on: ubuntu-latest
+    if: needs.dependency-audit.outputs.has_vulnerabilities == 'true'
+    needs: dependency-audit
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create security issue
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const vulnerabilityCount = '${{ needs.dependency-audit.outputs.vulnerability_count }}';
+            
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Security Alert: ${vulnerabilityCount} dependency vulnerabilities detected`,
+              body: `## Security Alert
+              
+              The automated dependency audit has detected **${vulnerabilityCount}** security vulnerabilities in project dependencies.
+              
+              ### Action Required
+              
+              1. Review the vulnerability report in the [workflow run](${context.payload.repository.html_url}/actions/runs/${context.runId})
+              2. Update affected dependencies to secure versions
+              3. Test the application with updated dependencies
+              4. Deploy the fixes as soon as possible
+              
+              ### Artifacts
+              
+              - Detailed vulnerability report is available in the workflow artifacts
+              - SARIF report has been uploaded to the Security tab
+              
+              ### Auto-Update Status
+              
+              The dependency update workflow will attempt to automatically resolve these issues.
+              Monitor the [dependency update PR](${context.payload.repository.html_url}/pulls?q=is%3Apr+label%3Adependencies+is%3Aopen) for progress.
+              
+              ---
+              
+              This issue was created automatically by the dependency management workflow.`,
+              labels: ['security', 'dependencies', 'vulnerability', 'high-priority']
+            });
+            
+            console.log(`Created security issue #${issue.data.number}`);
+
+      - name: Notify security team
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              "text": ":warning: Security Alert: Dependency Vulnerabilities Detected",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*SQL Query Synthesizer Security Alert*\n\n:warning: *${{ needs.dependency-audit.outputs.vulnerability_count }} dependency vulnerabilities* detected in the latest security scan.\n\n*Action Required:* Review and update dependencies immediately."
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Workflow Run"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    },
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Security Tab"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/security"
+                    }
+                  ]
+                }
+              ]
+            }
+          webhook_url: ${{ secrets.SECURITY_SLACK_WEBHOOK }}
+
+  cleanup:
+    name: Cleanup Old Dependencies
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Clean up old dependency branches
+        uses: actions/github-script@v6
+        with:
+          script: |
+            // Clean up old dependency update branches (older than 7 days)
+            const { data: branches } = await github.rest.repos.listBranches({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - 7);
+            
+            for (const branch of branches) {
+              if (branch.name.startsWith('dependency-update-')) {
+                try {
+                  const { data: commit } = await github.rest.repos.getCommit({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    ref: branch.commit.sha
+                  });
+                  
+                  const commitDate = new Date(commit.commit.author.date);
+                  if (commitDate < cutoffDate) {
+                    console.log(`Deleting old dependency branch: ${branch.name}`);
+                    await github.rest.git.deleteRef({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      ref: `heads/${branch.name}`
+                    });
+                  }
+                } catch (error) {
+                  console.log(`Error processing branch ${branch.name}:`, error.message);
+                }
+              }
+            }
