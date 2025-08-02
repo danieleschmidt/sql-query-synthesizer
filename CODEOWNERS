@@ -1,0 +1,42 @@
+# Global code ownership
+* @team-leads @senior-developers
+
+# Security-sensitive files
+/sql_synthesizer/security*.py @security-team @team-leads
+/docs/security/ @security-team
+/.github/workflows/ @devops-team @security-team
+/Dockerfile @devops-team
+/docker-compose*.yml @devops-team
+/scripts/automation/ @devops-team
+
+# Documentation
+/docs/ @tech-writers @team-leads
+/README.md @tech-writers @team-leads
+/*.md @tech-writers
+
+# Configuration files
+/pyproject.toml @team-leads
+/requirements*.txt @security-team @team-leads
+/.pre-commit-config.yaml @devops-team
+/.github/project-metrics.json @team-leads @devops-team
+
+# Testing
+/tests/ @qa-team @developers
+/benchmarks/ @performance-team
+
+# Infrastructure and deployment
+/infrastructure/ @devops-team @sre-team
+/monitoring/ @sre-team
+/scripts/collect_metrics.py @sre-team @devops-team
+/scripts/repository_health.py @sre-team @devops-team
+
+# CI/CD workflows
+/.github/workflows/ci.yml @devops-team @team-leads
+/.github/workflows/security-scan.yml @security-team @devops-team
+/.github/workflows/release.yml @devops-team @team-leads
+/.github/workflows/dependency-update.yml @security-team @devops-team
+
+# SDLC documentation
+/docs/workflows/ @devops-team @team-leads
+/docs/SETUP_REQUIRED*.md @devops-team @team-leads
+/WORKFLOW_INSTALLATION_GUIDE.md @devops-team

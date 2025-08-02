@@ -1,0 +1,48 @@
+{
+  "test_queries": [
+    {
+      "id": "simple_select",
+      "natural_language": "Show me all users",
+      "expected_sql": "SELECT * FROM users;",
+      "description": "Basic SELECT query for all records"
+    },
+    {
+      "id": "filtered_select",
+      "natural_language": "Show users created in the last month",
+      "expected_sql": "SELECT * FROM users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH);",
+      "description": "SELECT with date filtering"
+    },
+    {
+      "id": "aggregation",
+      "natural_language": "Count users by region",
+      "expected_sql": "SELECT region, COUNT(*) as user_count FROM users GROUP BY region;",
+      "description": "Aggregation query with GROUP BY"
+    },
+    {
+      "id": "join_query",
+      "natural_language": "Show users with their recent orders",
+      "expected_sql": "SELECT u.name, o.order_date, o.total FROM users u JOIN orders o ON u.id = o.user_id WHERE o.order_date >= DATE_SUB(NOW(), INTERVAL 30 DAY);",
+      "description": "JOIN query with date filtering"
+    },
+    {
+      "id": "complex_analytics",
+      "natural_language": "What's the average order value by region for Q4 2024?",
+      "expected_sql": "SELECT u.region, AVG(o.total) as avg_order_value FROM users u JOIN orders o ON u.id = o.user_id WHERE o.order_date BETWEEN '2024-10-01' AND '2024-12-31' GROUP BY u.region;",
+      "description": "Complex analytics query with JOIN and aggregation"
+    }
+  ],
+  "edge_cases": [
+    {
+      "id": "sql_injection_attempt",
+      "natural_language": "Show users where name = 'test'; DROP TABLE users; --",
+      "expected_behavior": "sanitized_query_or_error",
+      "description": "SQL injection attempt should be blocked"
+    },
+    {
+      "id": "very_long_query",
+      "natural_language": "Show me users with names containing " + "very long string ".repeat(100),
+      "expected_behavior": "input_length_validation",
+      "description": "Extremely long input should be validated"
+    }
+  ]
+}

@@ -1,0 +1,263 @@
+name: Security Scanning
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  push:
+    branches: [ main ]
+    paths:
+      - 'requirements*.txt'
+      - 'pyproject.toml'
+      - 'Dockerfile'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  dependency-audit:
+    name: Dependency Vulnerability Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip safety bandit
+          pip install -r requirements.txt
+
+      - name: Run Safety check
+        run: |
+          safety check --json --output safety-report.json || true
+          safety check
+
+      - name: Run Bandit security scan
+        run: |
+          bandit -r sql_synthesizer/ -f json -o bandit-report.json
+          bandit -r sql_synthesizer/
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: dependency-security-reports
+          path: |
+            safety-report.json
+            bandit-report.json
+
+  secret-scanning:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install detect-secrets
+        run: |
+          pip install detect-secrets
+
+      - name: Run secret detection
+        run: |
+          detect-secrets scan --all-files --baseline .secrets.baseline --exclude-files '\.git/.*'
+
+      - name: Verify no new secrets
+        run: |
+          detect-secrets audit .secrets.baseline
+
+  container-scanning:
+    name: Container Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: sql-synthesizer:security-scan
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: sql-synthesizer:security-scan
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Run Grype vulnerability scanner
+        uses: anchore/scan-action@v3
+        with:
+          image: sql-synthesizer:security-scan
+          fail-build: false
+          output-format: sarif
+          output-file: grype-results.sarif
+
+      - name: Upload Grype scan results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: grype-results.sarif
+
+  sbom-generation:
+    name: Generate SBOM
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install SBOM tools
+        run: |
+          pip install cyclonedx-bom
+
+      - name: Generate Python SBOM
+        run: |
+          cyclonedx-py -r -i requirements.txt -o sbom-python.json
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: sql-synthesizer:sbom
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Generate container SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: sql-synthesizer:sbom
+          format: spdx-json
+          output-file: sbom-container.spdx.json
+
+      - name: Upload SBOM artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: sbom-reports
+          path: |
+            sbom-python.json
+            sbom-container.spdx.json
+
+  compliance-check:
+    name: Compliance Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check license compliance
+        run: |
+          # Verify all source files have proper license headers
+          find sql_synthesizer/ -name "*.py" -exec grep -L "MIT License\|Apache License" {} \; > missing_licenses.txt
+          if [ -s missing_licenses.txt ]; then
+            echo "Files missing license headers:"
+            cat missing_licenses.txt
+            exit 1
+          fi
+
+      - name: Check documentation compliance
+        run: |
+          # Verify required documentation exists
+          required_docs=("README.md" "LICENSE" "SECURITY.md" "CONTRIBUTING.md")
+          for doc in "${required_docs[@]}"; do
+            if [ ! -f "$doc" ]; then
+              echo "Missing required documentation: $doc"
+              exit 1
+            fi
+          done
+
+      - name: Validate project metadata
+        run: |
+          python -c "
+          import toml
+          config = toml.load('pyproject.toml')
+          project = config['project']
+          required_fields = ['name', 'version', 'description', 'license', 'authors']
+          for field in required_fields:
+              if field not in project:
+                  raise ValueError(f'Missing required field: {field}')
+          print('Project metadata validation passed')
+          "
+
+  security-policy-check:
+    name: Security Policy Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate security policy
+        run: |
+          # Check that SECURITY.md exists and has required sections
+          if [ ! -f "SECURITY.md" ]; then
+            echo "SECURITY.md file is missing"
+            exit 1
+          fi
+          
+          required_sections=("Reporting" "Supported Versions" "Security Updates")
+          for section in "${required_sections[@]}"; do
+            if ! grep -q "$section" SECURITY.md; then
+              echo "SECURITY.md missing required section: $section"
+              exit 1
+            fi
+          done
+
+      - name: Check for security contact
+        run: |
+          # Verify security contact information is present
+          if ! grep -q -E "(security@|security team)" SECURITY.md; then
+            echo "SECURITY.md missing security contact information"
+            exit 1
+          fi
+
+  notify-security-team:
+    name: Notify Security Team
+    runs-on: ubuntu-latest
+    needs: [dependency-audit, secret-scanning, container-scanning, compliance-check]
+    if: failure() && github.event_name == 'schedule'
+    steps:
+      - name: Send security alert
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          text: 'Security scan failures detected in SQL Synthesizer'
+          webhook_url: ${{ secrets.SECURITY_SLACK_WEBHOOK }}
+
+      - name: Create security issue
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Security Scan Failures - ' + new Date().toISOString().split('T')[0],
+              body: 'Automated security scans have detected issues. Please review the workflow run for details.',
+              labels: ['security', 'bug', 'high-priority']
+            });
