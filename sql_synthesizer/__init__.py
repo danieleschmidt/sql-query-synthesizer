@@ -1,4 +1,16 @@
-"""Main package for SQL Query Synthesizer."""
+"""SQL Query Synthesizer - Natural language to SQL conversion with enterprise security.
+
+The SQL Query Synthesizer provides a secure, scalable solution for converting natural
+language queries into safe SQL statements with comprehensive validation, caching,
+and monitoring capabilities.
+
+Key Features:
+- Multi-database support (PostgreSQL, MySQL, SQLite)
+- Advanced SQL injection prevention
+- High-performance async operations
+- Enterprise-grade security and audit logging
+- Prometheus metrics and health monitoring
+"""
 
 from .query_agent import QueryAgent
 from .types import QueryResult
@@ -7,6 +19,15 @@ from .openai_adapter import OpenAIAdapter
 from .llm_interface import LLMProvider, ProviderError, ProviderTimeoutError, ProviderAuthenticationError
 from .generator import naive_generate_sql
 from . import metrics
+from .core import (
+    SystemInfo, QueryMetadata, ResultFormatter, QueryTracker, 
+    TraceIDGenerator, ErrorHandler, get_system_info, create_query_metadata
+)
+
+# Version information
+__version__ = "0.2.2"
+__author__ = "SQL Synthesizer Team"
+__license__ = "MIT"
 
 # Optional webapp import (requires Flask)
 try:
@@ -27,6 +48,17 @@ __all__ = [
     "ProviderAuthenticationError",
     "naive_generate_sql",
     "metrics",
+    "SystemInfo",
+    "QueryMetadata", 
+    "ResultFormatter",
+    "QueryTracker",
+    "TraceIDGenerator",
+    "ErrorHandler",
+    "get_system_info",
+    "create_query_metadata",
+    "__version__",
+    "__author__",
+    "__license__",
 ]
 
 if _webapp_available:

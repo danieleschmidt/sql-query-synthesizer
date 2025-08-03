@@ -395,6 +395,25 @@ print(f"High severity events: {stats['events_by_severity'].get('high', 0)}")
 6. **Set up alerting** on high/critical severity security events
 7. **Implement log aggregation** for centralized security monitoring
 
+## Architecture
+
+This project follows a clean service layer architecture with separation of concerns:
+
+- **QueryAgent**: Public API facade providing backward compatibility
+- **QueryService**: Core orchestration for query processing, caching, and metrics
+- **QueryValidatorService**: Input validation and SQL injection prevention
+- **SQLGeneratorService**: LLM integration with fallback strategies
+
+For detailed architecture information, see [ARCHITECTURE.md](ARCHITECTURE.md).
+
+## Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## Security
+
+For security concerns, please see [SECURITY.md](SECURITY.md) and follow our responsible disclosure process.
+
 ## License
 MIT
 
