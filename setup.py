@@ -56,6 +56,7 @@ setup(
         "console_scripts": [
             "query-agent=query_agent:main",
             "query-agent-web=sql_synthesizer.webapp:main",
+            "sql-synthesizer-db=scripts.db_manager:main",
         ]
     },
     include_package_data=True,
@@ -63,6 +64,7 @@ setup(
         "sql_synthesizer": [
             "templates/*.html",
             "static/*",
+            "database/migrations/*.sql",
         ],
     },
     zip_safe=False,

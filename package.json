@@ -1,0 +1,55 @@
+{
+  "name": "sql-query-synthesizer",
+  "version": "0.2.2",
+  "description": "Natural language to SQL conversion with enterprise security and performance",
+  "main": "index.js",
+  "scripts": {
+    "dev": "python3 -m sql_synthesizer.webapp --development",
+    "start": "python3 -m sql_synthesizer.webapp",
+    "test": "python3 -m pytest tests/ -v",
+    "test:coverage": "python3 -m pytest tests/ --cov=sql_synthesizer --cov-report=html",
+    "lint": "python3 -m ruff check sql_synthesizer/",
+    "lint:fix": "python3 -m ruff check sql_synthesizer/ --fix",
+    "format": "python3 -m black sql_synthesizer/ tests/",
+    "format:check": "python3 -m black sql_synthesizer/ tests/ --check",
+    "typecheck": "python3 -m mypy sql_synthesizer/",
+    "security": "python3 -m bandit -r sql_synthesizer/ -f json -o security-report.json",
+    "db:init": "python3 scripts/db_manager.py init",
+    "db:migrate": "python3 scripts/db_manager.py migrate",
+    "db:status": "python3 scripts/db_manager.py status",
+    "db:health": "python3 scripts/db_manager.py health",
+    "db:stats": "python3 scripts/db_manager.py stats",
+    "db:create-migration": "python3 scripts/db_manager.py create-migration",
+    "build": "python3 setup.py build",
+    "install": "pip install -e .",
+    "install:dev": "pip install -e . && pip install -r requirements-dev.txt",
+    "clean": "rm -rf build/ dist/ *.egg-info/ .pytest_cache/ .coverage htmlcov/ __pycache__/ .mypy_cache/ .ruff_cache/",
+    "docker:build": "docker build -t sql-query-synthesizer .",
+    "docker:run": "docker run -p 5000:5000 -e DATABASE_URL=sqlite:///app/data/sql_synthesizer.db sql-query-synthesizer",
+    "docker:compose": "docker-compose up -d",
+    "pre-commit": "pre-commit run --all-files",
+    "pre-commit:install": "pre-commit install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danieleschmidt/sql-query-synthesizer.git"
+  },
+  "keywords": [
+    "sql",
+    "nlp",
+    "database",
+    "query",
+    "ai",
+    "llm",
+    "security",
+    "enterprise"
+  ],
+  "author": "SQL Synthesizer Team",
+  "license": "MIT",
+  "engines": {
+    "python": ">=3.8"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  }
+}
