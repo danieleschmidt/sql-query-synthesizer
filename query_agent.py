@@ -13,6 +13,13 @@ from sql_synthesizer.user_experience import format_cli_error
 from sql_synthesizer.config import config as app_config
 import csv
 
+# Import quantum components if available
+try:
+    from sql_synthesizer.quantum import QuantumSQLSynthesizer
+    QUANTUM_AVAILABLE = True
+except ImportError:
+    QUANTUM_AVAILABLE = False
+
 
 def load_env_config(config: str, env: str) -> dict:
     """Load a single environment configuration from a YAML file."""
@@ -117,6 +124,14 @@ Common question patterns:
     parser.add_argument("--log-level", choices=["DEBUG", "INFO", "WARNING", "ERROR"], help="Set log level")
     parser.add_argument("--log-format", choices=["standard", "json"], help="Set log format")
     parser.add_argument("--enable-structured-logging", action="store_true", help="Enable structured logging with trace IDs")
+    
+    # Quantum optimization arguments
+    if QUANTUM_AVAILABLE:
+        parser.add_argument("--enable-quantum", action="store_true", help="Enable quantum-inspired query optimization")
+        parser.add_argument("--quantum-qubits", type=int, default=16, help="Number of qubits for quantum optimization")
+        parser.add_argument("--quantum-temp", type=float, default=1000.0, help="Initial temperature for quantum annealing")
+        parser.add_argument("--quantum-stats", action="store_true", help="Display quantum optimization statistics")
+    
     parser.add_argument("question", nargs="?")
     args = parser.parse_args(argv)
 
@@ -161,7 +176,8 @@ Common question patterns:
             enable_json=enable_structured_logging
         )
     
-    agent = QueryAgent(
+    # Create base agent
+    base_agent = QueryAgent(
         db_url,
         schema_cache_ttl=schema_ttl,
         max_rows=max_rows,
@@ -171,6 +187,24 @@ Common question patterns:
         openai_timeout=openai_timeout,
         enable_structured_logging=enable_structured_logging,
     )
+    
+    # Wrap with quantum optimization if enabled
+    enable_quantum = (
+        QUANTUM_AVAILABLE and 
+        (getattr(args, 'enable_quantum', False) or 
+         os.environ.get("QUERY_AGENT_ENABLE_QUANTUM", "").lower() in ("true", "1", "yes"))
+    )
+    
+    if enable_quantum:
+        from sql_synthesizer.quantum.core import QuantumQueryOptimizer
+        quantum_optimizer = QuantumQueryOptimizer(
+            num_qubits=getattr(args, 'quantum_qubits', 16),
+            temperature=getattr(args, 'quantum_temp', 1000.0)
+        )
+        agent = QuantumSQLSynthesizer(base_agent, enable_quantum=True)
+        print("🚀 Quantum optimization enabled")
+    else:
+        agent = base_agent
 
     if args.clear_cache:
         agent.clear_cache()
@@ -226,6 +260,15 @@ Common question patterns:
                             print(result.data)
                             if args.output_csv:
                                 save_csv(args.output_csv, result.data)
+                        
+                        # Display quantum statistics if enabled
+                        if enable_quantum and getattr(args, 'quantum_stats', False):
+                            if hasattr(result, 'quantum_metrics') and result.quantum_metrics:
+                                print("\n🔬 Quantum Optimization Stats:")
+                                for key, value in result.quantum_metrics.items():
+                                    print(f"  {key}: {value}")
+                                if hasattr(result, 'quantum_cost_reduction'):
+                                    print(f"  Cost Reduction: {result.quantum_cost_reduction:.1%}")
                 except DatabaseError as e:
                     print(f"Database error: {format_cli_error(e)}")
                     print()  # Add blank line for readability
@@ -258,6 +301,15 @@ Common question patterns:
                 print(result.data)
                 if args.output_csv:
                     save_csv(args.output_csv, result.data)
+            
+            # Display quantum statistics if enabled
+            if enable_quantum and getattr(args, 'quantum_stats', False):
+                if hasattr(result, 'quantum_metrics') and result.quantum_metrics:
+                    print("\n🔬 Quantum Optimization Stats:")
+                    for key, value in result.quantum_metrics.items():
+                        print(f"  {key}: {value}")
+                    if hasattr(result, 'quantum_cost_reduction'):
+                        print(f"  Cost Reduction: {result.quantum_cost_reduction:.1%}")
     else:
         parser.print_help()
 
