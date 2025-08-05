@@ -37,6 +37,16 @@ except ImportError:
     _webapp_available = False
     create_app = None
 
+# Optional quantum optimization (requires numpy)
+try:
+    from .quantum import QuantumSQLSynthesizer, QuantumQueryOptimizer, QuantumTaskScheduler
+    _quantum_available = True
+except ImportError:
+    _quantum_available = False
+    QuantumSQLSynthesizer = None
+    QuantumQueryOptimizer = None
+    QuantumTaskScheduler = None
+
 __all__ = [
     "QueryAgent",
     "QueryResult",
@@ -63,3 +73,6 @@ __all__ = [
 
 if _webapp_available:
     __all__.append("create_app")
+
+if _quantum_available:
+    __all__.extend(["QuantumSQLSynthesizer", "QuantumQueryOptimizer", "QuantumTaskScheduler"])

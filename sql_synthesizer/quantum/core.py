@@ -8,12 +8,20 @@ and quantum annealing to find optimal query execution plans.
 
 import math
 import random
-import numpy as np
+import time
+import logging
 from typing import List, Dict, Tuple, Optional, Any
 from dataclasses import dataclass
 from enum import Enum
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
+
+from .exceptions import (
+    QuantumOptimizationError, QuantumValidationError, QuantumTimeoutError,
+    QuantumDecoherenceError, QuantumExceptionContext
+)
+from .validation import validate_quantum_input, quantum_validator
+from .security import secure_quantum_operation, with_circuit_breaker
 
 
 class QuantumState(Enum):
@@ -71,29 +79,92 @@ class QuantumQueryOptimizer:
     Quantum-inspired query optimizer using superposition and quantum annealing
     """
     
-    def __init__(self, num_qubits: int = 16, temperature: float = 1000.0):
+    @validate_quantum_input(num_qubits="qubit_count", temperature="temperature")
+    def __init__(self, num_qubits: int = 16, temperature: float = 1000.0, 
+                 timeout_seconds: float = 30.0, logger: Optional[logging.Logger] = None):
         self.num_qubits = num_qubits
-        self.qubits = [Qubit() for _ in range(num_qubits)]
         self.temperature = temperature
-        self.cooling_rate = 0.95
-        self.min_temperature = 0.1
-        self.executor = ThreadPoolExecutor(max_workers=4)
+        self.initial_temperature = temperature
+        self.timeout_seconds = timeout_seconds
+        self.logger = logger or logging.getLogger(__name__)
+        
+        # Validate timeout
+        if timeout_seconds <= 0 or timeout_seconds > 300:
+            raise QuantumValidationError(
+                "Timeout must be between 0 and 300 seconds",
+                field_name="timeout_seconds",
+                field_value=timeout_seconds
+            )
+        
+        try:
+            self.qubits = [Qubit() for _ in range(num_qubits)]
+            self.cooling_rate = 0.95
+            self.min_temperature = 0.1
+            self.executor = ThreadPoolExecutor(max_workers=min(4, num_qubits))
+            
+            # Performance tracking
+            self._optimization_count = 0
+            self._total_optimization_time = 0.0
+            self._last_optimization_time = 0.0
+            
+            self.logger.info(f"Quantum optimizer initialized with {num_qubits} qubits, "
+                           f"temperature {temperature}, timeout {timeout_seconds}s")
+            
+        except Exception as e:
+            raise QuantumOptimizationError(
+                f"Failed to initialize quantum optimizer: {str(e)}",
+                optimization_stage="initialization",
+                details={"num_qubits": num_qubits, "temperature": temperature}
+            )
         
     def create_superposition(self, query_options: List[QueryPlan]) -> List[QueryPlan]:
         """
         Create quantum superposition of multiple query plans
         """
-        if not query_options:
-            return []
-        
-        # Assign equal superposition to all plans initially
-        probability = 1.0 / len(query_options)
-        
-        for plan in query_options:
-            plan.probability = probability
-            plan.quantum_state = QuantumState.SUPERPOSITION
+        with QuantumExceptionContext("create_superposition", logger=self.logger):
+            if not query_options:
+                self.logger.warning("No query options provided for superposition")
+                return []
             
-        return query_options
+            if len(query_options) > 1000:
+                raise QuantumOptimizationError(
+                    "Too many query plans for superposition",
+                    optimization_stage="superposition",
+                    plan_count=len(query_options),
+                    details={"max_plans": 1000}
+                )
+            
+            try:
+                # Validate each plan
+                for i, plan in enumerate(query_options):
+                    if not isinstance(plan, QueryPlan):
+                        raise QuantumValidationError(
+                            f"Plan {i} is not a QueryPlan instance",
+                            field_name=f"query_options[{i}]",
+                            field_value=type(plan).__name__
+                        )
+                    
+                    # Validate plan cost
+                    quantum_validator.validate_field("cost", plan.cost)
+                
+                # Assign equal superposition to all plans initially
+                probability = 1.0 / len(query_options)
+                
+                for plan in query_options:
+                    plan.probability = probability
+                    plan.quantum_state = QuantumState.SUPERPOSITION
+                
+                self.logger.debug(f"Created superposition with {len(query_options)} plans")
+                return query_options
+                
+            except Exception as e:
+                if isinstance(e, (QuantumOptimizationError, QuantumValidationError)):
+                    raise
+                raise QuantumOptimizationError(
+                    f"Failed to create superposition: {str(e)}",
+                    optimization_stage="superposition",
+                    plan_count=len(query_options)
+                )
     
     def quantum_interference(self, plans: List[QueryPlan]) -> List[QueryPlan]:
         """
@@ -112,8 +183,8 @@ class QuantumQueryOptimizer:
         for plan in plans:
             # Inverse relationship: lower cost = higher probability
             normalized_cost = (plan.cost - min_cost) / cost_range
-            # Use quantum interference pattern
-            interference_factor = math.cos(math.pi * normalized_cost) ** 2
+            # Simple inverse relationship: 1 - normalized_cost gives higher values for lower costs
+            interference_factor = (1.0 - normalized_cost) + 0.1  # Add small constant to avoid zero
             plan.probability = interference_factor
             total_probability += interference_factor
         
@@ -170,28 +241,77 @@ class QuantumQueryOptimizer:
             similar_plans = [p for p in all_plans if abs(p.cost - current_plan.cost) < current_plan.cost * 0.2]
             return random.choice(similar_plans) if similar_plans else current_plan
     
-    async def optimize_query_async(self, query_plans: List[QueryPlan]) -> QueryPlan:
+    async def optimize_query_async(self, query_plans: List[QueryPlan], 
+                                 client_id: str = "system") -> QueryPlan:
         """
-        Asynchronously optimize query using quantum-inspired algorithms
+        Asynchronously optimize query using quantum-inspired algorithms with timeout
         """
-        if not query_plans:
-            raise ValueError("No query plans to optimize")
+        start_time = time.time()
         
-        # Create superposition of all possible plans
-        superposition_plans = self.create_superposition(query_plans)
-        
-        # Apply quantum interference
-        interfered_plans = self.quantum_interference(superposition_plans)
-        
-        # Use quantum annealing in thread pool
-        loop = asyncio.get_event_loop()
-        optimal_plan = await loop.run_in_executor(
-            self.executor, 
-            self.quantum_annealing, 
-            interfered_plans
-        )
-        
-        return optimal_plan
+        with QuantumExceptionContext("optimize_query_async", logger=self.logger):
+            if not query_plans:
+                raise QuantumOptimizationError(
+                    "No query plans to optimize",
+                    optimization_stage="async_optimization",
+                    plan_count=0
+                )
+            
+            try:
+                # Create superposition of all possible plans
+                superposition_plans = self.create_superposition(query_plans)
+                
+                # Apply quantum interference
+                interfered_plans = self.quantum_interference(superposition_plans)
+                
+                # Use quantum annealing in thread pool with timeout
+                loop = asyncio.get_event_loop()
+                
+                try:
+                    optimal_plan = await asyncio.wait_for(
+                        loop.run_in_executor(
+                            self.executor, 
+                            self.quantum_annealing, 
+                            interfered_plans
+                        ),
+                        timeout=self.timeout_seconds
+                    )
+                    
+                    # Track performance
+                    optimization_time = time.time() - start_time
+                    self._optimization_count += 1
+                    self._total_optimization_time += optimization_time
+                    self._last_optimization_time = optimization_time
+                    
+                    self.logger.info(f"Quantum optimization completed in {optimization_time:.3f}s "
+                                   f"for client {client_id}")
+                    
+                    return optimal_plan
+                    
+                except asyncio.TimeoutError:
+                    elapsed = time.time() - start_time
+                    raise QuantumTimeoutError(
+                        f"Quantum optimization timed out after {elapsed:.1f}s",
+                        operation="async_optimization",
+                        timeout_seconds=self.timeout_seconds,
+                        elapsed_seconds=elapsed,
+                        details={"client_id": client_id, "plan_count": len(query_plans)}
+                    )
+                
+            except Exception as e:
+                if isinstance(e, (QuantumOptimizationError, QuantumTimeoutError)):
+                    raise
+                    
+                elapsed = time.time() - start_time
+                raise QuantumOptimizationError(
+                    f"Async optimization failed: {str(e)}",
+                    optimization_stage="async_optimization",
+                    plan_count=len(query_plans),
+                    details={
+                        "client_id": client_id,
+                        "elapsed_seconds": elapsed,
+                        "error_type": type(e).__name__
+                    }
+                )
     
     def entangle_queries(self, plan1: QueryPlan, plan2: QueryPlan) -> Tuple[QueryPlan, QueryPlan]:
         """
@@ -236,17 +356,79 @@ class QuantumQueryOptimizer:
     
     def get_quantum_metrics(self) -> Dict[str, Any]:
         """
-        Get quantum optimization metrics
+        Get comprehensive quantum optimization metrics
         """
         measured_qubits = sum(1 for q in self.qubits if q.measured)
+        
+        # Calculate average optimization time
+        avg_optimization_time = (
+            self._total_optimization_time / self._optimization_count
+            if self._optimization_count > 0 else 0.0
+        )
         
         return {
             "total_qubits": self.num_qubits,
             "measured_qubits": measured_qubits,
             "superposition_qubits": self.num_qubits - measured_qubits,
             "current_temperature": self.temperature,
-            "quantum_coherence": (self.num_qubits - measured_qubits) / self.num_qubits
+            "initial_temperature": self.initial_temperature,
+            "quantum_coherence": (self.num_qubits - measured_qubits) / self.num_qubits,
+            "optimization_count": self._optimization_count,
+            "total_optimization_time": self._total_optimization_time,
+            "average_optimization_time": avg_optimization_time,
+            "last_optimization_time": self._last_optimization_time,
+            "timeout_seconds": self.timeout_seconds,
+            "cooling_rate": self.cooling_rate,
+            "min_temperature": self.min_temperature
         }
+    
+    def get_health_status(self) -> Dict[str, Any]:
+        """
+        Get quantum optimizer health status
+        """
+        try:
+            measured_qubits = sum(1 for q in self.qubits if q.measured)
+            coherence = (self.num_qubits - measured_qubits) / self.num_qubits
+            
+            # Health indicators
+            is_healthy = True
+            health_issues = []
+            
+            # Check quantum coherence
+            if coherence < 0.1:
+                is_healthy = False
+                health_issues.append("low_quantum_coherence")
+            
+            # Check temperature sanity
+            if self.temperature <= 0 or self.temperature > 50000:
+                is_healthy = False
+                health_issues.append("invalid_temperature")
+            
+            # Check executor status
+            if self.executor._shutdown:
+                is_healthy = False
+                health_issues.append("executor_shutdown")
+            
+            # Performance health
+            if self._last_optimization_time > self.timeout_seconds * 0.8:
+                health_issues.append("slow_optimization")
+            
+            return {
+                "healthy": is_healthy,
+                "issues": health_issues,
+                "quantum_coherence": coherence,
+                "temperature": self.temperature,
+                "executor_active": not self.executor._shutdown,
+                "last_optimization_time": self._last_optimization_time,
+                "optimization_count": self._optimization_count
+            }
+            
+        except Exception as e:
+            return {
+                "healthy": False,
+                "issues": ["health_check_failed"],
+                "error": str(e)
+            }
     
     def reset_quantum_state(self):
         """Reset all qubits to superposition state"""
