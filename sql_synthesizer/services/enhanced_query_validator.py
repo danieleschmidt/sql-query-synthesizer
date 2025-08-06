@@ -147,6 +147,10 @@ class EnhancedQueryValidatorService:
         if client_id:
             self._check_rate_limit(client_id)
         
+        # Type validation
+        if not isinstance(question, str):
+            raise ValueError("Questions must be provided as text")
+            
         # Basic validation
         if not question or not question.strip():
             raise create_empty_question_error()
@@ -216,6 +220,13 @@ class EnhancedQueryValidatorService:
             raise create_invalid_sql_error("SQL statement cannot be empty")
         
         sql = sql.strip()
+        
+        # Check for multiple statements (simple pattern-based check)
+        if ';' in sql and sql.count(';') > 0:
+            # Remove trailing semicolon and check if there are still multiple parts
+            cleaned_sql = sql.rstrip(';').strip()
+            if ';' in cleaned_sql:
+                raise create_multiple_statements_error()
         
         # Parse SQL using sqlparse if available
         if sqlparse:

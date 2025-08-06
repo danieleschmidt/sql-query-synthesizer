@@ -13,6 +13,7 @@ Key Features:
 """
 
 from .query_agent import QueryAgent
+from .async_query_agent import AsyncQueryAgent
 from .types import QueryResult
 from .cache import TTLCache
 from .openai_adapter import OpenAIAdapter
@@ -49,6 +50,7 @@ except ImportError:
 
 __all__ = [
     "QueryAgent",
+    "AsyncQueryAgent",
     "QueryResult",
     "TTLCache",
     "OpenAIAdapter",

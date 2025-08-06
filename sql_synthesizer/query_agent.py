@@ -23,7 +23,7 @@ from sqlalchemy.exc import SQLAlchemyError, OperationalError, DatabaseError
 from .cache import TTLCache, create_cache_backend, CacheError
 from .openai_adapter import OpenAIAdapter
 from .config import config
-from .database import DatabaseConnectionManager
+from .db_connection import DatabaseConnectionManager
 from .services import QueryValidatorService, SQLGeneratorService, QueryService
 
 logger = logging.getLogger(__name__)

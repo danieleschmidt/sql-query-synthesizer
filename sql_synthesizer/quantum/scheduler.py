@@ -10,7 +10,7 @@ import heapq
 import time
 import math
 import random
-from typing import List, Dict, Any, Optional, Callable, Awaitable
+from typing import List, Dict, Any, Optional, Callable, Awaitable, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
 from concurrent.futures import ThreadPoolExecutor

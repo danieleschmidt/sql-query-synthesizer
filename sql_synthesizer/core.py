@@ -42,11 +42,16 @@ class ResultFormatter:
     @staticmethod
     def to_dict(result: QueryResult) -> Dict[str, Any]:
         """Convert QueryResult to dictionary."""
+        # Extract columns from first row of data if available
+        columns = []
+        if result.data and isinstance(result.data[0], dict):
+            columns = list(result.data[0].keys())
+        
         return {
             'sql': result.sql,
             'data': result.data,
             'explanation': result.explanation,
-            'columns': result.columns,
+            'columns': columns,
             'row_count': len(result.data) if result.data else 0,
             'query_time_ms': getattr(result, 'query_time_ms', None)
         }
@@ -54,13 +59,21 @@ class ResultFormatter:
     @staticmethod
     def to_csv_rows(result: QueryResult) -> List[List[str]]:
         """Convert QueryResult to CSV-compatible rows."""
-        if not result.data or not result.columns:
+        if not result.data:
             return []
         
-        rows = [result.columns]  # Header row
+        # Extract columns from first row of data if available
+        columns = []
+        if result.data and isinstance(result.data[0], dict):
+            columns = list(result.data[0].keys())
+        
+        if not columns:
+            return []
+        
+        rows = [columns]  # Header row
         for row in result.data:
             csv_row = []
-            for col in result.columns:
+            for col in columns:
                 value = row.get(col, '')
                 # Convert to string and escape commas/quotes
                 str_value = str(value) if value is not None else ''

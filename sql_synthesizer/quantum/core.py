@@ -1,4 +1,3 @@
-```python
 """
 Quantum-Inspired Query Optimization Core
 
@@ -557,4 +556,3 @@ class QuantumQueryPlanGenerator:
         total_cost = (base_cost + join_cost + filter_cost + agg_cost) * quantum_noise
         
         return max(total_cost, 1.0)  # Minimum cost of 1.0
-```
