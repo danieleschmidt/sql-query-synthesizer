@@ -262,7 +262,7 @@ class DatabaseConnectionManager:
         return {
             **self._connection_stats,
             **pool_stats,
-            "engine_disposed": self._engine is None or self._engine.closed
+            "engine_disposed": self._engine is None or hasattr(self._engine, 'closed') and self._engine.closed
         }
     
     def health_check(self) -> Dict[str, Any]:

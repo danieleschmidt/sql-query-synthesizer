@@ -20,8 +20,7 @@ class TestResultFormatter:
         result = QueryResult(
             sql="SELECT * FROM users",
             data=[{"id": 1, "name": "John"}],
-            explanation="Query retrieves all users",
-            columns=["id", "name"]
+            explanation="Query retrieves all users"
         )
         
         result_dict = ResultFormatter.to_dict(result)
@@ -37,8 +36,7 @@ class TestResultFormatter:
         result = QueryResult(
             sql="SELECT * FROM empty_table",
             data=[],
-            explanation="No data found",
-            columns=["id", "name"]
+            explanation="No data found"
         )
         
         result_dict = ResultFormatter.to_dict(result)
@@ -53,8 +51,7 @@ class TestResultFormatter:
                 {"id": 1, "name": "John", "email": "john@example.com"},
                 {"id": 2, "name": "Jane", "email": "jane@example.com"}
             ],
-            explanation="",
-            columns=["id", "name", "email"]
+            explanation=""
         )
         
         csv_rows = ResultFormatter.to_csv_rows(result)
@@ -69,8 +66,7 @@ class TestResultFormatter:
         result = QueryResult(
             sql="SELECT * FROM users",
             data=[{"name": 'John "Johnny" Doe', "company": "Acme, Inc."}],
-            explanation="",
-            columns=["name", "company"]
+            explanation=""
         )
         
         csv_rows = ResultFormatter.to_csv_rows(result)
