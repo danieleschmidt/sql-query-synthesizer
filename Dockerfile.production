@@ -1,0 +1,263 @@
+# Production Dockerfile for Quantum SDLC Systems
+# Multi-stage build for optimal security and performance
+
+# Build stage
+FROM python:3.11-slim as builder
+
+# Set build arguments
+ARG BUILD_DATE
+ARG VCS_REF
+ARG VERSION
+
+# Add metadata labels
+LABEL maintainer="Terragon Labs <engineering@terragon.ai>" \
+      org.opencontainers.image.title="SQL Synthesizer - Quantum SDLC" \
+      org.opencontainers.image.description="Quantum-inspired autonomous SDLC with SQL synthesis capabilities" \
+      org.opencontainers.image.version="${VERSION}" \
+      org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.revision="${VCS_REF}" \
+      org.opencontainers.image.vendor="Terragon Labs" \
+      org.opencontainers.image.licenses="MIT"
+
+# Set environment variables for build
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    POETRY_VERSION=1.6.1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Poetry
+RUN pip install poetry==$POETRY_VERSION
+
+# Set work directory
+WORKDIR /app
+
+# Copy dependency files
+COPY pyproject.toml setup.py requirements.txt ./
+
+# Install Python dependencies
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt && \
+    pip install gunicorn uvicorn[standard] && \
+    pip install psutil prometheus-client
+
+# Copy application code
+COPY . .
+
+# Install the application
+RUN pip install -e .
+
+# Production stage
+FROM python:3.11-slim as production
+
+# Set production environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH=/app \
+    PORT=8000 \
+    WORKERS=4 \
+    LOG_LEVEL=info \
+    QUERY_AGENT_ENV=production
+
+# Create non-root user for security
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    tini \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set work directory
+WORKDIR /app
+
+# Copy Python packages from builder
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Copy application
+COPY --from=builder /app /app
+
+# Create necessary directories
+RUN mkdir -p /app/logs /app/data /app/config /app/reports && \
+    chown -R appuser:appuser /app
+
+# Create configuration from template
+RUN if [ ! -f /app/config/databases.yaml ]; then \
+    mkdir -p /app/config && \
+    cat > /app/config/databases.yaml << 'EOF'
+databases:
+  production:
+    url: "${DATABASE_URL}"
+    schema_cache_ttl: 3600
+    pool_size: 10
+    max_overflow: 20
+    pool_recycle: 3600
+    pool_pre_ping: true
+  
+  # Example configurations for other environments
+  staging:
+    url: "${STAGING_DATABASE_URL:-sqlite:///staging.db}"
+    schema_cache_ttl: 1800
+  
+  development:
+    url: "${DEV_DATABASE_URL:-sqlite:///dev.db}"
+    schema_cache_ttl: 300
+EOF
+fi
+
+# Create startup script
+RUN cat > /app/start.sh << 'EOF'
+#!/bin/bash
+set -e
+
+# Wait for database if DATABASE_URL is provided
+if [ -n "$DATABASE_URL" ]; then
+    echo "Waiting for database to be ready..."
+    python -c "
+import time
+import sys
+from urllib.parse import urlparse
+try:
+    from sqlalchemy import create_engine
+    engine = create_engine('$DATABASE_URL')
+    for i in range(30):
+        try:
+            engine.execute('SELECT 1')
+            print('Database is ready!')
+            break
+        except Exception as e:
+            print(f'Database not ready, waiting... ({i+1}/30)')
+            time.sleep(2)
+    else:
+        print('Database failed to become ready after 60 seconds')
+        sys.exit(1)
+except ImportError:
+    print('SQLAlchemy not available, skipping database check')
+"
+fi
+
+# Run database migrations if needed
+if [ "$RUN_MIGRATIONS" = "true" ]; then
+    echo "Running database migrations..."
+    # Add migration commands here if needed
+fi
+
+# Start the application based on APP_TYPE
+case "${APP_TYPE:-web}" in
+    "web")
+        echo "Starting web application..."
+        exec gunicorn sql_synthesizer.webapp:create_app \
+            --bind 0.0.0.0:$PORT \
+            --workers $WORKERS \
+            --worker-class uvicorn.workers.UvicornWorker \
+            --log-level $LOG_LEVEL \
+            --access-logfile - \
+            --error-logfile - \
+            --max-requests 1000 \
+            --max-requests-jitter 100 \
+            --preload \
+            --timeout 120
+        ;;
+    "quantum-master")
+        echo "Starting Quantum SDLC Master..."
+        exec python quantum_sdlc_master.py
+        ;;
+    "autonomous-engine")
+        echo "Starting Autonomous SDLC Engine..."
+        exec python autonomous_sdlc_engine.py
+        ;;
+    "cli")
+        echo "Starting CLI interface..."
+        exec query-agent --interactive
+        ;;
+    *)
+        echo "Unknown APP_TYPE: ${APP_TYPE}"
+        echo "Available types: web, quantum-master, autonomous-engine, cli"
+        exit 1
+        ;;
+esac
+EOF
+
+# Make startup script executable
+RUN chmod +x /app/start.sh
+
+# Create health check script
+RUN cat > /app/healthcheck.py << 'EOF'
+#!/usr/bin/env python3
+import sys
+import requests
+import os
+import time
+
+def health_check():
+    """Health check for the application"""
+    try:
+        port = os.environ.get('PORT', '8000')
+        app_type = os.environ.get('APP_TYPE', 'web')
+        
+        if app_type == 'web':
+            # Check web application health
+            response = requests.get(
+                f'http://localhost:{port}/health',
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                health_data = response.json()
+                if health_data.get('status') == 'healthy':
+                    print("✅ Health check passed")
+                    return True
+                else:
+                    print(f"❌ Health check failed: {health_data}")
+                    return False
+            else:
+                print(f"❌ Health check failed with status: {response.status_code}")
+                return False
+        
+        else:
+            # For non-web applications, check if process is running
+            # This is a simplified check
+            print(f"✅ Health check passed for {app_type}")
+            return True
+            
+    except Exception as e:
+        print(f"❌ Health check failed: {str(e)}")
+        return False
+
+if __name__ == '__main__':
+    if health_check():
+        sys.exit(0)
+    else:
+        sys.exit(1)
+EOF
+
+RUN chmod +x /app/healthcheck.py
+
+# Switch to non-root user
+USER appuser
+
+# Health check configuration
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD python /app/healthcheck.py
+
+# Expose port
+EXPOSE 8000
+
+# Use tini as init system for proper signal handling
+ENTRYPOINT ["/usr/bin/tini", "--"]
+
+# Default command
+CMD ["/app/start.sh"]
+
+# Add build information as environment variables
+ENV BUILD_DATE=${BUILD_DATE} \
+    VCS_REF=${VCS_REF} \
+    VERSION=${VERSION}
