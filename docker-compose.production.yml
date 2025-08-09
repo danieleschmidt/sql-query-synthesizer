@@ -1,0 +1,285 @@
+# Production Docker Compose for Quantum SDLC Systems
+version: '3.8'
+
+services:
+  # Main web application
+  sql-synthesizer-web:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+      args:
+        BUILD_DATE: ${BUILD_DATE:-}
+        VCS_REF: ${VCS_REF:-}
+        VERSION: ${VERSION:-latest}
+    image: terragon/sql-synthesizer:${VERSION:-latest}
+    container_name: sql-synthesizer-web
+    restart: unless-stopped
+    environment:
+      - APP_TYPE=web
+      - PORT=8000
+      - WORKERS=4
+      - LOG_LEVEL=info
+      - DATABASE_URL=${DATABASE_URL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - QUERY_AGENT_ENV=production
+      - QUERY_AGENT_SECRET_KEY=${SECRET_KEY}
+      - QUERY_AGENT_REDIS_HOST=redis
+      - QUERY_AGENT_CACHE_BACKEND=redis
+      - QUERY_AGENT_CACHE_TTL=3600
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - quantum-network
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./config:/app/config:ro
+    healthcheck:
+      test: ["CMD", "python", "/app/healthcheck.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # Quantum SDLC Master
+  quantum-master:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+      args:
+        BUILD_DATE: ${BUILD_DATE:-}
+        VCS_REF: ${VCS_REF:-}
+        VERSION: ${VERSION:-latest}
+    image: terragon/sql-synthesizer:${VERSION:-latest}
+    container_name: quantum-master
+    restart: unless-stopped
+    environment:
+      - APP_TYPE=quantum-master
+      - LOG_LEVEL=info
+      - DATABASE_URL=${DATABASE_URL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - QUERY_AGENT_ENV=production
+      - QUERY_AGENT_REDIS_HOST=redis
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - quantum-network
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./reports:/app/reports
+      - ./config:/app/config:ro
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: sql-synthesizer-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-sql_synthesizer}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256
+    ports:
+      - "5432:5432"
+    networks:
+      - quantum-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-sql_synthesizer}"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: sql-synthesizer-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-}
+    ports:
+      - "6379:6379"
+    networks:
+      - quantum-network
+    volumes:
+      - redis_data:/data
+      - ./config/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+  # Prometheus Monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: sql-synthesizer-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    ports:
+      - "9090:9090"
+    networks:
+      - quantum-network
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    depends_on:
+      - sql-synthesizer-web
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # Grafana Dashboard
+  grafana:
+    image: grafana/grafana:latest
+    container_name: sql-synthesizer-grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+    ports:
+      - "3000:3000"
+    networks:
+      - quantum-network
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    depends_on:
+      - prometheus
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: sql-synthesizer-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - quantum-network
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - sql-synthesizer-web
+      - grafana
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+
+  # Log aggregation (optional)
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.11.0
+    container_name: sql-synthesizer-filebeat
+    restart: unless-stopped
+    user: root
+    networks:
+      - quantum-network
+    volumes:
+      - ./monitoring/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./logs:/app/logs:ro
+      - nginx_logs:/var/log/nginx:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - ELASTICSEARCH_HOSTS=${ELASTICSEARCH_HOSTS:-}
+    depends_on:
+      - sql-synthesizer-web
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+
+networks:
+  quantum-network:
+    driver: bridge
+    name: quantum-sdlc-network
+
+volumes:
+  postgres_data:
+    driver: local
+    name: sql-synthesizer-postgres-data
+  redis_data:
+    driver: local
+    name: sql-synthesizer-redis-data
+  prometheus_data:
+    driver: local
+    name: sql-synthesizer-prometheus-data
+  grafana_data:
+    driver: local
+    name: sql-synthesizer-grafana-data
+  nginx_logs:
+    driver: local
+    name: sql-synthesizer-nginx-logs
