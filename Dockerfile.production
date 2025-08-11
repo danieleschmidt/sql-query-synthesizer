@@ -1,13 +1,13 @@
-# Production Dockerfile for Quantum SDLC Systems
-# Multi-stage build for optimal security and performance
+# Multi-stage production Dockerfile for SQL Query Synthesizer
+# Optimized for security, performance, and minimal attack surface
 
-# Build stage
+# Stage 1: Build stage
 FROM python:3.11-slim as builder
 
 # Set build arguments
 ARG BUILD_DATE
-ARG VCS_REF
 ARG VERSION
+ARG VCS_REF
 
 # Add metadata labels
 LABEL maintainer="Terragon Labs <engineering@terragon.ai>" \

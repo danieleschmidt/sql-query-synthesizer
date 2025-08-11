@@ -1,0 +1,269 @@
+{
+  "performance_tracking": {
+    "operation": "performance_tracking",
+    "iterations": 1000,
+    "avg_time_ms": 0.0024288179987479452,
+    "min_time_ms": 0.0021810000134792062,
+    "max_time_ms": 0.03079700002217578,
+    "std_dev_ms": 0.0013559554060447922,
+    "total_time_ms": 2.4288179987479452,
+    "ops_per_second": 411722.9041103531
+  },
+  "caching_operations": {
+    "operation": "caching_operations",
+    "write_iterations": 2000,
+    "read_iterations": 1000,
+    "avg_write_time_ms": 0.004943068999921252,
+    "avg_read_time_ms": 0.0023044080005547585,
+    "write_ops_per_second": 202303.46774765456,
+    "read_ops_per_second": 433950.9321957145,
+    "cache_stats": {
+      "cache_size": 2000,
+      "memory_usage_mb": 0.3537178039550781,
+      "memory_utilization_percent": 0.03537178039550781,
+      "hit_count": 1000,
+      "miss_count": 0,
+      "hit_rate_percent": 100.0,
+      "eviction_count": 0,
+      "size_distribution": {
+        "small": 2000,
+        "medium": 0,
+        "large": 0
+      },
+      "freshness_distribution": {
+        "stable": 2000
+      },
+      "avg_entry_size_kb": 0.181103515625,
+      "top_accessed_keys": [
+        {
+          "key": "test_key_0",
+          "access_count": 2,
+          "size_kb": 0.1572265625,
+          "age_minutes": 0.0002991278966267904
+        },
+        {
+          "key": "test_key_1",
+          "access_count": 2,
+          "size_kb": 0.1572265625,
+          "age_minutes": 0.00029845635096232095
+        },
+        {
+          "key": "test_key_2",
+          "access_count": 2,
+          "size_kb": 0.1572265625,
+          "age_minutes": 0.0002982656160990397
+        },
+        {
+          "key": "test_key_3",
+          "access_count": 2,
+          "size_kb": 0.1572265625,
+          "age_minutes": 0.00029815038045247395
+        },
+        {
+          "key": "test_key_4",
+          "access_count": 2,
+          "size_kb": 0.1572265625,
+          "age_minutes": 0.0002980589866638184
+        },
+        {
+          "key": "test_key_5",
+          "access_count": 2,
+          "size_kb": 0.1572265625,
+          "age_minutes": 0.0002979715665181478
+        },
+        {
+          "key": "test_key_6",
+          "access_count": 2,
+          "size_kb": 0.1572265625,
+          "age_minutes": 0.00029788812001546225
+        },
+        {
+          "key": "test_key_7",
+          "access_count": 2,
+          "size_kb": 0.1572265625,
+          "age_minutes": 0.0002978126207987467
+        },
+        {
+          "key": "test_key_8",
+          "access_count": 2,
+          "size_kb": 0.1572265625,
+          "age_minutes": 0.0002978722254435221
+        },
+        {
+          "key": "test_key_9",
+          "access_count": 2,
+          "size_kb": 0.1572265625,
+          "age_minutes": 0.0002978046735127767
+        }
+      ]
+    }
+  },
+  "query_routing": {
+    "operation": "query_routing",
+    "iterations": 500,
+    "avg_time_ms": 0.016568691999964358,
+    "min_time_ms": 0.012313999945945397,
+    "max_time_ms": 0.13920300000336283,
+    "ops_per_second": 60354.79445222056,
+    "routing_stats": {
+      "total_queries": 500,
+      "avg_execution_time_ms": 0.0,
+      "endpoint_distribution": {
+        "bench_replica": {
+          "query_count": 150,
+          "total_time": 0,
+          "avg_time": 0.0
+        },
+        "bench_primary": {
+          "query_count": 350,
+          "total_time": 0,
+          "avg_time": 0.0
+        }
+      },
+      "active_endpoints": 2,
+      "healthy_endpoints": 2
+    }
+  },
+  "concurrent_operations": {
+    "operation": "concurrent_operations",
+    "threads": 8,
+    "ops_per_thread": 50,
+    "total_operations": 400,
+    "total_time_seconds": 0.009245088000056967,
+    "avg_worker_time_ms": 0.012517459997525293,
+    "overall_ops_per_second": 43266.21877450331,
+    "worker_results": [
+      {
+        "worker_id": 3,
+        "avg_time_ms": 0.01252604000910651,
+        "total_time_ms": 0.6263020004553255,
+        "operations": 50
+      },
+      {
+        "worker_id": 1,
+        "avg_time_ms": 0.013852719982878625,
+        "total_time_ms": 0.6926359991439313,
+        "operations": 50
+      },
+      {
+        "worker_id": 4,
+        "avg_time_ms": 0.010651499992491154,
+        "total_time_ms": 0.5325749996245577,
+        "operations": 50
+      },
+      {
+        "worker_id": 5,
+        "avg_time_ms": 0.012153920001765073,
+        "total_time_ms": 0.6076960000882536,
+        "operations": 50
+      },
+      {
+        "worker_id": 0,
+        "avg_time_ms": 0.013578740001776168,
+        "total_time_ms": 0.6789370000888084,
+        "operations": 50
+      }
+    ]
+  },
+  "optimization_analysis": {
+    "operation": "optimization_analysis",
+    "iterations": 50,
+    "avg_time_ms": 0.0019087800046690973,
+    "max_time_ms": 0.005851999958395027,
+    "ops_per_second": 523894.8425454395,
+    "performance_summary": {
+      "total_unique_queries": 5,
+      "total_executions": 50,
+      "overall_avg_execution_time_ms": 274.5,
+      "overall_median_execution_time_ms": 274.5,
+      "slow_queries_count": 0,
+      "cache_hit_rate_percent": 34.0,
+      "slowest_queries": [
+        {
+          "query_hash": "ef8b2e6b607ba0b2f8066159d34d9730",
+          "sql_snippet": "\n            SELECT u.name, p.title, COUNT(*) \n            FROM users u \n            JOIN profiles p ON u.id = p.user_id \n            JOIN orders o ON u.id = o.user_id \n            WHERE u.created_at ...",
+          "avg_time_ms": 276.5,
+          "execution_count": 10
+        },
+        {
+          "query_hash": "3b38bee1439e953343fc40330f9b383f",
+          "sql_snippet": "SELECT * FROM users WHERE id IN (SELECT user_id FROM orders WHERE total > 100)",
+          "avg_time_ms": 275.5,
+          "execution_count": 10
+        },
+        {
+          "query_hash": "ef6df239d03f61cece876b14545d7e88",
+          "sql_snippet": "SELECT DISTINCT name FROM users ORDER BY created_at",
+          "avg_time_ms": 274.5,
+          "execution_count": 10
+        },
+        {
+          "query_hash": "b00a34a961aa95d661dc8d6852f58a04",
+          "sql_snippet": "SELECT u.id, COUNT(o.id) FROM users u, orders o WHERE u.active = 1 GROUP BY u.id",
+          "avg_time_ms": 273.5,
+          "execution_count": 10
+        },
+        {
+          "query_hash": "eee5c0960d4e4c12f5759829ae9f299c",
+          "sql_snippet": "SELECT * FROM users WHERE name LIKE '%admin%'",
+          "avg_time_ms": 272.5,
+          "execution_count": 10
+        }
+      ],
+      "most_frequent_queries": [
+        {
+          "query_hash": "eee5c0960d4e4c12f5759829ae9f299c",
+          "sql_snippet": "SELECT * FROM users WHERE name LIKE '%admin%'",
+          "execution_count": 10,
+          "avg_time_ms": 272.5
+        },
+        {
+          "query_hash": "b00a34a961aa95d661dc8d6852f58a04",
+          "sql_snippet": "SELECT u.id, COUNT(o.id) FROM users u, orders o WHERE u.active = 1 GROUP BY u.id",
+          "execution_count": 10,
+          "avg_time_ms": 273.5
+        },
+        {
+          "query_hash": "ef6df239d03f61cece876b14545d7e88",
+          "sql_snippet": "SELECT DISTINCT name FROM users ORDER BY created_at",
+          "execution_count": 10,
+          "avg_time_ms": 274.5
+        },
+        {
+          "query_hash": "3b38bee1439e953343fc40330f9b383f",
+          "sql_snippet": "SELECT * FROM users WHERE id IN (SELECT user_id FROM orders WHERE total > 100)",
+          "execution_count": 10,
+          "avg_time_ms": 275.5
+        },
+        {
+          "query_hash": "ef8b2e6b607ba0b2f8066159d34d9730",
+          "sql_snippet": "\n            SELECT u.name, p.title, COUNT(*) \n            FROM users u \n            JOIN profiles p ON u.id = p.user_id \n            JOIN orders o ON u.id = o.user_id \n            WHERE u.created_at ...",
+          "execution_count": 10,
+          "avg_time_ms": 276.5
+        }
+      ],
+      "optimization_recommendations_available": 0,
+      "frequent_patterns": [
+        {
+          "pattern": "inefficient_scan",
+          "frequency": 5,
+          "optimization_priority": 9.0
+        }
+      ]
+    }
+  },
+  "memory_usage": {
+    "operation": "memory_usage",
+    "baseline_memory_mb": 86.81640625,
+    "cache_loaded_memory_mb": 87.07421875,
+    "perf_loaded_memory_mb": 87.58984375,
+    "cache_overhead_mb": 0.2578125,
+    "perf_overhead_mb": 0.515625,
+    "total_overhead_mb": 0.7734375
+  },
+  "summary": {
+    "total_benchmark_time_seconds": 0.05435633659362793,
+    "benchmarks_completed": 6,
+    "benchmarks_failed": 0
+  }
+}
