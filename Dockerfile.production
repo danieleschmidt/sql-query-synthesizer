@@ -2,7 +2,7 @@
 # Optimized for security, performance, and minimal attack surface
 
 # Stage 1: Build stage
-FROM python:3.11-slim as builder
+FROM python:3.13-slim as builder
 
 # Set build arguments
 ARG BUILD_DATE
@@ -55,7 +55,7 @@ COPY . .
 RUN pip install -e .
 
 # Production stage
-FROM python:3.11-slim as production
+FROM python:3.13-slim as production
 
 # Set production environment variables
 ENV PYTHONUNBUFFERED=1 \
