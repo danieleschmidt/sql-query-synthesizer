@@ -48,6 +48,15 @@ except ImportError:
     QuantumQueryOptimizer = None
     QuantumTaskScheduler = None
 
+# Optional security audit logging
+try:
+    from .security_audit import SecurityAuditLogger, security_audit_logger
+    _security_audit_available = True
+except ImportError:
+    _security_audit_available = False
+    SecurityAuditLogger = None
+    security_audit_logger = None
+
 __all__ = [
     "QueryAgent",
     "AsyncQueryAgent",
@@ -78,3 +87,6 @@ if _webapp_available:
 
 if _quantum_available:
     __all__.extend(["QuantumSQLSynthesizer", "QuantumQueryOptimizer", "QuantumTaskScheduler"])
+
+if _security_audit_available:
+    __all__.extend(["SecurityAuditLogger", "security_audit_logger"])
