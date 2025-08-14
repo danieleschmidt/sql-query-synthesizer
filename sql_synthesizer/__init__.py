@@ -12,7 +12,7 @@ Key Features:
 - Prometheus metrics and health monitoring
 """
 
-from .query_agent import QueryAgent
+from .sync_query_agent import QueryAgent
 from .async_query_agent import AsyncQueryAgent
 from .types import QueryResult
 from .cache import TTLCache

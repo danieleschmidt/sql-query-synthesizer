@@ -5,7 +5,7 @@ import pytest
 from sqlalchemy import text, create_engine
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
-import query_agent
+from sql_synthesizer import query_agent
 from sql_synthesizer import QueryAgent
 
 
