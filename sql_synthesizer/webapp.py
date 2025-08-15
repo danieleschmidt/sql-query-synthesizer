@@ -9,7 +9,7 @@ from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from sqlalchemy.exc import SQLAlchemyError, OperationalError, DatabaseError, TimeoutError as SQLTimeoutError
 import openai
 
-from .query_agent import QueryAgent
+from .sync_query_agent import QueryAgent
 from .config import config
 from .security import SecurityMiddleware, InputValidator
 

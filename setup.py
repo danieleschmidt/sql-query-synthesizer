@@ -54,7 +54,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "query-agent=query_agent:main",
+            "query-agent=sql_synthesizer.query_agent:main",
             "query-agent-web=sql_synthesizer.webapp:main",
             "sql-synthesizer-db=scripts.db_manager:main",
         ]
