@@ -1,8 +1,11 @@
 """Tests for security features and input validation."""
-import pytest
-from sql_synthesizer import QueryAgent
+
 from pathlib import Path
-from sqlalchemy import text, create_engine
+
+import pytest
+from sqlalchemy import create_engine, text
+
+from sql_synthesizer import QueryAgent
 
 
 @pytest.fixture()
@@ -20,7 +23,7 @@ def test_sanitize_question_empty(agent: QueryAgent):
     """Test that empty questions are rejected."""
     with pytest.raises(ValueError, match="Please provide a question"):
         agent.query("")
-    
+
     with pytest.raises(ValueError, match="Please provide a question"):
         agent.query("   ")
 
@@ -29,7 +32,7 @@ def test_sanitize_question_non_string(agent: QueryAgent):
     """Test that non-string inputs are rejected."""
     with pytest.raises(ValueError, match="Questions must be provided as text"):
         agent.query(123)
-    
+
     with pytest.raises(ValueError, match="Questions must be provided as text"):
         agent.query(None)
 
@@ -54,7 +57,7 @@ def test_sanitize_question_sql_injection_attempts(agent: QueryAgent):
         "Count all UNION SELECT password FROM secret_table",
         "Show data; EXEC xp_cmdshell('dir');",
     ]
-    
+
     for injection in injection_attempts:
         with pytest.raises(ValueError, match="unsafe.*security"):
             agent.query(injection)
@@ -69,7 +72,7 @@ def test_valid_questions_pass_sanitization(agent: QueryAgent):
         "Count the number of records",
         "What's in the users table?",
     ]
-    
+
     for question in safe_questions:
         # Should not raise an exception
         result = agent.query(question)
@@ -91,7 +94,7 @@ def test_sql_validation_rejects_non_select(agent: QueryAgent):
         "INSERT INTO users VALUES (999, 'bad');",
         "CREATE TABLE evil (id INT);",
     ]
-    
+
     for sql in non_select_statements:
         with pytest.raises(ValueError, match="Only SELECT.*allowed.*security"):
             agent.execute_sql(sql)
@@ -106,7 +109,7 @@ def test_table_validation_rejects_invalid_names(agent: QueryAgent):
         "users--",
         "users union select",
     ]
-    
+
     for table in invalid_tables:
         with pytest.raises(ValueError, match="not found.*database"):
             agent.row_count(table)

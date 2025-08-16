@@ -12,18 +12,18 @@ import logging
 import os
 from typing import Optional
 
-from opentelemetry import trace, metrics
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry import metrics, trace
 from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
-from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 from opentelemetry.instrumentation.redis import RedisInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
 from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ def setup_observability(
         otlp_endpoint: OTLP collector endpoint (if None, uses environment variable)
         enable_console_export: Whether to export traces to console for debugging
     """
-    
+
     # Configure resource attributes
     resource = Resource.create({
         "service.name": service_name,
@@ -51,42 +51,42 @@ def setup_observability(
         "service.instance.id": os.environ.get("HOSTNAME", "localhost"),
         "deployment.environment": os.environ.get("QUERY_AGENT_ENV", "development")
     })
-    
+
     # Setup tracing
     _setup_tracing(resource, otlp_endpoint, enable_console_export)
-    
+
     # Setup metrics
     _setup_metrics(resource, otlp_endpoint)
-    
+
     # Setup auto-instrumentation
     _setup_instrumentation()
-    
+
     logger.info(f"OpenTelemetry configured for {service_name} v{service_version}")
 
 
 def _setup_tracing(
-    resource: Resource, 
+    resource: Resource,
     otlp_endpoint: Optional[str],
     enable_console_export: bool
 ) -> None:
     """Configure distributed tracing with OTLP export."""
-    
+
     # Create tracer provider
     tracer_provider = TracerProvider(resource=resource)
     trace.set_tracer_provider(tracer_provider)
-    
+
     # Configure OTLP span exporter
     otlp_endpoint = otlp_endpoint or os.environ.get(
-        "OTEL_EXPORTER_OTLP_ENDPOINT", 
+        "OTEL_EXPORTER_OTLP_ENDPOINT",
         "http://localhost:4317"
     )
-    
+
     if otlp_endpoint:
         otlp_exporter = OTLPSpanExporter(endpoint=otlp_endpoint)
         span_processor = BatchSpanProcessor(otlp_exporter)
         tracer_provider.add_span_processor(span_processor)
         logger.info(f"OTLP span exporter configured for {otlp_endpoint}")
-    
+
     # Optional console exporter for debugging
     if enable_console_export:
         from opentelemetry.exporter.console import ConsoleSpanExporter
@@ -98,12 +98,12 @@ def _setup_tracing(
 
 def _setup_metrics(resource: Resource, otlp_endpoint: Optional[str]) -> None:
     """Configure metrics collection and export."""
-    
+
     otlp_endpoint = otlp_endpoint or os.environ.get(
         "OTEL_EXPORTER_OTLP_ENDPOINT",
         "http://localhost:4317"
     )
-    
+
     if otlp_endpoint:
         # Create OTLP metric exporter
         metric_exporter = OTLPMetricExporter(endpoint=otlp_endpoint)
@@ -111,7 +111,7 @@ def _setup_metrics(resource: Resource, otlp_endpoint: Optional[str]) -> None:
             exporter=metric_exporter,
             export_interval_millis=30000  # Export every 30 seconds
         )
-        
+
         # Create meter provider
         meter_provider = MeterProvider(
             resource=resource,
@@ -123,28 +123,28 @@ def _setup_metrics(resource: Resource, otlp_endpoint: Optional[str]) -> None:
 
 def _setup_instrumentation() -> None:
     """Configure automatic instrumentation for common libraries."""
-    
+
     # Flask web framework instrumentation
     try:
         FlaskInstrumentor().instrument()
         logger.info("Flask instrumentation enabled")
     except Exception as e:
         logger.warning(f"Failed to instrument Flask: {e}")
-    
+
     # SQLAlchemy database instrumentation
     try:
         SQLAlchemyInstrumentor().instrument()
         logger.info("SQLAlchemy instrumentation enabled")
     except Exception as e:
         logger.warning(f"Failed to instrument SQLAlchemy: {e}")
-    
+
     # Redis cache instrumentation
     try:
         RedisInstrumentor().instrument()
         logger.info("Redis instrumentation enabled")
     except Exception as e:
         logger.warning(f"Failed to instrument Redis: {e}")
-    
+
     # HTTP requests instrumentation
     try:
         RequestsInstrumentor().instrument()
@@ -166,9 +166,9 @@ def get_meter(name: str) -> metrics.Meter:
 # Common custom metrics for the SQL Query Synthesizer
 def create_custom_metrics() -> dict:
     """Create application-specific metrics."""
-    
+
     meter = get_meter("sql_synthesizer.metrics")
-    
+
     custom_metrics = {
         # Query performance metrics
         "sql_generation_duration": meter.create_histogram(
@@ -177,11 +177,11 @@ def create_custom_metrics() -> dict:
             unit="s"
         ),
         "query_execution_duration": meter.create_histogram(
-            name="query_execution_duration_seconds", 
+            name="query_execution_duration_seconds",
             description="Time taken to execute SQL queries",
             unit="s"
         ),
-        
+
         # Cache metrics
         "cache_hit_ratio": meter.create_gauge(
             name="cache_hit_ratio",
@@ -192,7 +192,7 @@ def create_custom_metrics() -> dict:
             description="Current size of cache in bytes",
             unit="By"
         ),
-        
+
         # Application metrics
         "active_connections": meter.create_gauge(
             name="database_connections_active",
@@ -203,7 +203,7 @@ def create_custom_metrics() -> dict:
             description="Total number of query requests processed"
         ),
         "llm_api_calls_total": meter.create_counter(
-            name="llm_api_calls_total", 
+            name="llm_api_calls_total",
             description="Total number of LLM API calls made"
         ),
         "errors_total": meter.create_counter(
@@ -211,7 +211,7 @@ def create_custom_metrics() -> dict:
             description="Total number of errors by type"
         )
     }
-    
+
     logger.info(f"Created {len(custom_metrics)} custom metrics")
     return custom_metrics
 
@@ -219,9 +219,9 @@ def create_custom_metrics() -> dict:
 # Environment-based configuration
 def configure_for_environment() -> None:
     """Configure observability based on current environment."""
-    
+
     env = os.environ.get("QUERY_AGENT_ENV", "development")
-    
+
     if env == "production":
         # Production: Full observability with OTLP export
         setup_observability(
@@ -245,7 +245,7 @@ def configure_for_environment() -> None:
             service_version=get_service_version(),
             enable_console_export=True
         )
-    
+
     # Create custom metrics for all environments
     create_custom_metrics()
 
@@ -262,7 +262,7 @@ def get_service_version() -> str:
 if __name__ == "__main__":
     # Demo/test the observability setup
     configure_for_environment()
-    
+
     # Create a test trace
     tracer = get_tracer("test")
     with tracer.start_as_current_span("test_span") as span:

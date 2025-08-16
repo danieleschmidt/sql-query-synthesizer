@@ -1,15 +1,16 @@
 """Tests for QueryValidatorService."""
 
 import pytest
+
 from sql_synthesizer.services.query_validator_service import QueryValidatorService
 from sql_synthesizer.user_experience import (
     UserFriendlyError,
     create_empty_question_error,
+    create_invalid_sql_error,
+    create_invalid_table_error,
+    create_multiple_statements_error,
     create_question_too_long_error,
     create_unsafe_input_error,
-    create_invalid_sql_error,
-    create_multiple_statements_error,
-    create_invalid_table_error,
 )
 
 
@@ -24,7 +25,7 @@ class TestQueryValidatorService:
         """Test validation of empty questions."""
         with pytest.raises(UserFriendlyError):
             self.validator.validate_question("")
-        
+
         with pytest.raises(UserFriendlyError):
             self.validator.validate_question("   ")
 
@@ -42,7 +43,7 @@ class TestQueryValidatorService:
             "'; UPDATE users SET password='hacked'; --",
             "Show users; INSERT INTO users VALUES('evil', 'hack');",
         ]
-        
+
         for question in unsafe_questions:
             with pytest.raises(UserFriendlyError):
                 self.validator.validate_question(question)
@@ -55,7 +56,7 @@ class TestQueryValidatorService:
             "List customers from California",
             "Count products with high ratings",
         ]
-        
+
         for question in valid_questions:
             # Should not raise exception
             sanitized = self.validator.validate_question(question)
@@ -66,7 +67,7 @@ class TestQueryValidatorService:
         """Test validation of empty SQL."""
         with pytest.raises(UserFriendlyError):
             self.validator.validate_sql("")
-        
+
         with pytest.raises(UserFriendlyError):
             self.validator.validate_sql("   ")
 
@@ -77,7 +78,7 @@ class TestQueryValidatorService:
             "SELECT 1; SELECT 2;",
             "INSERT INTO users VALUES(1, 'test'); SELECT * FROM users;",
         ]
-        
+
         for sql in multi_statements:
             with pytest.raises(UserFriendlyError):
                 self.validator.validate_sql(sql)
@@ -86,11 +87,11 @@ class TestQueryValidatorService:
         """Test detection of invalid SQL syntax."""
         invalid_sql = [
             "SELCT * FROM users",  # Typo
-            "SELECT * FRM users",   # Missing FROM
-            "SELECT * FROM",        # Incomplete
+            "SELECT * FRM users",  # Missing FROM
+            "SELECT * FROM",  # Incomplete
             "SELECT * FROM users WHERE",  # Incomplete WHERE
         ]
-        
+
         for sql in invalid_sql:
             with pytest.raises(UserFriendlyError):
                 self.validator.validate_sql(sql)
@@ -103,7 +104,7 @@ class TestQueryValidatorService:
             "SELECT COUNT(*) FROM orders WHERE date > '2024-01-01'",
             "SELECT u.name, o.total FROM users u JOIN orders o ON u.id = o.user_id",
         ]
-        
+
         for sql in valid_sql:
             # Should not raise exception
             validated = self.validator.validate_sql(sql)
@@ -121,7 +122,7 @@ class TestQueryValidatorService:
             "user name",
             "users'",
         ]
-        
+
         for table in invalid_tables:
             with pytest.raises(UserFriendlyError):
                 self.validator.validate_table_name(table)
@@ -136,7 +137,7 @@ class TestQueryValidatorService:
             "_internal_table",
             "table123",
         ]
-        
+
         for table in valid_tables:
             # Should not raise exception
             validated = self.validator.validate_table_name(table)
@@ -150,7 +151,7 @@ class TestQueryValidatorService:
             ("Show me users!", "Show me users!"),
             ("What's the average?", "What's the average?"),
         ]
-        
+
         for input_q, expected in test_cases:
             result = self.validator.sanitize_question(input_q)
             assert result == expected

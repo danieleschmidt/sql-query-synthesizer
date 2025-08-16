@@ -2,20 +2,20 @@
 
 import asyncio
 import logging
-from typing import List, Dict, Any, Optional
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
-from sqlalchemy import inspect, text
-from sqlalchemy.exc import SQLAlchemyError, OperationalError, DatabaseError
+from typing import Any, Dict, List, Optional
 
-from .services.async_query_service import AsyncQueryService
-from .services.query_validator_service import QueryValidatorService  
-from .services.async_sql_generator_service import AsyncSQLGeneratorService
+from sqlalchemy import text
+from sqlalchemy.exc import DatabaseError, OperationalError
+from sqlalchemy.ext.asyncio import create_async_engine
+
 from .async_openai_adapter import AsyncOpenAIAdapter
-from .cache import TTLCache, create_cache_backend, CacheError
-from .types import QueryResult
-from .database import DatabaseConnectionManager
+from .cache import CacheError, create_cache_backend
 from .config import config
-from .logging_utils import configure_logging
+from .database import DatabaseConnectionManager
+from .services.async_query_service import AsyncQueryService
+from .services.async_sql_generator_service import AsyncSQLGeneratorService
+from .services.query_validator_service import QueryValidatorService
+from .types import QueryResult
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ class AsyncQueryAgent:
         max_page_size: int = 1000,
     ):
         """Initialize the async query agent.
-        
+
         Args:
             database_url: Database connection URL (must be async-compatible)
             openai_api_key: OpenAI API key for LLM-based SQL generation
@@ -57,7 +57,9 @@ class AsyncQueryAgent:
         if database_url.startswith("sqlite://"):
             self.database_url = database_url.replace("sqlite://", "sqlite+aiosqlite://")
         elif database_url.startswith("postgresql://"):
-            self.database_url = database_url.replace("postgresql://", "postgresql+asyncpg://")
+            self.database_url = database_url.replace(
+                "postgresql://", "postgresql+asyncpg://"
+            )
         elif database_url.startswith("mysql://"):
             self.database_url = database_url.replace("mysql://", "mysql+aiomysql://")
         else:
@@ -70,7 +72,7 @@ class AsyncQueryAgent:
             max_overflow=config.db_max_overflow,
             pool_recycle=config.db_pool_recycle,
             pool_pre_ping=config.db_pool_pre_ping,
-            echo=False
+            echo=False,
         )
 
         # Initialize caches using configured backend
@@ -81,32 +83,40 @@ class AsyncQueryAgent:
                 "redis_db": config.redis_db,
                 "redis_password": config.redis_password,
                 "memcached_servers": config.memcached_servers,
-                "max_size": config.cache_max_size
+                "max_size": config.cache_max_size,
             }
-            
+
             # Create schema cache (longer TTL)
             self.schema_cache = create_cache_backend(
                 backend_type=config.cache_backend,
                 ttl=schema_cache_ttl,
-                **cache_backend_config
+                **cache_backend_config,
             )
-            
+
             # Create query cache (shorter TTL)
             self.query_cache = create_cache_backend(
                 backend_type=config.cache_backend,
                 ttl=query_cache_ttl,
-                **cache_backend_config
+                **cache_backend_config,
             )
-            
-            logger.info(f"Initialized {config.cache_backend} cache backend for async agent")
-            
+
+            logger.info(
+                f"Initialized {config.cache_backend} cache backend for async agent"
+            )
+
         except (CacheError, ValueError) as e:
-            logger.warning(f"Failed to initialize {config.cache_backend} cache backend: {e}")
+            logger.warning(
+                f"Failed to initialize {config.cache_backend} cache backend: {e}"
+            )
             logger.info("Falling back to memory cache backend")
-            
+
             # Fallback to in-memory cache
-            self.schema_cache = create_cache_backend("memory", ttl=schema_cache_ttl, max_size=100)
-            self.query_cache = create_cache_backend("memory", ttl=query_cache_ttl, max_size=1000)
+            self.schema_cache = create_cache_backend(
+                "memory", ttl=schema_cache_ttl, max_size=100
+            )
+            self.query_cache = create_cache_backend(
+                "memory", ttl=query_cache_ttl, max_size=1000
+            )
 
         # Initialize services
         self.validator = QueryValidatorService()
@@ -147,41 +157,56 @@ class AsyncQueryAgent:
             retry_delay=config.db_retry_delay,
         )
 
-    async def query(self, question: str, *, explain: bool = False, trace_id: Optional[str] = None) -> QueryResult:
+    async def query(
+        self, question: str, *, explain: bool = False, trace_id: Optional[str] = None
+    ) -> QueryResult:
         """Process a natural language question and return results asynchronously.
-        
+
         Args:
             question: The user's natural language question
             explain: Whether to return query execution plan
             trace_id: Optional trace ID for request correlation
-            
+
         Returns:
             QueryResult: The query result containing SQL, data, and explanation
         """
-        return await self.query_service.query(question, explain=explain, trace_id=trace_id)
+        return await self.query_service.query(
+            question, explain=explain, trace_id=trace_id
+        )
 
-    async def execute_sql(self, sql: str, *, explain: bool = False, trace_id: Optional[str] = None) -> QueryResult:
+    async def execute_sql(
+        self, sql: str, *, explain: bool = False, trace_id: Optional[str] = None
+    ) -> QueryResult:
         """Execute raw SQL and return results asynchronously.
-        
+
         Args:
             sql: The SQL statement to execute
             explain: Whether to return query execution plan
             trace_id: Optional trace ID for request correlation
-            
+
         Returns:
             QueryResult: The query result containing SQL, data, and explanation
         """
-        return await self.query_service.execute_sql(sql, explain=explain, trace_id=trace_id)
+        return await self.query_service.execute_sql(
+            sql, explain=explain, trace_id=trace_id
+        )
 
-    async def query_paginated(self, question: str, *, page: int = 1, page_size: int = None, trace_id: str = None) -> QueryResult:
+    async def query_paginated(
+        self,
+        question: str,
+        *,
+        page: int = 1,
+        page_size: int = None,
+        trace_id: str = None,
+    ) -> QueryResult:
         """Process a natural language question and return paginated results asynchronously.
-        
+
         Args:
             question: The user's natural language question
             page: Page number (1-based)
             page_size: Number of items per page (defaults to max_rows)
             trace_id: Optional trace ID for request correlation
-            
+
         Returns:
             QueryResult with pagination information
         """
@@ -194,28 +219,34 @@ class AsyncQueryAgent:
         validated_sql = self.validator.validate_sql(sql)
 
         # Execute with pagination
-        return await self.query_service.query_paginated(validated_sql, page, page_size, trace_id=trace_id)
+        return await self.query_service.query_paginated(
+            validated_sql, page, page_size, trace_id=trace_id
+        )
 
-    async def execute_sql_paginated(self, sql: str, *, page: int = 1, page_size: int = None, trace_id: str = None) -> QueryResult:
+    async def execute_sql_paginated(
+        self, sql: str, *, page: int = 1, page_size: int = None, trace_id: str = None
+    ) -> QueryResult:
         """Execute raw SQL and return paginated results asynchronously.
-        
+
         Args:
             sql: The SQL statement to execute
-            page: Page number (1-based) 
+            page: Page number (1-based)
             page_size: Number of items per page (defaults to max_rows)
             trace_id: Optional trace ID for request correlation
-            
+
         Returns:
             QueryResult with pagination information
         """
         if page_size is None:
             page_size = self.query_service.max_rows
 
-        return await self.query_service.query_paginated(sql, page, page_size, trace_id=trace_id)
+        return await self.query_service.query_paginated(
+            sql, page, page_size, trace_id=trace_id
+        )
 
     async def list_tables(self) -> List[str]:
         """List all available tables asynchronously.
-        
+
         Returns:
             List[str]: List of table names
         """
@@ -223,39 +254,47 @@ class AsyncQueryAgent:
 
     async def describe_table(self, table_name: str) -> List[Dict[str, Any]]:
         """Describe the columns of a specific table asynchronously.
-        
+
         Args:
             table_name: Name of the table to describe
-            
+
         Returns:
             List[Dict[str, Any]]: List of column information
         """
         async with self.engine.connect() as connection:
             # Get column information
-            result = await connection.execute(text(f"""
+            result = await connection.execute(
+                text(
+                    f"""
                 SELECT column_name, data_type, is_nullable, column_default
                 FROM information_schema.columns 
                 WHERE table_name = '{table_name}'
                 ORDER BY ordinal_position
-            """))
-            
+            """
+                )
+            )
+
             columns = []
             for row in result:
-                columns.append({
-                    "name": row[0],
-                    "type": row[1],
-                    "nullable": row[2] == "YES",
-                    "default": row[3]
-                })
-            
+                columns.append(
+                    {
+                        "name": row[0],
+                        "type": row[1],
+                        "nullable": row[2] == "YES",
+                        "default": row[3],
+                    }
+                )
+
             return columns
 
-    async def get_table_row_counts(self, tables: Optional[List[str]] = None) -> Dict[str, int]:
+    async def get_table_row_counts(
+        self, tables: Optional[List[str]] = None
+    ) -> Dict[str, int]:
         """Get row counts for tables asynchronously.
-        
+
         Args:
             tables: Optional list of table names (defaults to all tables)
-            
+
         Returns:
             Dict[str, int]: Mapping of table names to row counts
         """
@@ -263,12 +302,14 @@ class AsyncQueryAgent:
             tables = await self.list_tables()
 
         row_counts = {}
-        
+
         # Execute all count queries concurrently
         async def get_count(table: str) -> tuple[str, int]:
             try:
                 async with self.engine.connect() as connection:
-                    result = await connection.execute(text(f"SELECT COUNT(*) FROM {table}"))
+                    result = await connection.execute(
+                        text(f"SELECT COUNT(*) FROM {table}")
+                    )
                     count = result.scalar()
                     return table, count
             except OperationalError as e:
@@ -284,7 +325,7 @@ class AsyncQueryAgent:
         # Run all count queries concurrently
         tasks = [get_count(table) for table in tables]
         results = await asyncio.gather(*tasks)
-        
+
         for table, count in results:
             row_counts[table] = count
 
@@ -292,7 +333,7 @@ class AsyncQueryAgent:
 
     def get_cache_stats(self) -> Dict[str, Any]:
         """Get comprehensive cache statistics.
-        
+
         Returns:
             Dict[str, Any]: Cache statistics
         """
@@ -308,7 +349,7 @@ class AsyncQueryAgent:
 
     def health_check(self) -> Dict[str, Any]:
         """Perform comprehensive health check.
-        
+
         Returns:
             Dict[str, Any]: Health status information
         """
@@ -317,7 +358,7 @@ class AsyncQueryAgent:
 
     def get_connection_stats(self) -> Dict[str, Any]:
         """Get database connection statistics.
-        
+
         Returns:
             Dict[str, Any]: Connection pool statistics
         """

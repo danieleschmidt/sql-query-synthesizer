@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 """API testing tool for SQL Query Synthesizer."""
 
-import asyncio
-import json
-import time
 import argparse
+import json
 import sys
-from typing import Dict, List, Optional
-from pathlib import Path
+import time
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, List, Optional
 
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent
@@ -27,29 +26,29 @@ class TestResult:
 
 class APITester:
     """Tests API endpoints without requiring actual HTTP server."""
-    
+
     def __init__(self, base_url: str = "http://localhost:5000"):
         """Initialize API tester."""
         self.base_url = base_url
         self.test_results: List[TestResult] = []
-    
+
     def test_query_api_structure(self) -> TestResult:
         """Test the query API endpoint structure."""
         start_time = time.time()
-        
+
         try:
             # Test request structure validation
             valid_request = {
                 'question': 'Show me all users',
                 'max_rows': 10
             }
-            
+
             # Validate request structure
             assert 'question' in valid_request
             assert isinstance(valid_request['question'], str)
             assert len(valid_request['question']) > 0
             assert isinstance(valid_request.get('max_rows', 10), int)
-            
+
             # Test expected response structure
             expected_response = {
                 'success': True,
@@ -61,12 +60,12 @@ class APITester:
                 'query_time_ms': 0.0,
                 'query_id': 'query-abc123'
             }
-            
+
             # Validate response structure
             required_fields = ['success', 'sql', 'data', 'explanation', 'query_id']
             for field in required_fields:
                 assert field in expected_response
-            
+
             duration = time.time() - start_time
             return TestResult(
                 name="Query API Structure",
@@ -74,7 +73,7 @@ class APITester:
                 duration=duration,
                 response=expected_response
             )
-            
+
         except Exception as e:
             duration = time.time() - start_time
             return TestResult(
@@ -83,11 +82,11 @@ class APITester:
                 duration=duration,
                 error=str(e)
             )
-    
+
     def test_health_api_structure(self) -> TestResult:
         """Test the health API endpoint structure."""
         start_time = time.time()
-        
+
         try:
             expected_health = {
                 'status': 'healthy',
@@ -110,16 +109,16 @@ class APITester:
                     'model': 'gpt-3.5-turbo'
                 }
             }
-            
+
             # Validate structure
             required_fields = ['status', 'timestamp', 'version', 'database', 'cache', 'llm']
             for field in required_fields:
                 assert field in expected_health
-            
+
             # Validate status values
             valid_statuses = ['healthy', 'degraded', 'unhealthy']
             assert expected_health['status'] in valid_statuses
-            
+
             duration = time.time() - start_time
             return TestResult(
                 name="Health API Structure",
@@ -127,7 +126,7 @@ class APITester:
                 duration=duration,
                 response=expected_health
             )
-            
+
         except Exception as e:
             duration = time.time() - start_time
             return TestResult(
@@ -136,11 +135,11 @@ class APITester:
                 duration=duration,
                 error=str(e)
             )
-    
+
     def test_metrics_api_structure(self) -> TestResult:
         """Test the metrics API endpoint structure."""
         start_time = time.time()
-        
+
         try:
             expected_metrics = [
                 '# HELP query_requests_total Total number of query requests',
@@ -155,7 +154,7 @@ class APITester:
                 'query_duration_seconds_count 175',
                 'query_duration_seconds_sum 87.5',
             ]
-            
+
             # Validate Prometheus format
             for line in expected_metrics:
                 if line.startswith('# HELP'):
@@ -172,7 +171,7 @@ class APITester:
                         float(parts[-1])
                     except ValueError:
                         assert False, f"Invalid metric value: {parts[-1]}"
-            
+
             duration = time.time() - start_time
             return TestResult(
                 name="Metrics API Structure",
@@ -180,7 +179,7 @@ class APITester:
                 duration=duration,
                 response={'metrics_count': len([l for l in expected_metrics if l and not l.startswith('#')])}
             )
-            
+
         except Exception as e:
             duration = time.time() - start_time
             return TestResult(
@@ -189,11 +188,11 @@ class APITester:
                 duration=duration,
                 error=str(e)
             )
-    
+
     def test_input_validation(self) -> TestResult:
         """Test input validation logic."""
         start_time = time.time()
-        
+
         try:
             # Test valid inputs
             valid_inputs = [
@@ -201,12 +200,12 @@ class APITester:
                 {'question': 'Count orders by status', 'max_rows': 100},
                 {'question': 'Find recent transactions', 'max_rows': 50}
             ]
-            
+
             for input_data in valid_inputs:
                 assert len(input_data['question']) > 0
                 assert len(input_data['question']) <= 1000
                 assert 1 <= input_data['max_rows'] <= 1000
-            
+
             # Test invalid inputs
             invalid_inputs = [
                 {},  # Missing question
@@ -215,7 +214,7 @@ class APITester:
                 {'question': 'Show users', 'max_rows': 0},  # Invalid max_rows
                 {'question': 'Show users', 'max_rows': 10000},  # Too many rows
             ]
-            
+
             for invalid_input in invalid_inputs:
                 # These should fail validation
                 if not invalid_input.get('question'):
@@ -224,7 +223,7 @@ class APITester:
                     assert True  # Too long question is invalid
                 elif invalid_input.get('max_rows', 10) <= 0 or invalid_input.get('max_rows', 10) > 1000:
                     assert True  # Invalid max_rows is invalid
-            
+
             duration = time.time() - start_time
             return TestResult(
                 name="Input Validation",
@@ -232,7 +231,7 @@ class APITester:
                 duration=duration,
                 response={'valid_inputs': len(valid_inputs), 'invalid_inputs': len(invalid_inputs)}
             )
-            
+
         except Exception as e:
             duration = time.time() - start_time
             return TestResult(
@@ -241,11 +240,11 @@ class APITester:
                 duration=duration,
                 error=str(e)
             )
-    
+
     def test_security_validation(self) -> TestResult:
         """Test security validation logic."""
         start_time = time.time()
-        
+
         try:
             # Test SQL injection patterns
             malicious_inputs = [
@@ -256,15 +255,15 @@ class APITester:
                 "/* comment */ SELECT * FROM admin",
                 "SELECT * FROM users WHERE id = 1; DELETE FROM users; --"
             ]
-            
+
             for malicious_input in malicious_inputs:
                 # Should detect dangerous patterns
                 has_dangerous_pattern = any(
-                    keyword in malicious_input.upper() 
+                    keyword in malicious_input.upper()
                     for keyword in ['DROP', 'DELETE', 'INSERT', 'UPDATE', 'UNION', '--', '/*']
                 )
                 assert has_dangerous_pattern, f"Should detect dangerous pattern in: {malicious_input}"
-            
+
             # Test safe inputs
             safe_inputs = [
                 "Show me all users",
@@ -272,15 +271,15 @@ class APITester:
                 "Count orders from last month",
                 "List customer information"
             ]
-            
+
             for safe_input in safe_inputs:
                 # Should not detect dangerous patterns
                 has_dangerous_pattern = any(
-                    keyword in safe_input.upper() 
+                    keyword in safe_input.upper()
                     for keyword in ['DROP', 'DELETE', 'INSERT', 'UPDATE', 'UNION', '--', '/*']
                 )
                 assert not has_dangerous_pattern, f"Should not flag safe input: {safe_input}"
-            
+
             duration = time.time() - start_time
             return TestResult(
                 name="Security Validation",
@@ -288,7 +287,7 @@ class APITester:
                 duration=duration,
                 response={'malicious_inputs': len(malicious_inputs), 'safe_inputs': len(safe_inputs)}
             )
-            
+
         except Exception as e:
             duration = time.time() - start_time
             return TestResult(
@@ -297,11 +296,11 @@ class APITester:
                 duration=duration,
                 error=str(e)
             )
-    
+
     def test_error_handling(self) -> TestResult:
         """Test error handling and response format."""
         start_time = time.time()
-        
+
         try:
             error_scenarios = [
                 {
@@ -332,22 +331,22 @@ class APITester:
                     }
                 }
             ]
-            
+
             for scenario in error_scenarios:
                 response = scenario['response']
-                
+
                 # Validate error response structure
                 assert 'success' in response
                 assert response['success'] is False
                 assert 'error' in response
                 assert 'error_code' in response
-                
+
                 # Error message should not leak sensitive information
                 error_msg = response['error'].lower()
                 sensitive_terms = ['password', 'token', 'key', 'secret', 'credential']
                 for term in sensitive_terms:
                     assert term not in error_msg, f"Error message should not contain: {term}"
-            
+
             duration = time.time() - start_time
             return TestResult(
                 name="Error Handling",
@@ -355,7 +354,7 @@ class APITester:
                 duration=duration,
                 response={'error_scenarios': len(error_scenarios)}
             )
-            
+
         except Exception as e:
             duration = time.time() - start_time
             return TestResult(
@@ -364,11 +363,11 @@ class APITester:
                 duration=duration,
                 error=str(e)
             )
-    
+
     def test_openapi_schema(self) -> TestResult:
         """Test OpenAPI schema structure."""
         start_time = time.time()
-        
+
         try:
             expected_schema = {
                 'openapi': '3.0.0',
@@ -400,23 +399,23 @@ class APITester:
                     }
                 }
             }
-            
+
             # Validate OpenAPI structure
             assert 'openapi' in expected_schema
             assert expected_schema['openapi'] == '3.0.0'
             assert 'info' in expected_schema
             assert 'paths' in expected_schema
-            
+
             # Validate info section
             info = expected_schema['info']
             required_info_fields = ['title', 'version', 'description']
             for field in required_info_fields:
                 assert field in info
-            
+
             # Validate paths
             paths = expected_schema['paths']
             assert '/api/query' in paths
-            
+
             duration = time.time() - start_time
             return TestResult(
                 name="OpenAPI Schema",
@@ -424,7 +423,7 @@ class APITester:
                 duration=duration,
                 response={'endpoints': len(paths)}
             )
-            
+
         except Exception as e:
             duration = time.time() - start_time
             return TestResult(
@@ -433,11 +432,11 @@ class APITester:
                 duration=duration,
                 error=str(e)
             )
-    
+
     def run_all_tests(self) -> List[TestResult]:
         """Run all API tests."""
         print("🚀 Running API structure and validation tests...")
-        
+
         test_methods = [
             self.test_query_api_structure,
             self.test_health_api_structure,
@@ -447,31 +446,31 @@ class APITester:
             self.test_error_handling,
             self.test_openapi_schema
         ]
-        
+
         results = []
-        
+
         for test_method in test_methods:
             print(f"Running {test_method.__name__}...")
             result = test_method()
             results.append(result)
-            
+
             if result.success:
                 print(f"✅ {result.name} - PASSED ({result.duration:.3f}s)")
             else:
                 print(f"❌ {result.name} - FAILED ({result.duration:.3f}s)")
                 if result.error:
                     print(f"   Error: {result.error}")
-        
+
         self.test_results = results
         return results
-    
+
     def generate_report(self, output_file: Optional[str] = None) -> Dict:
         """Generate test report."""
         total_tests = len(self.test_results)
         passed_tests = sum(1 for r in self.test_results if r.success)
         failed_tests = total_tests - passed_tests
         total_duration = sum(r.duration for r in self.test_results)
-        
+
         report = {
             'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
             'summary': {
@@ -492,25 +491,25 @@ class APITester:
                 for r in self.test_results
             ]
         }
-        
+
         if output_file:
             with open(output_file, 'w') as f:
                 json.dump(report, f, indent=2)
             print(f"📊 API test report saved to {output_file}")
-        
+
         return report
-    
+
     def print_summary(self):
         """Print test summary."""
         if not self.test_results:
             print("No tests run.")
             return
-        
+
         total = len(self.test_results)
         passed = sum(1 for r in self.test_results if r.success)
         failed = total - passed
         duration = sum(r.duration for r in self.test_results)
-        
+
         print(f"\n{'='*60}")
         print("API TEST SUMMARY")
         print('='*60)
@@ -519,9 +518,9 @@ class APITester:
         print(f"Failed: {failed} ❌")
         print(f"Success rate: {(passed/max(total,1)*100):.1f}%")
         print(f"Total duration: {duration:.3f}s")
-        
+
         if failed > 0:
-            print(f"\nFailed tests:")
+            print("\nFailed tests:")
             for result in self.test_results:
                 if not result.success:
                     print(f"  - {result.name}: {result.error}")
@@ -530,27 +529,27 @@ class APITester:
 def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(description="SQL Query Synthesizer API Tester")
-    parser.add_argument('--base-url', default='http://localhost:5000', 
+    parser.add_argument('--base-url', default='http://localhost:5000',
                         help='Base URL for API (default: http://localhost:5000)')
     parser.add_argument('--report', help='Save test report to file')
     parser.add_argument('--verbose', '-v', action='store_true', help='Verbose output')
-    
+
     args = parser.parse_args()
-    
+
     tester = APITester(args.base_url)
-    
+
     try:
         results = tester.run_all_tests()
-        
+
         if args.report:
             tester.generate_report(args.report)
-        
+
         tester.print_summary()
-        
+
         # Return appropriate exit code
         all_passed = all(r.success for r in results)
         return 0 if all_passed else 1
-        
+
     except KeyboardInterrupt:
         print("\n⚠️  Tests interrupted by user")
         return 1

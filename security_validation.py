@@ -6,18 +6,14 @@ for the quantum-inspired autonomous SDLC framework.
 """
 
 import ast
-import re
 import json
-import hashlib
 import logging
+import re
 import time
-from pathlib import Path
-from typing import Dict, List, Any, Optional, Set, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
-import subprocess
-import tempfile
-import os
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 
 class SecurityLevel(Enum):
@@ -78,20 +74,20 @@ class QuantumSecurityScanner:
     """
     Advanced security scanner for quantum SDLC systems
     """
-    
+
     def __init__(self, logger: Optional[logging.Logger] = None):
         self.logger = logger or logging.getLogger(__name__)
-        
+
         # Security patterns to detect
         self.security_patterns = self._load_security_patterns()
-        
+
         # Files to scan
         self.scan_extensions = {'.py', '.js', '.ts', '.sql', '.yaml', '.yml', '.json', '.env'}
         self.exclude_patterns = {
             '.git', '__pycache__', 'node_modules', '.pytest_cache',
             'venv', '.venv', 'env', '.env', 'build', 'dist'
         }
-        
+
         # Compliance frameworks
         self.compliance_frameworks = {
             'OWASP_TOP_10': self._get_owasp_top_10_rules(),
@@ -99,10 +95,10 @@ class QuantumSecurityScanner:
             'NIST_CYBERSECURITY': self._get_nist_rules(),
             'GDPR': self._get_gdpr_rules()
         }
-    
+
     def _load_security_patterns(self) -> Dict[VulnerabilityType, List[Dict[str, Any]]]:
         """Load security detection patterns"""
-        
+
         patterns = {
             VulnerabilityType.SQL_INJECTION: [
                 {
@@ -124,7 +120,7 @@ class QuantumSecurityScanner:
                     'cwe_id': 'CWE-89'
                 }
             ],
-            
+
             VulnerabilityType.CODE_INJECTION: [
                 {
                     'pattern': r'(?i)(eval|exec)\s*\(',
@@ -145,7 +141,7 @@ class QuantumSecurityScanner:
                     'cwe_id': 'CWE-78'
                 }
             ],
-            
+
             VulnerabilityType.PATH_TRAVERSAL: [
                 {
                     'pattern': r'(?i)(open|file|read).*\+.*["\'][^"\']*\.\./[^"\']*["\']',
@@ -160,7 +156,7 @@ class QuantumSecurityScanner:
                     'cwe_id': 'CWE-22'
                 }
             ],
-            
+
             VulnerabilityType.HARDCODED_SECRETS: [
                 {
                     'pattern': r'(?i)(password|passwd|pwd)\s*[:=]\s*["\'][^"\']{6,}["\']',
@@ -187,7 +183,7 @@ class QuantumSecurityScanner:
                     'cwe_id': 'CWE-798'
                 }
             ],
-            
+
             VulnerabilityType.INSECURE_RANDOM: [
                 {
                     'pattern': r'(?i)random\.random\(\)',
@@ -202,7 +198,7 @@ class QuantumSecurityScanner:
                     'cwe_id': 'CWE-338'
                 }
             ],
-            
+
             VulnerabilityType.WEAK_CRYPTOGRAPHY: [
                 {
                     'pattern': r'(?i)hashlib\.(md5|sha1)\(',
@@ -217,7 +213,7 @@ class QuantumSecurityScanner:
                     'cwe_id': 'CWE-327'
                 }
             ],
-            
+
             VulnerabilityType.UNSAFE_DESERIALIZATION: [
                 {
                     'pattern': r'(?i)pickle\.loads?\(',
@@ -232,7 +228,7 @@ class QuantumSecurityScanner:
                     'cwe_id': 'CWE-502'
                 }
             ],
-            
+
             VulnerabilityType.INFORMATION_DISCLOSURE: [
                 {
                     'pattern': r'(?i)(print|log|debug).*(?:password|secret|key|token)',
@@ -248,9 +244,9 @@ class QuantumSecurityScanner:
                 }
             ]
         }
-        
+
         return patterns
-    
+
     def _get_owasp_top_10_rules(self) -> List[Dict[str, Any]]:
         """OWASP Top 10 compliance rules"""
         return [
@@ -265,7 +261,7 @@ class QuantumSecurityScanner:
             {'id': 'A09', 'name': 'Security Logging and Monitoring Failures', 'severity': SecurityLevel.MEDIUM},
             {'id': 'A10', 'name': 'Server-Side Request Forgery (SSRF)', 'severity': SecurityLevel.MEDIUM}
         ]
-    
+
     def _get_cwe_top_25_rules(self) -> List[Dict[str, Any]]:
         """CWE Top 25 most dangerous software errors"""
         return [
@@ -280,7 +276,7 @@ class QuantumSecurityScanner:
             {'id': 'CWE-434', 'name': 'Unrestricted Upload', 'severity': SecurityLevel.HIGH},
             {'id': 'CWE-94', 'name': 'Code Injection', 'severity': SecurityLevel.CRITICAL}
         ]
-    
+
     def _get_nist_rules(self) -> List[Dict[str, Any]]:
         """NIST Cybersecurity Framework compliance rules"""
         return [
@@ -291,7 +287,7 @@ class QuantumSecurityScanner:
             {'id': 'RS.RP', 'name': 'Response Planning', 'severity': SecurityLevel.MEDIUM},
             {'id': 'RC.RP', 'name': 'Recovery Planning', 'severity': SecurityLevel.MEDIUM}
         ]
-    
+
     def _get_gdpr_rules(self) -> List[Dict[str, Any]]:
         """GDPR compliance rules"""
         return [
@@ -300,45 +296,45 @@ class QuantumSecurityScanner:
             {'id': 'Art.33', 'name': 'Data Breach Notification', 'severity': SecurityLevel.MEDIUM},
             {'id': 'Art.35', 'name': 'Data Protection Impact Assessment', 'severity': SecurityLevel.MEDIUM}
         ]
-    
+
     async def scan_project(self, project_path: Path) -> SecurityReport:
         """Perform comprehensive security scan of project"""
-        
+
         start_time = time.time()
         self.logger.info(f"🔍 Starting security scan of {project_path}")
-        
+
         findings: List[SecurityFinding] = []
         files_scanned = 0
-        
+
         # Scan files
         for file_path in self._get_scannable_files(project_path):
             try:
                 file_findings = await self._scan_file(file_path)
                 findings.extend(file_findings)
                 files_scanned += 1
-                
+
             except Exception as e:
                 self.logger.warning(f"Failed to scan {file_path}: {str(e)}")
-        
+
         # Dependency scan
         dependency_findings = await self._scan_dependencies(project_path)
         findings.extend(dependency_findings)
-        
+
         # Configuration scan
         config_findings = await self._scan_configurations(project_path)
         findings.extend(config_findings)
-        
+
         scan_duration = time.time() - start_time
-        
+
         # Generate summary
         summary = self._generate_summary(findings)
-        
+
         # Check compliance
         compliance_status = self._check_compliance(findings)
-        
+
         # Generate recommendations
         recommendations = self._generate_recommendations(findings, summary)
-        
+
         report = SecurityReport(
             scan_timestamp=start_time,
             project_path=str(project_path),
@@ -349,19 +345,19 @@ class QuantumSecurityScanner:
             compliance_status=compliance_status,
             recommendations=recommendations
         )
-        
+
         self.logger.info(
             f"✅ Security scan completed: {len(findings)} findings in "
             f"{scan_duration:.2f}s ({files_scanned} files scanned)"
         )
-        
+
         return report
-    
+
     def _get_scannable_files(self, project_path: Path) -> List[Path]:
         """Get list of files to scan"""
-        
+
         scannable_files = []
-        
+
         for file_path in project_path.rglob('*'):
             if file_path.is_file():
                 # Check extension
@@ -369,23 +365,23 @@ class QuantumSecurityScanner:
                     # Check if file should be excluded
                     if not any(exclude in str(file_path) for exclude in self.exclude_patterns):
                         scannable_files.append(file_path)
-        
+
         return scannable_files
-    
+
     async def _scan_file(self, file_path: Path) -> List[SecurityFinding]:
         """Scan individual file for security issues"""
-        
+
         findings = []
-        
+
         try:
             content = file_path.read_text(encoding='utf-8', errors='ignore')
             lines = content.split('\n')
-            
+
             # Pattern-based scanning
             for vuln_type, patterns in self.security_patterns.items():
                 for pattern_info in patterns:
                     pattern = pattern_info['pattern']
-                    
+
                     for line_num, line in enumerate(lines, 1):
                         if re.search(pattern, line):
                             finding = SecurityFinding(
@@ -402,32 +398,32 @@ class QuantumSecurityScanner:
                                 metadata={'pattern': pattern}
                             )
                             findings.append(finding)
-            
+
             # AST-based analysis for Python files
             if file_path.suffix == '.py':
                 ast_findings = await self._ast_analysis(file_path, content)
                 findings.extend(ast_findings)
-            
+
         except Exception as e:
             self.logger.warning(f"Error scanning {file_path}: {str(e)}")
-        
+
         return findings
-    
+
     async def _ast_analysis(self, file_path: Path, content: str) -> List[SecurityFinding]:
         """Perform AST-based analysis for Python files"""
-        
+
         findings = []
-        
+
         try:
             tree = ast.parse(content)
-            
+
             # Check for dangerous function calls
             for node in ast.walk(tree):
                 if isinstance(node, ast.Call):
                     # Check function name
                     if isinstance(node.func, ast.Name):
                         func_name = node.func.id
-                        
+
                         # Dangerous functions
                         if func_name in ['eval', 'exec']:
                             finding = SecurityFinding(
@@ -443,11 +439,11 @@ class QuantumSecurityScanner:
                                 confidence=0.9
                             )
                             findings.append(finding)
-                    
+
                     # Check method calls
                     elif isinstance(node.func, ast.Attribute):
                         attr_name = node.func.attr
-                        
+
                         # Dangerous methods
                         if attr_name in ['system'] and isinstance(node.func.value, ast.Name):
                             if node.func.value.id == 'os':
@@ -464,7 +460,7 @@ class QuantumSecurityScanner:
                                     confidence=0.9
                                 )
                                 findings.append(finding)
-                
+
                 # Check for hardcoded strings that look like secrets
                 elif isinstance(node, ast.Str):
                     if len(node.s) > 20 and self._looks_like_secret(node.s):
@@ -481,59 +477,59 @@ class QuantumSecurityScanner:
                             confidence=0.6
                         )
                         findings.append(finding)
-        
+
         except SyntaxError:
             # Invalid Python syntax, skip AST analysis
             pass
         except Exception as e:
             self.logger.warning(f"AST analysis failed for {file_path}: {str(e)}")
-        
+
         return findings
-    
+
     def _get_node_source(self, node: ast.AST, content: str) -> str:
         """Get source code for AST node"""
         lines = content.split('\n')
         if hasattr(node, 'lineno') and node.lineno <= len(lines):
             return lines[node.lineno - 1].strip()
         return ""
-    
+
     def _looks_like_secret(self, value: str) -> bool:
         """Check if string looks like a secret/key/token"""
-        
+
         # Check for high entropy (randomness)
         unique_chars = len(set(value.lower()))
         entropy = unique_chars / len(value) if value else 0
-        
+
         if entropy > 0.7:  # High entropy strings
             return True
-        
+
         # Check for common secret patterns
         secret_patterns = [
             r'^[A-Za-z0-9+/]{40,}={0,2}$',  # Base64-like
             r'^[A-Fa-f0-9]{32,}$',          # Hex strings
             r'^[A-Za-z0-9_-]{32,}$',        # API keys
         ]
-        
+
         return any(re.match(pattern, value) for pattern in secret_patterns)
-    
+
     async def _scan_dependencies(self, project_path: Path) -> List[SecurityFinding]:
         """Scan dependencies for known vulnerabilities"""
-        
+
         findings = []
-        
+
         # Check Python requirements
         requirements_files = [
             project_path / 'requirements.txt',
             project_path / 'requirements-dev.txt',
             project_path / 'pyproject.toml'
         ]
-        
+
         for req_file in requirements_files:
             if req_file.exists():
                 try:
                     # Parse dependencies
                     deps = self._parse_dependencies(req_file)
-                    
+
                     # Check each dependency (simplified check)
                     for dep_name, dep_version in deps.items():
                         if self._is_vulnerable_dependency(dep_name, dep_version):
@@ -550,25 +546,25 @@ class QuantumSecurityScanner:
                                 confidence=0.7
                             )
                             findings.append(finding)
-                
+
                 except Exception as e:
                     self.logger.warning(f"Failed to scan dependencies in {req_file}: {str(e)}")
-        
+
         return findings
-    
+
     def _parse_dependencies(self, file_path: Path) -> Dict[str, str]:
         """Parse dependencies from file"""
-        
+
         deps = {}
-        
+
         try:
             content = file_path.read_text()
-            
+
             if file_path.name == 'pyproject.toml':
                 # Basic TOML parsing for dependencies
                 lines = content.split('\n')
                 in_dependencies = False
-                
+
                 for line in lines:
                     line = line.strip()
                     if line.startswith('[project') and 'dependencies' in line:
@@ -577,7 +573,7 @@ class QuantumSecurityScanner:
                     elif line.startswith('[') and in_dependencies:
                         in_dependencies = False
                         continue
-                    
+
                     if in_dependencies and '=' in line:
                         # Extract dependency name and version
                         match = re.match(r'["\']([^"\']+)["\']', line)
@@ -589,7 +585,7 @@ class QuantumSecurityScanner:
                             elif '>=' in dep_spec:
                                 name, version = dep_spec.split('>=', 1)
                                 deps[name] = f">={version}"
-            
+
             else:
                 # Parse requirements.txt format
                 for line in content.split('\n'):
@@ -601,15 +597,15 @@ class QuantumSecurityScanner:
                         elif '>=' in line:
                             name, version = line.split('>=', 1)
                             deps[name.strip()] = f">={version.strip()}"
-        
+
         except Exception as e:
             self.logger.warning(f"Failed to parse {file_path}: {str(e)}")
-        
+
         return deps
-    
+
     def _is_vulnerable_dependency(self, name: str, version: str) -> bool:
         """Check if dependency has known vulnerabilities (simplified)"""
-        
+
         # Known vulnerable packages (simplified list)
         known_vulnerabilities = {
             'pillow': ['<8.3.2'],
@@ -620,22 +616,22 @@ class QuantumSecurityScanner:
             'jinja2': ['<2.11.3'],
             'urllib3': ['<1.26.5']
         }
-        
+
         if name.lower() in known_vulnerabilities:
             vulnerable_versions = known_vulnerabilities[name.lower()]
-            
+
             # Simple version comparison (in real implementation, use proper version parsing)
             for vuln_version in vulnerable_versions:
                 if version.startswith(vuln_version.replace('<', '').replace('>=', '')):
                     return True
-        
+
         return False
-    
+
     async def _scan_configurations(self, project_path: Path) -> List[SecurityFinding]:
         """Scan configuration files for security issues"""
-        
+
         findings = []
-        
+
         # Configuration files to check
         config_files = [
             project_path / '.env',
@@ -645,12 +641,12 @@ class QuantumSecurityScanner:
             project_path / 'docker-compose.yml',
             project_path / 'docker-compose.yaml'
         ]
-        
+
         for config_file in config_files:
             if config_file.exists():
                 try:
                     content = config_file.read_text()
-                    
+
                     # Check for insecure configurations
                     insecure_patterns = [
                         (r'(?i)debug\s*[:=]\s*true', 'Debug mode enabled in production'),
@@ -659,7 +655,7 @@ class QuantumSecurityScanner:
                         (r'(?i)secure\s*[:=]\s*false', 'Security feature disabled'),
                         (r'(?i)host\s*[:=]\s*["\']0\.0\.0\.0["\']', 'Service bound to all interfaces')
                     ]
-                    
+
                     lines = content.split('\n')
                     for line_num, line in enumerate(lines, 1):
                         for pattern, description in insecure_patterns:
@@ -677,15 +673,15 @@ class QuantumSecurityScanner:
                                     confidence=0.8
                                 )
                                 findings.append(finding)
-                
+
                 except Exception as e:
                     self.logger.warning(f"Failed to scan {config_file}: {str(e)}")
-        
+
         return findings
-    
+
     def _get_remediation(self, vuln_type: VulnerabilityType) -> str:
         """Get remediation advice for vulnerability type"""
-        
+
         remediation_map = {
             VulnerabilityType.SQL_INJECTION: (
                 "Use parameterized queries or ORM methods. "
@@ -728,12 +724,12 @@ class QuantumSecurityScanner:
                 "Monitor dependencies for known vulnerabilities."
             )
         }
-        
+
         return remediation_map.get(vuln_type, "Review code for security issues and follow secure coding practices.")
-    
+
     def _generate_summary(self, findings: List[SecurityFinding]) -> Dict[str, Any]:
         """Generate security summary"""
-        
+
         summary = {
             'total_findings': len(findings),
             'by_severity': {
@@ -746,16 +742,16 @@ class QuantumSecurityScanner:
             'risk_score': 0.0,
             'top_issues': []
         }
-        
+
         # Count by severity
         for finding in findings:
             summary['by_severity'][finding.severity.value] += 1
-        
+
         # Count by type
         for finding in findings:
             vuln_type = finding.vulnerability_type.value
             summary['by_type'][vuln_type] = summary['by_type'].get(vuln_type, 0) + 1
-        
+
         # Calculate risk score (0-100)
         severity_weights = {
             SecurityLevel.CRITICAL: 10,
@@ -763,20 +759,20 @@ class QuantumSecurityScanner:
             SecurityLevel.MEDIUM: 2,
             SecurityLevel.LOW: 1
         }
-        
+
         total_weight = sum(
             summary['by_severity'][sev.value] * weight
             for sev, weight in severity_weights.items()
         )
-        
+
         # Normalize to 0-100 scale
         summary['risk_score'] = min(100.0, total_weight)
-        
+
         # Top issues
         sorted_findings = sorted(findings, key=lambda f: (
             severity_weights[f.severity], f.confidence
         ), reverse=True)
-        
+
         summary['top_issues'] = [
             {
                 'type': f.vulnerability_type.value,
@@ -787,29 +783,29 @@ class QuantumSecurityScanner:
             }
             for f in sorted_findings[:10]
         ]
-        
+
         return summary
-    
+
     def _check_compliance(self, findings: List[SecurityFinding]) -> Dict[str, Any]:
         """Check compliance with security frameworks"""
-        
+
         compliance = {}
-        
+
         for framework_name, rules in self.compliance_frameworks.items():
             framework_compliance = {
                 'score': 100.0,
                 'violations': [],
                 'status': 'COMPLIANT'
             }
-            
+
             # Check for violations (simplified)
             violations = []
-            
+
             for finding in findings:
                 if finding.cwe_id:
                     # Check if this CWE relates to any framework rules
                     for rule in rules:
-                        if (finding.severity == SecurityLevel.CRITICAL or 
+                        if (finding.severity == SecurityLevel.CRITICAL or
                             finding.severity == SecurityLevel.HIGH):
                             violations.append({
                                 'rule_id': rule['id'],
@@ -819,70 +815,70 @@ class QuantumSecurityScanner:
                                 'file': finding.file_path,
                                 'line': finding.line_number
                             })
-            
+
             framework_compliance['violations'] = violations[:10]  # Top 10
-            
+
             # Calculate compliance score
             if violations:
                 violation_penalty = len(violations) * 5  # 5 points per violation
                 framework_compliance['score'] = max(0.0, 100.0 - violation_penalty)
-                
+
                 if framework_compliance['score'] < 70.0:
                     framework_compliance['status'] = 'NON_COMPLIANT'
                 elif framework_compliance['score'] < 90.0:
                     framework_compliance['status'] = 'PARTIALLY_COMPLIANT'
-            
+
             compliance[framework_name] = framework_compliance
-        
+
         return compliance
-    
-    def _generate_recommendations(self, findings: List[SecurityFinding], 
+
+    def _generate_recommendations(self, findings: List[SecurityFinding],
                                 summary: Dict[str, Any]) -> List[str]:
         """Generate security recommendations"""
-        
+
         recommendations = []
-        
+
         # High-level recommendations based on findings
         if summary['by_severity'][SecurityLevel.CRITICAL.value] > 0:
             recommendations.append(
                 f"🚨 CRITICAL: Address {summary['by_severity'][SecurityLevel.CRITICAL.value]} "
                 "critical security vulnerabilities immediately."
             )
-        
+
         if summary['by_severity'][SecurityLevel.HIGH.value] > 5:
             recommendations.append(
                 f"⚠️ HIGH PRIORITY: {summary['by_severity'][SecurityLevel.HIGH.value]} "
                 "high-severity issues require immediate attention."
             )
-        
+
         # Type-specific recommendations
         type_counts = summary['by_type']
-        
+
         if type_counts.get('sql_injection', 0) > 0:
             recommendations.append(
                 "🛡️ Implement parameterized queries to prevent SQL injection attacks."
             )
-        
+
         if type_counts.get('hardcoded_secrets', 0) > 0:
             recommendations.append(
                 "🔐 Move hardcoded secrets to environment variables or secure key management."
             )
-        
+
         if type_counts.get('code_injection', 0) > 0:
             recommendations.append(
                 "⚡ Eliminate use of eval() and exec() functions to prevent code injection."
             )
-        
+
         if type_counts.get('weak_cryptography', 0) > 0:
             recommendations.append(
                 "🔒 Upgrade to stronger cryptographic algorithms (SHA-256, AES-256)."
             )
-        
+
         if type_counts.get('dependency_vulnerability', 0) > 0:
             recommendations.append(
                 "📦 Update vulnerable dependencies to secure versions."
             )
-        
+
         # Risk score recommendations
         if summary['risk_score'] > 80:
             recommendations.append(
@@ -892,7 +888,7 @@ class QuantumSecurityScanner:
             recommendations.append(
                 "🟡 MODERATE RISK: Consider security hardening and regular security reviews."
             )
-        
+
         # General recommendations
         recommendations.extend([
             "✅ Implement automated security scanning in CI/CD pipeline.",
@@ -901,12 +897,12 @@ class QuantumSecurityScanner:
             "📋 Implement security logging and monitoring.",
             "🎯 Consider penetration testing for critical applications."
         ])
-        
+
         return recommendations
-    
+
     def export_report(self, report: SecurityReport, output_path: Path) -> Path:
         """Export security report to JSON file"""
-        
+
         # Convert report to serializable format
         report_dict = {
             'scan_timestamp': report.scan_timestamp,
@@ -938,83 +934,83 @@ class QuantumSecurityScanner:
                 'export_time': time.time()
             }
         }
-        
+
         with open(output_path, 'w') as f:
             json.dump(report_dict, f, indent=2, default=str)
-        
+
         self.logger.info(f"📋 Security report exported to: {output_path}")
-        
+
         return output_path
-    
+
     def print_summary(self, report: SecurityReport):
         """Print security report summary to console"""
-        
+
         print("\n" + "="*80)
         print("🔒 SECURITY SCAN REPORT")
         print("="*80)
-        
+
         print(f"Project: {report.project_path}")
         print(f"Scan Duration: {report.scan_duration:.2f}s")
         print(f"Files Scanned: {report.total_files_scanned}")
         print(f"Total Findings: {report.summary['total_findings']}")
         print(f"Risk Score: {report.summary['risk_score']:.1f}/100")
-        
+
         print("\n📊 FINDINGS BY SEVERITY:")
         for severity, count in report.summary['by_severity'].items():
             if count > 0:
                 icon = {"critical": "🔴", "high": "🟠", "medium": "🟡", "low": "🔵"}.get(severity, "⚪")
                 print(f"  {icon} {severity.upper()}: {count}")
-        
+
         print("\n🔍 FINDINGS BY TYPE:")
         for vuln_type, count in report.summary['by_type'].items():
             if count > 0:
                 print(f"  • {vuln_type.replace('_', ' ').title()}: {count}")
-        
+
         if report.summary['top_issues']:
             print("\n⚠️ TOP ISSUES:")
             for i, issue in enumerate(report.summary['top_issues'][:5], 1):
                 print(f"  {i}. {issue['title']} ({issue['severity'].upper()})")
                 print(f"     {issue['file']}:{issue['line']}")
-        
+
         print("\n✅ COMPLIANCE STATUS:")
         for framework, status in report.compliance_status.items():
             score = status['score']
             status_icon = "✅" if score >= 90 else "⚠️" if score >= 70 else "❌"
             print(f"  {status_icon} {framework}: {score:.1f}% ({status['status']})")
-        
+
         if report.recommendations:
             print("\n📋 KEY RECOMMENDATIONS:")
             for i, rec in enumerate(report.recommendations[:5], 1):
                 print(f"  {i}. {rec}")
-        
+
         print("\n" + "="*80)
 
 
 async def main():
     """Main security validation function"""
-    
+
     # Setup logging
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
-    
+
     logger = logging.getLogger("SecurityValidation")
-    
+
     # Initialize scanner
     scanner = QuantumSecurityScanner(logger)
-    
+
     # Scan current project
     project_path = Path.cwd()
     report = await scanner.scan_project(project_path)
-    
+
     # Print summary
     scanner.print_summary(report)
-    
+
     # Export detailed report
     report_path = project_path / "security_report.json"
     scanner.export_report(report, report_path)
-    
+
     return report
 
 

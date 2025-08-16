@@ -1,23 +1,31 @@
 """Secure Flask web app exposing :class:`QueryAgent` with comprehensive security features."""
 
 from __future__ import annotations
+
 import logging
 import time
 
-from flask import Flask, request, jsonify, render_template, Response, session
-from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
-from sqlalchemy.exc import SQLAlchemyError, OperationalError, DatabaseError, TimeoutError as SQLTimeoutError
 import openai
+from flask import Flask, Response, jsonify, render_template, request, session
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+from sqlalchemy.exc import (
+    DatabaseError,
+    OperationalError,
+)
+from sqlalchemy.exc import (
+    TimeoutError as SQLTimeoutError,
+)
 
-from .sync_query_agent import QueryAgent
 from .config import config
-from .security import SecurityMiddleware, InputValidator
+from .security import InputValidator, SecurityMiddleware
+from .sync_query_agent import QueryAgent
 
 logger = logging.getLogger(__name__)
 
+
 def create_app(agent: QueryAgent) -> Flask:
     app = Flask(__name__)
-    
+
     # Initialize security middleware
     security = SecurityMiddleware(app)
     validator = InputValidator()
@@ -29,39 +37,40 @@ def create_app(agent: QueryAgent) -> Flask:
             csrf_token = None
             if config.webapp_csrf_enabled:
                 csrf_token = security.csrf.generate_token()
-                session['csrf_token'] = csrf_token
-            
+                session["csrf_token"] = csrf_token
+
             return render_template(
-                "index.html", 
-                input_size=config.webapp_input_size,
-                csrf_token=csrf_token
+                "index.html", input_size=config.webapp_input_size, csrf_token=csrf_token
             )
-        
+
         # POST request handling
         q = request.form.get("question", "")
-        
+
         # Input validation
         if not validator.validate_question_length(q):
             error_msg = f"Question too long. Maximum {config.max_question_length} characters allowed."
             logger.warning(f"Question length validation failed: {len(q)} characters")
-            return render_template(
-                "index.html", 
-                error=error_msg, 
-                input_size=config.webapp_input_size,
-                question=q[:100] + "..." if len(q) > 100 else q
-            ), 400
-        
+            return (
+                render_template(
+                    "index.html",
+                    error=error_msg,
+                    input_size=config.webapp_input_size,
+                    question=q[:100] + "..." if len(q) > 100 else q,
+                ),
+                400,
+            )
+
         # Sanitize input
         sanitized_question = validator.sanitize_question(q)
-        
+
         try:
             res = agent.query(sanitized_question)
             return render_template(
-                "index.html", 
-                sql=res.sql, 
-                data=res.data, 
+                "index.html",
+                sql=res.sql,
+                data=res.data,
                 input_size=config.webapp_input_size,
-                question=sanitized_question
+                question=sanitized_question,
             )
         except SQLTimeoutError as e:
             logger.error(f"Query timeout: {str(e)}")
@@ -83,7 +92,9 @@ def create_app(agent: QueryAgent) -> Flask:
             error_msg = "AI service timed out. Please try again."
         except (OperationalError, DatabaseError, SQLTimeoutError) as e:
             logger.error(f"Database error during query execution: {str(e)}")
-            error_msg = "Database connection or query execution error. Please try again."
+            error_msg = (
+                "Database connection or query execution error. Please try again."
+            )
         except openai.RateLimitError as e:
             logger.warning(f"OpenAI rate limit exceeded: {str(e)}")
             error_msg = "Rate limit exceeded. Please wait a moment and try again."
@@ -93,17 +104,17 @@ def create_app(agent: QueryAgent) -> Flask:
         except ValueError as e:
             logger.warning(f"Invalid input during query processing: {str(e)}")
             error_msg = "Invalid input provided. Please check your query and try again."
-        except (OSError, IOError) as e:
+        except OSError as e:
             logger.error(f"I/O error during query processing: {str(e)}")
             error_msg = "System I/O error. Please try again."
-        
+
         # Return error response if any exception occurred
-        if 'error_msg' in locals():
+        if "error_msg" in locals():
             return render_template(
-                "index.html", 
-                error=error_msg, 
+                "index.html",
+                error=error_msg,
                 input_size=config.webapp_input_size,
-                question=sanitized_question if 'sanitized_question' in locals() else ""
+                question=sanitized_question if "sanitized_question" in locals() else "",
             )
 
     @app.post("/api/query")
@@ -111,133 +122,175 @@ def create_app(agent: QueryAgent) -> Flask:
         # Validate JSON structure
         if not request.is_json:
             logger.warning("API request without JSON content type")
-            return jsonify({'error': 'Request must be JSON'}), 400
-        
+            return jsonify({"error": "Request must be JSON"}), 400
+
         data = request.get_json()
         if not data:
-            return jsonify({'error': 'Invalid JSON'}), 400
-        
+            return jsonify({"error": "Invalid JSON"}), 400
+
         # Validate required fields
-        is_valid, error_msg = validator.validate_json_structure(data, ['question'])
+        is_valid, error_msg = validator.validate_json_structure(data, ["question"])
         if not is_valid:
             logger.warning(f"API validation failed: {error_msg}")
-            return jsonify({'error': error_msg}), 400
-        
+            return jsonify({"error": error_msg}), 400
+
         q = data.get("question", "")
-        
+
         # Input validation
         if not validator.validate_question_length(q):
             error_msg = f"Question too long. Maximum {config.max_question_length} characters allowed."
-            logger.warning(f"API question length validation failed: {len(q)} characters")
-            return jsonify({'error': error_msg}), 400
-        
+            logger.warning(
+                f"API question length validation failed: {len(q)} characters"
+            )
+            return jsonify({"error": error_msg}), 400
+
         # Sanitize input
         sanitized_question = validator.sanitize_question(q)
-        
+
         try:
             res = agent.query(sanitized_question)
-            return jsonify({
-                'sql': res.sql, 
-                'data': res.data,
-                'question': sanitized_question
-            }), 200
-            
+            return (
+                jsonify(
+                    {"sql": res.sql, "data": res.data, "question": sanitized_question}
+                ),
+                200,
+            )
+
         except SQLTimeoutError as e:
             logger.error(f"API query timeout: {str(e)}")
-            return jsonify({'error': 'Query timed out. Please try a simpler question.'}), 408
+            return (
+                jsonify({"error": "Query timed out. Please try a simpler question."}),
+                408,
+            )
         except OperationalError as e:
             logger.error(f"API database connection error: {str(e)}")
-            return jsonify({'error': 'Database connection issue. Please try again later.'}), 503
+            return (
+                jsonify(
+                    {"error": "Database connection issue. Please try again later."}
+                ),
+                503,
+            )
         except DatabaseError as e:
             logger.error(f"API database error: {str(e)}")
-            return jsonify({'error': 'Database error occurred. Please try again.'}), 500
+            return jsonify({"error": "Database error occurred. Please try again."}), 500
         except openai.AuthenticationError as e:
             logger.error(f"API OpenAI authentication error: {str(e)}")
-            return jsonify({'error': 'AI service authentication failed.'}), 503
+            return jsonify({"error": "AI service authentication failed."}), 503
         except openai.RateLimitError as e:
             logger.error(f"API OpenAI rate limit exceeded: {str(e)}")
-            return jsonify({'error': 'AI service temporarily unavailable. Please try again later.'}), 429
+            return (
+                jsonify(
+                    {
+                        "error": "AI service temporarily unavailable. Please try again later."
+                    }
+                ),
+                429,
+            )
         except openai.APITimeoutError as e:
             logger.error(f"API OpenAI timeout: {str(e)}")
-            return jsonify({'error': 'AI service timed out. Please try again.'}), 408
+            return jsonify({"error": "AI service timed out. Please try again."}), 408
         except (OperationalError, DatabaseError, SQLTimeoutError) as e:
             logger.error(f"Database error in API query: {str(e)}")
-            return jsonify({'error': 'Database connection or query execution error'}), 500
+            return (
+                jsonify({"error": "Database connection or query execution error"}),
+                500,
+            )
         except openai.RateLimitError as e:
             logger.warning(f"OpenAI rate limit exceeded in API: {str(e)}")
-            return jsonify({'error': 'Rate limit exceeded. Please wait and try again'}), 429
+            return (
+                jsonify({"error": "Rate limit exceeded. Please wait and try again"}),
+                429,
+            )
         except (openai.APIError, openai.APIConnectionError) as e:
             logger.error(f"OpenAI API error in API: {str(e)}")
-            return jsonify({'error': 'AI service temporarily unavailable'}), 503
+            return jsonify({"error": "AI service temporarily unavailable"}), 503
         except ValueError as e:
             logger.warning(f"Invalid input in API query: {str(e)}")
-            return jsonify({'error': 'Invalid input provided'}), 400
-        except (OSError, IOError) as e:
+            return jsonify({"error": "Invalid input provided"}), 400
+        except OSError as e:
             logger.error(f"I/O error in API query: {str(e)}")
-            return jsonify({'error': 'System I/O error occurred'}), 500
+            return jsonify({"error": "System I/O error occurred"}), 500
 
     @app.get("/health")
     def health() -> tuple[dict, int]:
         """Health check endpoint."""
         try:
             health_status = agent.health_check()
-            status_code = 200 if health_status.get('overall_healthy', False) else 503
-            
+            status_code = 200 if health_status.get("overall_healthy", False) else 503
+
             # Remove sensitive information from health response
-            services = health_status.get('services', {})
-            caches = health_status.get('caches', {})
-            
+            services = health_status.get("services", {})
+            caches = health_status.get("caches", {})
+
             # Aggregate cache health status
-            cache_healthy = (
-                caches.get('schema_cache', {}).get('healthy', False) and
-                caches.get('query_cache', {}).get('healthy', False)
-            )
-            
+            cache_healthy = caches.get("schema_cache", {}).get(
+                "healthy", False
+            ) and caches.get("query_cache", {}).get("healthy", False)
+
             public_health = {
-                'status': 'healthy' if health_status.get('overall_healthy', False) else 'unhealthy',
-                'timestamp': health_status.get('timestamp', time.time()),
-                'components': {
-                    'database': health_status.get('database', {}).get('healthy', False),
-                    'cache': cache_healthy,
-                    'openai_api': services.get('openai_api', {}).get('healthy', False)
-                }
+                "status": (
+                    "healthy"
+                    if health_status.get("overall_healthy", False)
+                    else "unhealthy"
+                ),
+                "timestamp": health_status.get("timestamp", time.time()),
+                "components": {
+                    "database": health_status.get("database", {}).get("healthy", False),
+                    "cache": cache_healthy,
+                    "openai_api": services.get("openai_api", {}).get("healthy", False),
+                },
             }
-            
+
             return jsonify(public_health), status_code
-            
+
         except DatabaseError as e:
             logger.error(f"Health check database error: {str(e)}")
-            return jsonify({
-                'status': 'unhealthy', 
-                'timestamp': time.time(),
-                'error': 'Database health check failed'
-            }), 503
+            return (
+                jsonify(
+                    {
+                        "status": "unhealthy",
+                        "timestamp": time.time(),
+                        "error": "Database health check failed",
+                    }
+                ),
+                503,
+            )
         except AttributeError as e:
             logger.error(f"Health check configuration error: {str(e)}")
-            return jsonify({
-                'status': 'unhealthy', 
-                'timestamp': time.time(),
-                'error': 'Service not properly configured'
-            }), 503
+            return (
+                jsonify(
+                    {
+                        "status": "unhealthy",
+                        "timestamp": time.time(),
+                        "error": "Service not properly configured",
+                    }
+                ),
+                503,
+            )
         except (OperationalError, DatabaseError, SQLTimeoutError) as e:
             logger.error(f"Database error in health check: {str(e)}")
-            return jsonify({
-                'status': 'unhealthy',
-                'error': 'Database connection error'
-            }), 503
+            return (
+                jsonify({"status": "unhealthy", "error": "Database connection error"}),
+                503,
+            )
         except (ConnectionError, TimeoutError) as e:
             logger.error(f"Connection error in health check: {str(e)}")
-            return jsonify({
-                'status': 'unhealthy',
-                'error': 'Service connection error'
-            }), 503
-        except (OSError, IOError) as e:
+            return (
+                jsonify({"status": "unhealthy", "error": "Service connection error"}),
+                503,
+            )
+        except OSError as e:
             logger.error(f"I/O error in health check: {str(e)}")
-            return jsonify({
-                'status': 'unhealthy', 
-                'timestamp': time.time(),
-                'error': 'Health check failed'
-            }), 503
+            return (
+                jsonify(
+                    {
+                        "status": "unhealthy",
+                        "timestamp": time.time(),
+                        "error": "Health check failed",
+                    }
+                ),
+                503,
+            )
 
     @app.get("/metrics")
     def metrics() -> Response:
@@ -256,15 +309,10 @@ def create_app(agent: QueryAgent) -> Flask:
                 "description": "Natural language to SQL query generation API with schema discovery and validation",
                 "contact": {
                     "name": "SQL Synthesizer",
-                    "url": "https://github.com/your-org/sql-synthesizer"
-                }
+                    "url": "https://github.com/your-org/sql-synthesizer",
+                },
             },
-            "servers": [
-                {
-                    "url": "/",
-                    "description": "Current server"
-                }
-            ],
+            "servers": [{"url": "/", "description": "Current server"}],
             "paths": {
                 "/": {
                     "get": {
@@ -274,12 +322,10 @@ def create_app(agent: QueryAgent) -> Flask:
                             "200": {
                                 "description": "HTML web interface",
                                 "content": {
-                                    "text/html": {
-                                        "schema": {"type": "string"}
-                                    }
-                                }
+                                    "text/html": {"schema": {"type": "string"}}
+                                },
                             }
-                        }
+                        },
                     },
                     "post": {
                         "summary": "Generate SQL Query (Web Form)",
@@ -294,37 +340,33 @@ def create_app(agent: QueryAgent) -> Flask:
                                             "question": {
                                                 "type": "string",
                                                 "description": "Natural language question",
-                                                "maxLength": 1000
+                                                "maxLength": 1000,
                                             },
                                             "csrf_token": {
                                                 "type": "string",
-                                                "description": "CSRF protection token"
-                                            }
+                                                "description": "CSRF protection token",
+                                            },
                                         },
-                                        "required": ["question"]
+                                        "required": ["question"],
                                     }
                                 }
-                            }
+                            },
                         },
                         "responses": {
                             "200": {
                                 "description": "HTML page with query results",
                                 "content": {
-                                    "text/html": {
-                                        "schema": {"type": "string"}
-                                    }
-                                }
+                                    "text/html": {"schema": {"type": "string"}}
+                                },
                             }
-                        }
-                    }
+                        },
+                    },
                 },
                 "/api/query": {
                     "post": {
                         "summary": "Generate SQL Query (API)",
                         "description": "Generate SQL query from natural language via JSON API",
-                        "security": [
-                            {"ApiKeyAuth": []}
-                        ],
+                        "security": [{"ApiKeyAuth": []}],
                         "requestBody": {
                             "required": True,
                             "content": {
@@ -336,13 +378,13 @@ def create_app(agent: QueryAgent) -> Flask:
                                                 "type": "string",
                                                 "description": "Natural language question about your data",
                                                 "example": "Show me the top 5 customers by revenue",
-                                                "maxLength": 1000
+                                                "maxLength": 1000,
                                             }
                                         },
-                                        "required": ["question"]
+                                        "required": ["question"],
                                     }
                                 }
-                            }
+                            },
                         },
                         "responses": {
                             "200": {
@@ -354,21 +396,21 @@ def create_app(agent: QueryAgent) -> Flask:
                                             "properties": {
                                                 "sql": {
                                                     "type": "string",
-                                                    "description": "Generated SQL query"
+                                                    "description": "Generated SQL query",
                                                 },
                                                 "data": {
                                                     "type": "array",
                                                     "description": "Query results",
-                                                    "items": {"type": "object"}
+                                                    "items": {"type": "object"},
                                                 },
                                                 "question": {
                                                     "type": "string",
-                                                    "description": "Sanitized input question"
-                                                }
-                                            }
+                                                    "description": "Sanitized input question",
+                                                },
+                                            },
                                         }
                                     }
-                                }
+                                },
                             },
                             "400": {
                                 "description": "Bad request - invalid input",
@@ -379,12 +421,12 @@ def create_app(agent: QueryAgent) -> Flask:
                                             "properties": {
                                                 "error": {
                                                     "type": "string",
-                                                    "description": "Error message"
+                                                    "description": "Error message",
                                                 }
-                                            }
+                                            },
                                         }
                                     }
-                                }
+                                },
                             },
                             "408": {
                                 "description": "Request timeout",
@@ -395,12 +437,12 @@ def create_app(agent: QueryAgent) -> Flask:
                                             "properties": {
                                                 "error": {
                                                     "type": "string",
-                                                    "description": "Timeout error message"
+                                                    "description": "Timeout error message",
                                                 }
-                                            }
+                                            },
                                         }
                                     }
-                                }
+                                },
                             },
                             "429": {
                                 "description": "Rate limit exceeded",
@@ -411,12 +453,12 @@ def create_app(agent: QueryAgent) -> Flask:
                                             "properties": {
                                                 "error": {
                                                     "type": "string",
-                                                    "description": "Rate limit error message"
+                                                    "description": "Rate limit error message",
                                                 }
-                                            }
+                                            },
                                         }
                                     }
-                                }
+                                },
                             },
                             "500": {
                                 "description": "Internal server error",
@@ -427,12 +469,12 @@ def create_app(agent: QueryAgent) -> Flask:
                                             "properties": {
                                                 "error": {
                                                     "type": "string",
-                                                    "description": "Error message"
+                                                    "description": "Error message",
                                                 }
-                                            }
+                                            },
                                         }
                                     }
-                                }
+                                },
                             },
                             "503": {
                                 "description": "Service unavailable",
@@ -443,14 +485,14 @@ def create_app(agent: QueryAgent) -> Flask:
                                             "properties": {
                                                 "error": {
                                                     "type": "string",
-                                                    "description": "Service error message"
+                                                    "description": "Service error message",
                                                 }
-                                            }
+                                            },
                                         }
                                     }
-                                }
-                            }
-                        }
+                                },
+                            },
+                        },
                     }
                 },
                 "/health": {
@@ -467,33 +509,33 @@ def create_app(agent: QueryAgent) -> Flask:
                                             "properties": {
                                                 "status": {
                                                     "type": "string",
-                                                    "enum": ["healthy", "unhealthy"]
+                                                    "enum": ["healthy", "unhealthy"],
                                                 },
                                                 "timestamp": {
                                                     "type": "number",
-                                                    "description": "Unix timestamp"
+                                                    "description": "Unix timestamp",
                                                 },
                                                 "checks": {
                                                     "type": "object",
                                                     "properties": {
                                                         "database": {
                                                             "type": "boolean",
-                                                            "description": "Database connectivity status"
+                                                            "description": "Database connectivity status",
                                                         },
                                                         "cache": {
                                                             "type": "boolean",
-                                                            "description": "Cache system status"
+                                                            "description": "Cache system status",
                                                         },
                                                         "services": {
                                                             "type": "boolean",
-                                                            "description": "Core services status"
-                                                        }
-                                                    }
-                                                }
-                                            }
+                                                            "description": "Core services status",
+                                                        },
+                                                    },
+                                                },
+                                            },
                                         }
                                     }
-                                }
+                                },
                             },
                             "503": {
                                 "description": "System is unhealthy",
@@ -504,21 +546,19 @@ def create_app(agent: QueryAgent) -> Flask:
                                             "properties": {
                                                 "status": {
                                                     "type": "string",
-                                                    "enum": ["unhealthy"]
+                                                    "enum": ["unhealthy"],
                                                 },
-                                                "timestamp": {
-                                                    "type": "number"
-                                                },
+                                                "timestamp": {"type": "number"},
                                                 "error": {
                                                     "type": "string",
-                                                    "description": "Error description"
-                                                }
-                                            }
+                                                    "description": "Error description",
+                                                },
+                                            },
                                         }
                                     }
-                                }
-                            }
-                        }
+                                },
+                            },
+                        },
                     }
                 },
                 "/metrics": {
@@ -532,14 +572,14 @@ def create_app(agent: QueryAgent) -> Flask:
                                     "text/plain": {
                                         "schema": {
                                             "type": "string",
-                                            "description": "Prometheus metrics format"
+                                            "description": "Prometheus metrics format",
                                         }
                                     }
-                                }
+                                },
                             }
-                        }
+                        },
                     }
-                }
+                },
             },
             "components": {
                 "securitySchemes": {
@@ -547,10 +587,10 @@ def create_app(agent: QueryAgent) -> Flask:
                         "type": "apiKey",
                         "in": "header",
                         "name": "X-API-Key",
-                        "description": "API key for authentication (optional, configurable)"
+                        "description": "API key for authentication (optional, configurable)",
                     }
                 }
-            }
+            },
         }
         return jsonify(schema), 200
 

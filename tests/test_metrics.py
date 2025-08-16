@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from prometheus_client import REGISTRY
-from sqlalchemy import text, create_engine
+from sqlalchemy import create_engine, text
 
 from sql_synthesizer import QueryAgent
 
@@ -21,4 +21,3 @@ def test_metrics_record(tmp_path: Path):
     agent.query("How many users?")
     after = REGISTRY.get_sample_value("queries_total", {"type": "query"})
     assert after == before + 1
-

@@ -4,13 +4,12 @@ TDD Security Checklist Integration
 Implements security validation as part of the TDD cycle.
 """
 
-import os
 import json
-import subprocess
 import logging
-from typing import Dict, List, Optional, Tuple
-from dataclasses import dataclass, asdict
+import subprocess
+from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -26,35 +25,35 @@ class SecurityCheckResult:
 
 class TDDSecurityChecker:
     """Integrates security checks into TDD cycle."""
-    
+
     def __init__(self, repo_path: str = "."):
         self.repo_path = Path(repo_path)
         self.results: List[SecurityCheckResult] = []
-    
+
     def run_security_checklist(self) -> List[SecurityCheckResult]:
         """Run comprehensive security checklist."""
         self.results = []
-        
+
         # 1. Input validation and sanitization
         self._check_input_validation()
-        
+
         # 2. Authentication and authorization controls
         self._check_auth_controls()
-        
+
         # 3. Secrets management
         self._check_secrets_management()
-        
+
         # 4. Safe logging practices
         self._check_safe_logging()
-        
+
         # 5. Software Composition Analysis (SCA)
         self._run_sca_scan()
-        
+
         # 6. Static Application Security Testing (SAST)
         self._run_sast_scan()
-        
+
         return self.results
-    
+
     def _check_input_validation(self) -> None:
         """Check for proper input validation."""
         try:
@@ -63,7 +62,7 @@ class TDDSecurityChecker:
                 'rg', '--type', 'py', '--line-number',
                 r'(execute|query).*%.*[\'"]', str(self.repo_path)
             ], capture_output=True, text=True)
-            
+
             if result.returncode == 0:
                 for line in result.stdout.strip().split('\n'):
                     if line:
@@ -73,7 +72,7 @@ class TDDSecurityChecker:
                             self.results.append(SecurityCheckResult(
                                 check_name="SQL Injection Prevention",
                                 passed=False,
-                                details=f"Potential SQL injection risk detected",
+                                details="Potential SQL injection risk detected",
                                 severity="high",
                                 file_path=file_path,
                                 line_number=int(line_num)
@@ -91,7 +90,7 @@ class TDDSecurityChecker:
                 details="Unable to run SQL injection check",
                 severity="medium"
             ))
-    
+
     def _check_auth_controls(self) -> None:
         """Check authentication and authorization controls."""
         try:
@@ -101,7 +100,7 @@ class TDDSecurityChecker:
                 r'(password|secret|key|token)\s*=\s*[\'"][^\'"\s]{8,}[\'"]',
                 str(self.repo_path)
             ], capture_output=True, text=True)
-            
+
             if result.returncode == 0:
                 for line in result.stdout.strip().split('\n'):
                     if line:
@@ -129,12 +128,12 @@ class TDDSecurityChecker:
                 details="Unable to run credential check",
                 severity="medium"
             ))
-    
+
     def _check_secrets_management(self) -> None:
         """Check secrets management via environment variables."""
         env_file = self.repo_path / ".env"
         env_example = self.repo_path / ".env.example"
-        
+
         if env_file.exists() and not env_example.exists():
             self.results.append(SecurityCheckResult(
                 check_name="Secrets Management",
@@ -148,7 +147,7 @@ class TDDSecurityChecker:
                 passed=True,
                 details="Proper environment variable setup detected"
             ))
-    
+
     def _check_safe_logging(self) -> None:
         """Check for safe logging practices."""
         try:
@@ -158,7 +157,7 @@ class TDDSecurityChecker:
                 r'log.*\.(password|secret|key|token)',
                 str(self.repo_path)
             ], capture_output=True, text=True)
-            
+
             if result.returncode == 0:
                 for line in result.stdout.strip().split('\n'):
                     if line:
@@ -186,7 +185,7 @@ class TDDSecurityChecker:
                 details="Unable to run logging check",
                 severity="medium"
             ))
-    
+
     def _run_sca_scan(self) -> None:
         """Run Software Composition Analysis using OWASP Dependency-Check."""
         try:
@@ -194,7 +193,7 @@ class TDDSecurityChecker:
             result = subprocess.run([
                 'dependency-check', '--version'
             ], capture_output=True, text=True)
-            
+
             if result.returncode == 0:
                 # Run dependency check with cached NVD database
                 scan_result = subprocess.run([
@@ -204,7 +203,7 @@ class TDDSecurityChecker:
                     '--out', str(self.repo_path / 'dependency-check-report.json'),
                     '--nvdDatafeed', str(self.repo_path / '.nvd-cache')
                 ], capture_output=True, text=True)
-                
+
                 self.results.append(SecurityCheckResult(
                     check_name="Software Composition Analysis",
                     passed=scan_result.returncode == 0,
@@ -224,7 +223,7 @@ class TDDSecurityChecker:
                 details="OWASP Dependency-Check not installed",
                 severity="low"
             ))
-    
+
     def _run_sast_scan(self) -> None:
         """Run Static Application Security Testing using CodeQL."""
         try:
@@ -232,7 +231,7 @@ class TDDSecurityChecker:
             result = subprocess.run([
                 'codeql', 'version'
             ], capture_output=True, text=True)
-            
+
             if result.returncode == 0:
                 self.results.append(SecurityCheckResult(
                     check_name="Static Application Security Testing",
@@ -241,7 +240,7 @@ class TDDSecurityChecker:
                 ))
             else:
                 self.results.append(SecurityCheckResult(
-                    check_name="Static Application Security Testing", 
+                    check_name="Static Application Security Testing",
                     passed=False,
                     details="CodeQL not available locally - relies on GitHub CI",
                     severity="low"
@@ -253,17 +252,17 @@ class TDDSecurityChecker:
                 details="CodeQL not installed locally - relies on GitHub CI",
                 severity="low"
             ))
-    
+
     def generate_security_report(self) -> Dict:
         """Generate comprehensive security report."""
         total_checks = len(self.results)
         passed_checks = len([r for r in self.results if r.passed])
         failed_checks = total_checks - passed_checks
-        
+
         high_severity = len([r for r in self.results if r.severity == "high" and not r.passed])
         medium_severity = len([r for r in self.results if r.severity == "medium" and not r.passed])
         low_severity = len([r for r in self.results if r.severity == "low" and not r.passed])
-        
+
         return {
             'timestamp': str(Path().absolute()),
             'summary': {
@@ -280,46 +279,46 @@ class TDDSecurityChecker:
             'results': [asdict(result) for result in self.results],
             'status': 'PASS' if failed_checks == 0 or high_severity == 0 else 'FAIL'
         }
-    
+
     def save_security_report(self, report_path: Optional[str] = None) -> str:
         """Save security report to file."""
         if report_path is None:
             report_path = str(self.repo_path / 'security-report.json')
-        
+
         report = self.generate_security_report()
-        
+
         with open(report_path, 'w') as f:
             json.dump(report, f, indent=2)
-        
+
         return report_path
 
 
 def main():
     """Main entry point for TDD security checker."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="TDD Security Checklist")
     parser.add_argument("--repo-path", default=".", help="Repository path")
     parser.add_argument("--report-file", help="Output report file")
-    parser.add_argument("--fail-on-high", action="store_true", 
+    parser.add_argument("--fail-on-high", action="store_true",
                        help="Fail if high severity issues found")
-    
+
     args = parser.parse_args()
-    
+
     checker = TDDSecurityChecker(args.repo_path)
     results = checker.run_security_checklist()
-    
+
     report_file = checker.save_security_report(args.report_file)
     report = checker.generate_security_report()
-    
+
     print(f"Security check completed. Report saved to: {report_file}")
     print(f"Status: {report['status']}")
     print(f"Checks passed: {report['summary']['passed']}/{report['summary']['total_checks']}")
-    
+
     if args.fail_on_high and report['severity_breakdown']['high'] > 0:
         print(f"FAIL: {report['severity_breakdown']['high']} high severity issues found")
         return 1
-    
+
     return 0 if report['status'] == 'PASS' else 1
 
 

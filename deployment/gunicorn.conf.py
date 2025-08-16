@@ -53,7 +53,7 @@ graceful_timeout = 30
 # Limit the allowed size of an HTTP request header field
 limit_request_field_size = 8190
 
-# Limit the number of HTTP request header fields  
+# Limit the number of HTTP request header fields
 limit_request_fields = 100
 
 # Limit the allowed size of an HTTP request line
@@ -77,7 +77,7 @@ def pre_fork(server, worker):
 def post_fork(server, worker):
     """Called just after a worker has been forked."""
     server.log.info("Worker spawned (pid: %s)", worker.pid)
-    
+
 def pre_exec(server):
     """Called just before exec()."""
     server.log.info("Forked child, re-executing.")

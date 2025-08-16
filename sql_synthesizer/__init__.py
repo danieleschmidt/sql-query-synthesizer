@@ -12,18 +12,29 @@ Key Features:
 - Prometheus metrics and health monitoring
 """
 
-from .sync_query_agent import QueryAgent
-from .async_query_agent import AsyncQueryAgent
-from .types import QueryResult
-from .cache import TTLCache
-from .openai_adapter import OpenAIAdapter
-from .llm_interface import LLMProvider, ProviderError, ProviderTimeoutError, ProviderAuthenticationError
-from .generator import naive_generate_sql
 from . import metrics
+from .async_query_agent import AsyncQueryAgent
+from .cache import TTLCache
 from .core import (
-    SystemInfo, QueryMetadata, ResultFormatter, QueryTracker, 
-    TraceIDGenerator, ErrorHandler, get_system_info, create_query_metadata
+    ErrorHandler,
+    QueryMetadata,
+    QueryTracker,
+    ResultFormatter,
+    SystemInfo,
+    TraceIDGenerator,
+    create_query_metadata,
+    get_system_info,
 )
+from .generator import naive_generate_sql
+from .llm_interface import (
+    LLMProvider,
+    ProviderAuthenticationError,
+    ProviderError,
+    ProviderTimeoutError,
+)
+from .openai_adapter import OpenAIAdapter
+from .sync_query_agent import QueryAgent
+from .types import QueryResult
 
 # Version information
 __version__ = "0.2.2"
@@ -33,6 +44,7 @@ __license__ = "MIT"
 # Optional webapp import (requires Flask)
 try:
     from .webapp import create_app
+
     _webapp_available = True
 except ImportError:
     _webapp_available = False
@@ -40,7 +52,12 @@ except ImportError:
 
 # Optional quantum optimization (requires numpy)
 try:
-    from .quantum import QuantumSQLSynthesizer, QuantumQueryOptimizer, QuantumTaskScheduler
+    from .quantum import (
+        QuantumQueryOptimizer,
+        QuantumSQLSynthesizer,
+        QuantumTaskScheduler,
+    )
+
     _quantum_available = True
 except ImportError:
     _quantum_available = False
@@ -51,6 +68,7 @@ except ImportError:
 # Optional security audit logging
 try:
     from .security_audit import SecurityAuditLogger, security_audit_logger
+
     _security_audit_available = True
 except ImportError:
     _security_audit_available = False
@@ -65,12 +83,12 @@ __all__ = [
     "OpenAIAdapter",
     "LLMProvider",
     "ProviderError",
-    "ProviderTimeoutError", 
+    "ProviderTimeoutError",
     "ProviderAuthenticationError",
     "naive_generate_sql",
     "metrics",
     "SystemInfo",
-    "QueryMetadata", 
+    "QueryMetadata",
     "ResultFormatter",
     "QueryTracker",
     "TraceIDGenerator",
@@ -86,7 +104,9 @@ if _webapp_available:
     __all__.append("create_app")
 
 if _quantum_available:
-    __all__.extend(["QuantumSQLSynthesizer", "QuantumQueryOptimizer", "QuantumTaskScheduler"])
+    __all__.extend(
+        ["QuantumSQLSynthesizer", "QuantumQueryOptimizer", "QuantumTaskScheduler"]
+    )
 
 if _security_audit_available:
     __all__.extend(["SecurityAuditLogger", "security_audit_logger"])

@@ -1,15 +1,16 @@
 """Test for enhanced health check endpoint - OpenAI API availability check."""
 
+from unittest.mock import Mock
+
 import pytest
-from unittest.mock import Mock, patch
+
 from sql_synthesizer.query_agent import QueryAgent
 from sql_synthesizer.webapp import create_app
-import json
 
 
 class TestEnhancedHealthCheck:
     """Test enhanced health check functionality."""
-    
+
     def test_health_check_includes_openai_api_status(self):
         """Test that health check includes OpenAI API availability status."""
         # Arrange
@@ -28,28 +29,28 @@ class TestEnhancedHealthCheck:
             "overall_healthy": True,
             "timestamp": 1234567890.0
         }
-        
+
         app = create_app(mock_agent)
-        
+
         # Act
         with app.test_client() as client:
             response = client.get('/health')
-        
+
         # Assert
         assert response.status_code == 200
         data = response.get_json()
-        
+
         # Verify structure matches acceptance criteria
         assert data['status'] == 'healthy'
         assert 'timestamp' in data
         assert 'components' in data
-        
+
         # Verify all required components are present
         components = data['components']
         assert 'database' in components
         assert 'cache' in components
         assert 'openai_api' in components
-        
+
     def test_health_check_openai_api_unavailable(self):
         """Test health check when OpenAI API is unavailable."""
         # Arrange
@@ -68,19 +69,19 @@ class TestEnhancedHealthCheck:
             "overall_healthy": False,  # Should be false when OpenAI is down
             "timestamp": 1234567890.0
         }
-        
+
         app = create_app(mock_agent)
-        
+
         # Act
         with app.test_client() as client:
             response = client.get('/health')
-        
+
         # Assert
         assert response.status_code == 503  # Service unavailable
         data = response.get_json()
         assert data['status'] == 'unhealthy'
         assert data['components']['openai_api'] is False
-        
+
     def test_health_check_comprehensive_cache_status(self):
         """Test that cache status includes detailed backend information."""
         # Arrange
@@ -99,13 +100,13 @@ class TestEnhancedHealthCheck:
             "overall_healthy": True,
             "timestamp": 1234567890.0
         }
-        
+
         app = create_app(mock_agent)
-        
+
         # Act
         with app.test_client() as client:
             response = client.get('/health')
-        
+
         # Assert
         assert response.status_code == 200
         data = response.get_json()
