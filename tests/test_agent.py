@@ -1,12 +1,11 @@
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import pytest
-from sqlalchemy import text, create_engine
+from sqlalchemy import create_engine, text
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
-from sql_synthesizer import query_agent
-from sql_synthesizer import QueryAgent
+from sql_synthesizer import QueryAgent, query_agent
 
 
 @pytest.fixture()
@@ -61,12 +60,14 @@ def test_cli_list_tables(agent: QueryAgent, capsys: pytest.CaptureFixture[str]):
 
 def test_cli_execute_sql(agent: QueryAgent, capsys: pytest.CaptureFixture[str]):
     url = agent.engine.url.render_as_string(hide_password=False)
-    query_agent.main([
-        "--database-url",
-        url,
-        "--execute-sql",
-        "SELECT COUNT(*) AS c FROM users",
-    ])
+    query_agent.main(
+        [
+            "--database-url",
+            url,
+            "--execute-sql",
+            "SELECT COUNT(*) AS c FROM users",
+        ]
+    )
     out = capsys.readouterr().out
     assert "SELECT COUNT(*) AS c FROM users" in out
 
@@ -103,5 +104,7 @@ def test_openai_timeout(monkeypatch, tmp_path: Path):
             captured["timeout"] = timeout
 
     monkeypatch.setattr("sql_synthesizer.query_agent.OpenAIAdapter", DummyAdapter)
-    QueryAgent(url, openai_api_key="key", openai_timeout=7.5)  # pragma: allowlist secret
+    QueryAgent(
+        url, openai_api_key="key", openai_timeout=7.5
+    )  # pragma: allowlist secret
     assert captured["timeout"] == 7.5

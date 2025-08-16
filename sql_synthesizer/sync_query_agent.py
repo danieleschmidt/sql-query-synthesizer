@@ -1,19 +1,18 @@
 """Synchronous query agent for natural language to SQL translation with schema discovery."""
 
 import logging
-from typing import List, Dict, Any, Optional
-from sqlalchemy import create_engine, Engine, inspect, text
-from sqlalchemy.exc import SQLAlchemyError, OperationalError, DatabaseError
+from typing import Any, Dict, List, Optional
 
-from .services.query_service import QueryService
-from .services.query_validator_service import QueryValidatorService  
-from .services.sql_generator_service import SQLGeneratorService
-from .openai_adapter import OpenAIAdapter
-from .cache import TTLCache, create_cache_backend, CacheError
-from .types import QueryResult
-from .database import DatabaseConnectionManager
+from sqlalchemy import create_engine
+
+from .cache import CacheError, create_cache_backend
 from .config import config
-from .logging_utils import configure_logging
+from .database import DatabaseConnectionManager
+from .openai_adapter import OpenAIAdapter
+from .services.query_service import QueryService
+from .services.query_validator_service import QueryValidatorService
+from .services.sql_generator_service import SQLGeneratorService
+from .types import QueryResult
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +36,7 @@ class QueryAgent:
         max_page_size: int = 1000,
     ):
         """Initialize the query agent.
-        
+
         Args:
             database_url: Database connection URL
             openai_api_key: OpenAI API key for LLM-based SQL generation
@@ -55,16 +54,18 @@ class QueryAgent:
 
         # Create sync engine
         engine_kwargs = {"echo": False}
-        
+
         # Only add pool parameters for databases that support them
         if not self.database_url.startswith("sqlite://"):
-            engine_kwargs.update({
-                "pool_size": config.db_pool_size,
-                "max_overflow": config.db_max_overflow,
-                "pool_recycle": config.db_pool_recycle,
-                "pool_pre_ping": config.db_pool_pre_ping,
-            })
-        
+            engine_kwargs.update(
+                {
+                    "pool_size": config.db_pool_size,
+                    "max_overflow": config.db_max_overflow,
+                    "pool_recycle": config.db_pool_recycle,
+                    "pool_pre_ping": config.db_pool_pre_ping,
+                }
+            )
+
         self.engine = create_engine(self.database_url, **engine_kwargs)
 
         # Initialize caches using configured backend
@@ -75,32 +76,40 @@ class QueryAgent:
                 "redis_db": config.redis_db,
                 "redis_password": config.redis_password,
                 "memcached_servers": config.memcached_servers,
-                "max_size": config.cache_max_size
+                "max_size": config.cache_max_size,
             }
-            
+
             # Create schema cache (longer TTL)
             self.schema_cache = create_cache_backend(
                 backend_type=config.cache_backend,
                 ttl=schema_cache_ttl,
-                **cache_backend_config
+                **cache_backend_config,
             )
-            
+
             # Create query cache (shorter TTL)
             self.query_cache = create_cache_backend(
                 backend_type=config.cache_backend,
                 ttl=query_cache_ttl,
-                **cache_backend_config
+                **cache_backend_config,
             )
-            
-            logger.info(f"Initialized {config.cache_backend} cache backend for sync agent")
-            
+
+            logger.info(
+                f"Initialized {config.cache_backend} cache backend for sync agent"
+            )
+
         except (CacheError, ValueError) as e:
-            logger.warning(f"Failed to initialize {config.cache_backend} cache backend: {e}")
+            logger.warning(
+                f"Failed to initialize {config.cache_backend} cache backend: {e}"
+            )
             logger.info("Falling back to memory cache backend")
-            
+
             # Fallback to in-memory cache
-            self.schema_cache = create_cache_backend("memory", ttl=schema_cache_ttl, max_size=100)
-            self.query_cache = create_cache_backend("memory", ttl=query_cache_ttl, max_size=1000)
+            self.schema_cache = create_cache_backend(
+                "memory", ttl=schema_cache_ttl, max_size=100
+            )
+            self.query_cache = create_cache_backend(
+                "memory", ttl=query_cache_ttl, max_size=1000
+            )
 
         # Initialize services
         self.validator = QueryValidatorService()
@@ -132,46 +141,57 @@ class QueryAgent:
 
         # Database connection manager for health checks
         self.connection_manager = DatabaseConnectionManager(database_url)
-        
+
         # Store configuration for tests
         self._structured_logging = enable_structured_logging
         self._max_rows = max_rows
 
-    def query(self, question: str, *, explain: bool = False, trace_id: Optional[str] = None) -> QueryResult:
+    def query(
+        self, question: str, *, explain: bool = False, trace_id: Optional[str] = None
+    ) -> QueryResult:
         """Process a natural language question and return results.
-        
+
         Args:
             question: The user's natural language question
             explain: Whether to return query execution plan
             trace_id: Optional trace ID for request correlation
-            
+
         Returns:
             QueryResult: The query result containing SQL, data, and explanation
         """
         return self.query_service.query(question, explain=explain, trace_id=trace_id)
 
-    def execute_sql(self, sql: str, *, explain: bool = False, trace_id: Optional[str] = None) -> QueryResult:
+    def execute_sql(
+        self, sql: str, *, explain: bool = False, trace_id: Optional[str] = None
+    ) -> QueryResult:
         """Execute raw SQL and return results.
-        
+
         Args:
             sql: The SQL statement to execute
             explain: Whether to return query execution plan
             trace_id: Optional trace ID for request correlation
-            
+
         Returns:
             QueryResult: The query result containing SQL, data, and explanation
         """
         return self.query_service.execute_sql(sql, explain=explain, trace_id=trace_id)
 
-    def query_paginated(self, question: str, *, page: int = 1, page_size: int = None, trace_id: str = None) -> QueryResult:
+    def query_paginated(
+        self,
+        question: str,
+        *,
+        page: int = 1,
+        page_size: int = None,
+        trace_id: str = None,
+    ) -> QueryResult:
         """Process a natural language question and return paginated results.
-        
+
         Args:
             question: The user's natural language question
             page: Page number (1-based)
             page_size: Number of items per page (defaults to max_rows)
             trace_id: Optional trace ID for request correlation
-            
+
         Returns:
             QueryResult with pagination information
         """
@@ -184,29 +204,35 @@ class QueryAgent:
         validated_sql = self.validator.validate_sql(sql)
 
         # Execute with pagination
-        return self.query_service.query_paginated(validated_sql, page, page_size, trace_id=trace_id)
+        return self.query_service.query_paginated(
+            validated_sql, page, page_size, trace_id=trace_id
+        )
 
-    def execute_sql_paginated(self, sql: str, *, page: int = 1, page_size: int = None, trace_id: str = None) -> QueryResult:
+    def execute_sql_paginated(
+        self, sql: str, *, page: int = 1, page_size: int = None, trace_id: str = None
+    ) -> QueryResult:
         """Execute raw SQL and return paginated results.
-        
+
         Args:
             sql: The SQL statement to execute
             page: Page number (1-based)
             page_size: Number of items per page (defaults to max_rows)
             trace_id: Optional trace ID for request correlation
-            
+
         Returns:
             QueryResult with pagination information
         """
         if page_size is None:
             page_size = self.query_service.max_rows
 
-        return self.query_service.query_paginated(sql, page, page_size, trace_id=trace_id)
+        return self.query_service.query_paginated(
+            sql, page, page_size, trace_id=trace_id
+        )
 
     def get_table_names(self) -> List[str]:
         """Get list of available table names."""
         return self.query_service.discover_schema()
-    
+
     def discover_schema(self) -> List[str]:
         """Get list of available table names (alias for get_table_names)."""
         return self.get_table_names()
@@ -214,17 +240,19 @@ class QueryAgent:
     def describe_table(self, table_name: str) -> Dict[str, Any]:
         """Get detailed information about a specific table."""
         return self.query_service.describe_table(table_name)
-    
+
     def row_count(self, table_name: str) -> int:
         """Get row count for a single table."""
         # Validate table name to prevent SQL injection
         available_tables = self.get_table_names()
         if table_name not in available_tables:
-            raise ValueError(f"Table '{table_name}' not found in database. Available tables: {available_tables}")
-        
+            raise ValueError(
+                f"Table '{table_name}' not found in database. Available tables: {available_tables}"
+            )
+
         result = self.execute_sql(f"SELECT COUNT(*) as count FROM {table_name}")
-        return result.data[0]['count'] if result.data else 0
-    
+        return result.data[0]["count"] if result.data else 0
+
     def batch_row_counts(self, table_names: List[str]) -> Dict[str, int]:
         """Get row counts for multiple tables."""
         counts = {}
@@ -234,13 +262,13 @@ class QueryAgent:
             except ValueError:
                 counts[table_name] = 0
         return counts
-    
+
     def list_table_counts(self) -> List[tuple[str, int]]:
         """Get list of tables with their row counts."""
         tables = self.get_table_names()
         counts = self.batch_row_counts(tables)
         return [(table, counts[table]) for table in tables]
-    
+
     def generate_sql(self, question: str) -> str:
         """Generate SQL from natural language question."""
         available_tables = self.discover_schema()
@@ -263,9 +291,9 @@ class QueryAgent:
     def close(self) -> None:
         """Close database connections and cleanup resources."""
         try:
-            if hasattr(self, 'engine'):
+            if hasattr(self, "engine"):
                 self.engine.dispose()
-            if hasattr(self, 'connection_manager'):
+            if hasattr(self, "connection_manager"):
                 self.connection_manager.close()
         except Exception as e:
             logger.error(f"Error during cleanup: {e}")

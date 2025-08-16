@@ -1,34 +1,33 @@
 #!/usr/bin/env python3
 """Security scan runner for the SQL Query Synthesizer project."""
 
+import json
 import os
 import subprocess
 import sys
-import json
-from pathlib import Path
 
 
 def run_bandit_scan():
     """Run Bandit security scan."""
     print("🔍 Running Bandit security scan...")
-    
+
     try:
         result = subprocess.run([
-            'python', '-m', 'bandit', '-r', 'sql_synthesizer/', 
+            'python', '-m', 'bandit', '-r', 'sql_synthesizer/',
             '-f', 'json', '-o', 'bandit-report.json'
         ], capture_output=True, text=True, cwd='/root/repo')
-        
+
         if result.returncode == 0:
             print("✅ Bandit scan completed successfully - No security issues found")
         else:
-            print(f"⚠️  Bandit scan found potential security issues")
+            print("⚠️  Bandit scan found potential security issues")
             if os.path.exists('/root/repo/bandit-report.json'):
-                with open('/root/repo/bandit-report.json', 'r') as f:
+                with open('/root/repo/bandit-report.json') as f:
                     report = json.load(f)
                     print(f"   Issues found: {len(report.get('results', []))}")
-        
+
         return result.returncode == 0
-        
+
     except FileNotFoundError:
         print("❌ Bandit not installed - installing...")
         subprocess.run(['pip', 'install', 'bandit[toml]'], check=True)
@@ -41,12 +40,12 @@ def run_bandit_scan():
 def run_safety_check():
     """Run Safety vulnerability check."""
     print("🔍 Running Safety vulnerability check...")
-    
+
     try:
         result = subprocess.run([
             'python', '-m', 'safety', 'check', '--json'
         ], capture_output=True, text=True, cwd='/root/repo')
-        
+
         if result.returncode == 0:
             print("✅ Safety check completed - No known vulnerabilities in dependencies")
             return True
@@ -60,7 +59,7 @@ def run_safety_check():
                 except json.JSONDecodeError:
                     print(f"   Raw output: {result.stdout}")
             return False
-            
+
     except FileNotFoundError:
         print("❌ Safety not installed - installing...")
         subprocess.run(['pip', 'install', 'safety'], check=True)
@@ -73,29 +72,29 @@ def run_safety_check():
 def check_secrets():
     """Check for potential secrets in code."""
     print("🔍 Checking for potential secrets...")
-    
+
     patterns_to_check = [
         (r'(?i)(password|passwd|pwd)\s*[=:]\s*["\'][^"\']{3,}["\']', 'Potential password in code'),
         (r'(?i)(api_?key|secret|token)\s*[=:]\s*["\'][^"\']{10,}["\']', 'Potential API key/secret'),
         (r'(?i)(private_?key)\s*[=:]\s*["\'][^"\']{10,}["\']', 'Potential private key'),
         (r'["\'][A-Za-z0-9]{32,}["\']', 'Potential hardcoded token/hash'),
     ]
-    
+
     issues_found = []
-    
+
     for root, dirs, files in os.walk('/root/repo/sql_synthesizer'):
         # Skip certain directories
         dirs[:] = [d for d in dirs if d not in ['.git', '__pycache__', '.pytest_cache']]
-        
+
         for file in files:
             if not file.endswith(('.py', '.yaml', '.yml', '.json')):
                 continue
-                
+
             file_path = os.path.join(root, file)
             try:
-                with open(file_path, 'r', encoding='utf-8') as f:
+                with open(file_path, encoding='utf-8') as f:
                     content = f.read()
-                    
+
                 for i, line in enumerate(content.split('\n'), 1):
                     for pattern, description in patterns_to_check:
                         import re
@@ -103,17 +102,17 @@ def check_secrets():
                             # Skip test files and comments
                             if 'test' in file.lower() or line.strip().startswith('#'):
                                 continue
-                            
+
                             issues_found.append({
                                 'file': file_path,
                                 'line': i,
                                 'description': description,
                                 'content': line.strip()[:100] + '...' if len(line.strip()) > 100 else line.strip()
                             })
-                            
+
             except Exception as e:
                 print(f"   Warning: Could not scan {file_path}: {e}")
-    
+
     if issues_found:
         print(f"⚠️  Found {len(issues_found)} potential secret issues:")
         for issue in issues_found[:5]:  # Show first 5
@@ -127,28 +126,28 @@ def check_secrets():
 def check_sql_injection_patterns():
     """Check for potential SQL injection vulnerabilities."""
     print("🔍 Checking for SQL injection vulnerabilities...")
-    
+
     dangerous_patterns = [
         (r'["\'].*\+.*["\'].*sql|sql.*\+.*["\']', 'String concatenation in SQL'),
         (r'f["\'].*\{.*\}.*["\'].*(?:SELECT|INSERT|UPDATE|DELETE)', 'F-string formatting in SQL'),
         (r'%.*%.*(?:SELECT|INSERT|UPDATE|DELETE)', 'String formatting in SQL'),
         (r'\.format\(.*\).*(?:SELECT|INSERT|UPDATE|DELETE)', 'String format() in SQL'),
     ]
-    
+
     issues_found = []
-    
+
     for root, dirs, files in os.walk('/root/repo/sql_synthesizer'):
         dirs[:] = [d for d in dirs if d not in ['.git', '__pycache__', '.pytest_cache']]
-        
+
         for file in files:
             if not file.endswith('.py'):
                 continue
-                
+
             file_path = os.path.join(root, file)
             try:
-                with open(file_path, 'r', encoding='utf-8') as f:
+                with open(file_path, encoding='utf-8') as f:
                     content = f.read()
-                    
+
                 for i, line in enumerate(content.split('\n'), 1):
                     for pattern, description in dangerous_patterns:
                         import re
@@ -156,17 +155,17 @@ def check_sql_injection_patterns():
                             # Skip comments and test files
                             if line.strip().startswith('#') or 'test' in file.lower():
                                 continue
-                            
+
                             issues_found.append({
                                 'file': file_path,
                                 'line': i,
                                 'description': description,
                                 'content': line.strip()
                             })
-                            
+
             except Exception as e:
                 print(f"   Warning: Could not scan {file_path}: {e}")
-    
+
     if issues_found:
         print(f"⚠️  Found {len(issues_found)} potential SQL injection issues:")
         for issue in issues_found[:3]:  # Show first 3
@@ -181,26 +180,26 @@ def run_comprehensive_security_scan():
     """Run comprehensive security scan."""
     print("🚀 Starting comprehensive security scan...")
     print("=" * 60)
-    
+
     results = {
         'bandit': run_bandit_scan(),
         'safety': run_safety_check(),
         'secrets': check_secrets(),
         'sql_injection': check_sql_injection_patterns(),
     }
-    
+
     print("=" * 60)
     print("📊 Security Scan Results:")
-    
+
     passed = sum(results.values())
     total = len(results)
-    
+
     for check, result in results.items():
         status = "✅ PASS" if result else "❌ FAIL"
         print(f"   {check.replace('_', ' ').title()}: {status}")
-    
+
     print(f"\n🎯 Overall Score: {passed}/{total} checks passed")
-    
+
     if passed == total:
         print("🏆 All security checks passed!")
         return True

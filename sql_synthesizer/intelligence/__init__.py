@@ -5,26 +5,26 @@ Provides sophisticated NLP-driven insights and adaptive learning capabilities
 for SQL query optimization and pattern recognition.
 """
 
+from .adaptive_learning import AdaptiveLearningEngine, LearningInsight, QueryPattern
+from .intelligent_cache import CacheInsight, CacheStrategy, IntelligentCacheManager
 from .query_insights import (
-    QueryInsight,
     QueryComplexity,
-    QueryPatternAnalyzer,
     QueryComplexityAnalyzer,
-    QueryInsightsEngine
+    QueryInsight,
+    QueryInsightsEngine,
+    QueryPatternAnalyzer,
 )
-from .adaptive_learning import AdaptiveLearningEngine, QueryPattern, LearningInsight
-from .intelligent_cache import IntelligentCacheManager, CacheStrategy, CacheInsight
 
 __all__ = [
     "QueryInsight",
-    "QueryComplexity", 
+    "QueryComplexity",
     "QueryPatternAnalyzer",
     "QueryComplexityAnalyzer",
     "QueryInsightsEngine",
     "AdaptiveLearningEngine",
     "QueryPattern",
     "LearningInsight",
-    "IntelligentCacheManager", 
+    "IntelligentCacheManager",
     "CacheStrategy",
-    "CacheInsight"
+    "CacheInsight",
 ]

@@ -20,15 +20,15 @@ def test_naive_generate_sql_invalid_max_rows():
     """Test that invalid max_rows values are handled safely."""
     # Test with negative max_rows
     sql = naive_generate_sql("List users", ["users"], -1)
-    assert 'LIMIT 5' in sql  # Should default to 5
-    
+    assert "LIMIT 5" in sql  # Should default to 5
+
     # Test with very large max_rows
     sql = naive_generate_sql("List users", ["users"], 50000)
-    assert 'LIMIT 5' in sql  # Should default to 5
-    
+    assert "LIMIT 5" in sql  # Should default to 5
+
     # Test with non-integer max_rows
     sql = naive_generate_sql("List users", ["users"], "invalid")
-    assert 'LIMIT 5' in sql  # Should default to 5
+    assert "LIMIT 5" in sql  # Should default to 5
 
 
 def test_naive_generate_sql_invalid_table_names():
@@ -43,4 +43,3 @@ def test_naive_generate_sql_empty_tables():
     """Test with empty table list."""
     sql = naive_generate_sql("List users", [], 5)
     assert sql.startswith("-- No matching table found for:")
-

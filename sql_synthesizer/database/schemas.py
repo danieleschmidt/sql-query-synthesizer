@@ -1,13 +1,14 @@
 """Database schema definitions and data models."""
 
-from datetime import datetime
-from typing import Optional, Dict, Any
 from dataclasses import dataclass
+from datetime import datetime
+from typing import Any, Dict, Optional
 
 
 @dataclass
 class QueryHistory:
     """Query history data model."""
+
     query_id: str
     user_question: str
     generated_sql: str
@@ -20,44 +21,45 @@ class QueryHistory:
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     id: Optional[int] = None
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
         return {
-            'id': self.id,
-            'query_id': self.query_id,
-            'user_question': self.user_question,
-            'generated_sql': self.generated_sql,
-            'execution_time_ms': self.execution_time_ms,
-            'success': self.success,
-            'error_message': self.error_message,
-            'cache_hit': self.cache_hit,
-            'user_agent': self.user_agent,
-            'client_ip': self.client_ip,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            "id": self.id,
+            "query_id": self.query_id,
+            "user_question": self.user_question,
+            "generated_sql": self.generated_sql,
+            "execution_time_ms": self.execution_time_ms,
+            "success": self.success,
+            "error_message": self.error_message,
+            "cache_hit": self.cache_hit,
+            "user_agent": self.user_agent,
+            "client_ip": self.client_ip,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
 
 @dataclass
 class SystemMetrics:
     """System metrics data model."""
+
     metric_name: str
     metric_value: float
-    metric_type: str = 'gauge'  # gauge, counter, histogram
-    tags: str = '{}'  # JSON string of tags
+    metric_type: str = "gauge"  # gauge, counter, histogram
+    tags: str = "{}"  # JSON string of tags
     recorded_at: Optional[datetime] = None
     id: Optional[int] = None
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
         return {
-            'id': self.id,
-            'metric_name': self.metric_name,
-            'metric_value': self.metric_value,
-            'metric_type': self.metric_type,
-            'tags': self.tags,
-            'recorded_at': self.recorded_at.isoformat() if self.recorded_at else None
+            "id": self.id,
+            "metric_name": self.metric_name,
+            "metric_value": self.metric_value,
+            "metric_type": self.metric_type,
+            "tags": self.tags,
+            "recorded_at": self.recorded_at.isoformat() if self.recorded_at else None,
         }
 
 

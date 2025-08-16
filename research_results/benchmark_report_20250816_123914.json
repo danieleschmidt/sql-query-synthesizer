@@ -1,0 +1,5998 @@
+{
+  "config": {
+    "experiment_name": "Novel SQL Synthesis Algorithm Comparison",
+    "research_question": "Do quantum-inspired optimization algorithms significantly improve SQL synthesis performance?",
+    "hypothesis": "Quantum-inspired approaches will demonstrate at least 15% improvement in accuracy and 10% improvement in SQL quality over template-based baselines",
+    "success_criteria": {
+      "accuracy_score": 15.0,
+      "sql_quality_score": 10.0,
+      "execution_time_ms": -20.0
+    },
+    "test_iterations": 25,
+    "timeout_seconds": 10.0,
+    "statistical_significance_threshold": 0.05,
+    "output_dir": "research_results"
+  },
+  "execution_summary": {
+    "total_duration_seconds": 30.237284421920776,
+    "total_test_executions": 300,
+    "approaches_tested": 2,
+    "test_cases_used": 6
+  },
+  "statistical_analysis": {
+    "summary_statistics": {
+      "template_based_baseline": {
+        "execution_time_ms": {
+          "mean": 50.773587226867676,
+          "median": 50.50837993621826,
+          "std_dev": 1.5562553539961874,
+          "min": 50.34303665161133,
+          "max": 66.67733192443848,
+          "q1": 50.444602966308594,
+          "q3": 50.600290298461914
+        },
+        "accuracy_score": {
+          "mean": 0.7440620490620491,
+          "median": 0.7242857142857142,
+          "std_dev": 0.09630365013767964,
+          "min": 0.6038961038961039,
+          "max": 0.8666666666666667,
+          "q1": 0.6785714285714286,
+          "q3": 0.8666666666666667
+        },
+        "confidence_score": {
+          "mean": 0.6833333333333333,
+          "median": 0.6499999999999999,
+          "std_dev": 0.0900534268465165,
+          "min": 0.6,
+          "max": 0.8,
+          "q1": 0.6,
+          "q3": 0.8
+        },
+        "sql_quality_score": {
+          "mean": 0.5666666666666667,
+          "median": 0.55,
+          "std_dev": 0.03739265022471314,
+          "min": 0.55,
+          "max": 0.65,
+          "q1": 0.55,
+          "q3": 0.55
+        },
+        "resource_efficiency": {
+          "mean": 0.8979999999999999,
+          "median": 0.8879999999999999,
+          "std_dev": 0.027016028053954914,
+          "min": 0.873,
+          "max": 0.9329999999999999,
+          "q1": 0.873,
+          "q3": 0.9329999999999999
+        },
+        "success_rate": 1.0,
+        "sample_size": 150
+      },
+      "quantum_inspired_novel": {
+        "execution_time_ms": {
+          "mean": 150.65792242685953,
+          "median": 150.41005611419678,
+          "std_dev": 2.2182446468002737,
+          "min": 150.27165412902832,
+          "max": 177.46376991271973,
+          "q1": 150.36529302597046,
+          "q3": 150.46840906143188
+        },
+        "accuracy_score": {
+          "mean": 0.7340620490620491,
+          "median": 0.6942857142857142,
+          "std_dev": 0.09929519100774423,
+          "min": 0.6038961038961039,
+          "max": 0.8666666666666667,
+          "q1": 0.6785714285714286,
+          "q3": 0.8666666666666667
+        },
+        "confidence_score": {
+          "mean": 0.8833333333333333,
+          "median": 0.85,
+          "std_dev": 0.0472983769840402,
+          "min": 0.85,
+          "max": 0.95,
+          "q1": 0.85,
+          "q3": 0.95
+        },
+        "sql_quality_score": {
+          "mean": 0.6666666666666667,
+          "median": 0.65,
+          "std_dev": 0.023649188492020128,
+          "min": 0.65,
+          "max": 0.7000000000000001,
+          "q1": 0.65,
+          "q3": 0.7000000000000001
+        },
+        "resource_efficiency": {
+          "mean": 0.944,
+          "median": 0.9339999999999999,
+          "std_dev": 0.014189513095212075,
+          "min": 0.9339999999999999,
+          "max": 0.964,
+          "q1": 0.9339999999999999,
+          "q3": 0.964
+        },
+        "success_rate": 1.0,
+        "sample_size": 150
+      }
+    },
+    "comparative_analysis": {
+      "pairwise_comparisons": {
+        "template_based_baseline_vs_quantum_inspired_novel": {
+          "accuracy_improvement": 1.3622826589084058,
+          "execution_time_improvement": 196.7249915860513,
+          "quality_improvement": -15.00000000000001,
+          "efficiency_improvement": -4.872881355932208
+        }
+      },
+      "rankings": {
+        "accuracy_score": [
+          {
+            "rank": 1,
+            "approach": "template_based_baseline",
+            "score": 0.7440620490620491
+          },
+          {
+            "rank": 2,
+            "approach": "quantum_inspired_novel",
+            "score": 0.7340620490620491
+          }
+        ],
+        "sql_quality_score": [
+          {
+            "rank": 1,
+            "approach": "quantum_inspired_novel",
+            "score": 0.6666666666666667
+          },
+          {
+            "rank": 2,
+            "approach": "template_based_baseline",
+            "score": 0.5666666666666667
+          }
+        ],
+        "resource_efficiency": [
+          {
+            "rank": 1,
+            "approach": "quantum_inspired_novel",
+            "score": 0.944
+          },
+          {
+            "rank": 2,
+            "approach": "template_based_baseline",
+            "score": 0.8979999999999999
+          }
+        ],
+        "success_rate": [
+          {
+            "rank": 1,
+            "approach": "template_based_baseline",
+            "score": 1.0
+          },
+          {
+            "rank": 2,
+            "approach": "quantum_inspired_novel",
+            "score": 1.0
+          }
+        ],
+        "execution_time_ms": [
+          {
+            "rank": 1,
+            "approach": "template_based_baseline",
+            "score": 50.773587226867676
+          },
+          {
+            "rank": 2,
+            "approach": "quantum_inspired_novel",
+            "score": 150.65792242685953
+          }
+        ],
+        "overall": [
+          {
+            "rank": 1,
+            "approach": "quantum_inspired_novel",
+            "score": 0.8106194891425955
+          },
+          {
+            "rank": 2,
+            "approach": "template_based_baseline",
+            "score": 0.7894079226625946
+          }
+        ]
+      }
+    },
+    "overall_insights": [
+      "Best accuracy: template_based_baseline (0.744)",
+      "Fastest execution: template_based_baseline (50.8ms)",
+      "Highest SQL quality: quantum_inspired_novel (0.667)",
+      "Most consistent results: template_based_baseline (\u03c3=0.096)",
+      "Highest success rate: template_based_baseline (100.0%)"
+    ]
+  },
+  "hypothesis_testing": {
+    "hypothesis": "Quantum-inspired approaches will demonstrate at least 15% improvement in accuracy and 10% improvement in SQL quality over template-based baselines",
+    "success_criteria": {
+      "accuracy_score": 15.0,
+      "sql_quality_score": 10.0,
+      "execution_time_ms": -20.0
+    },
+    "test_results": {
+      "accuracy_score": {
+        "required_improvement": 15.0,
+        "actual_improvement": -1.3439739350509576,
+        "criterion_met": false,
+        "best_novel": {
+          "rank": 2,
+          "approach": "quantum_inspired_novel",
+          "score": 0.7340620490620491
+        },
+        "best_baseline": {
+          "rank": 1,
+          "approach": "template_based_baseline",
+          "score": 0.7440620490620491
+        }
+      },
+      "sql_quality_score": {
+        "required_improvement": 10.0,
+        "actual_improvement": 17.647058823529427,
+        "criterion_met": true,
+        "best_novel": {
+          "rank": 1,
+          "approach": "quantum_inspired_novel",
+          "score": 0.6666666666666667
+        },
+        "best_baseline": {
+          "rank": 2,
+          "approach": "template_based_baseline",
+          "score": 0.5666666666666667
+        }
+      },
+      "execution_time_ms": {
+        "required_improvement": -20.0,
+        "actual_improvement": -196.7249915860513,
+        "criterion_met": false,
+        "best_novel": {
+          "rank": 2,
+          "approach": "quantum_inspired_novel",
+          "score": 150.65792242685953
+        },
+        "best_baseline": {
+          "rank": 1,
+          "approach": "template_based_baseline",
+          "score": 50.773587226867676
+        }
+      }
+    },
+    "overall_result": "REJECTED",
+    "criteria_met_percentage": 33.33333333333333
+  },
+  "detailed_results": [
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 0,
+      "execution_time_ms": 50.53377151489258,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 0,
+      "execution_time_ms": 50.37546157836914,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 0,
+      "execution_time_ms": 50.46391487121582,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 0,
+      "execution_time_ms": 50.44221878051758,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 0,
+      "execution_time_ms": 50.40717124938965,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 0,
+      "execution_time_ms": 50.469160079956055,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 1,
+      "execution_time_ms": 50.67873001098633,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 1,
+      "execution_time_ms": 50.467491149902344,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 1,
+      "execution_time_ms": 50.4453182220459,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 1,
+      "execution_time_ms": 50.44102668762207,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 1,
+      "execution_time_ms": 50.49490928649902,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 1,
+      "execution_time_ms": 50.51541328430176,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 2,
+      "execution_time_ms": 50.69112777709961,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 2,
+      "execution_time_ms": 50.55069923400879,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 2,
+      "execution_time_ms": 50.672054290771484,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 2,
+      "execution_time_ms": 50.52638053894043,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 2,
+      "execution_time_ms": 50.655364990234375,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 2,
+      "execution_time_ms": 50.68159103393555,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 3,
+      "execution_time_ms": 50.547122955322266,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 3,
+      "execution_time_ms": 50.44889450073242,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 3,
+      "execution_time_ms": 50.482988357543945,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 3,
+      "execution_time_ms": 50.52304267883301,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 3,
+      "execution_time_ms": 50.52828788757324,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 3,
+      "execution_time_ms": 50.47130584716797,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 4,
+      "execution_time_ms": 50.36616325378418,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 4,
+      "execution_time_ms": 50.40454864501953,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 4,
+      "execution_time_ms": 50.457000732421875,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 4,
+      "execution_time_ms": 50.43816566467285,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 4,
+      "execution_time_ms": 50.638675689697266,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 4,
+      "execution_time_ms": 50.41003227233887,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 5,
+      "execution_time_ms": 50.43435096740723,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 5,
+      "execution_time_ms": 50.44198036193848,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 5,
+      "execution_time_ms": 50.40740966796875,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 5,
+      "execution_time_ms": 50.46677589416504,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 5,
+      "execution_time_ms": 50.57358741760254,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 5,
+      "execution_time_ms": 50.4450798034668,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 6,
+      "execution_time_ms": 50.40693283081055,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 6,
+      "execution_time_ms": 50.77314376831055,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 6,
+      "execution_time_ms": 50.549983978271484,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 6,
+      "execution_time_ms": 50.550222396850586,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 6,
+      "execution_time_ms": 50.76885223388672,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 6,
+      "execution_time_ms": 50.62079429626465,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 7,
+      "execution_time_ms": 50.594329833984375,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 7,
+      "execution_time_ms": 50.724029541015625,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 7,
+      "execution_time_ms": 50.359487533569336,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 7,
+      "execution_time_ms": 50.64511299133301,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 7,
+      "execution_time_ms": 50.363779067993164,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 7,
+      "execution_time_ms": 50.598859786987305,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 8,
+      "execution_time_ms": 50.48012733459473,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 8,
+      "execution_time_ms": 50.73881149291992,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 8,
+      "execution_time_ms": 50.49872398376465,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 8,
+      "execution_time_ms": 50.95934867858887,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 8,
+      "execution_time_ms": 50.579071044921875,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 8,
+      "execution_time_ms": 50.45294761657715,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 9,
+      "execution_time_ms": 50.69732666015625,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 9,
+      "execution_time_ms": 50.79007148742676,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 9,
+      "execution_time_ms": 50.347089767456055,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 9,
+      "execution_time_ms": 50.66061019897461,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 9,
+      "execution_time_ms": 50.414323806762695,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 9,
+      "execution_time_ms": 50.414323806762695,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 10,
+      "execution_time_ms": 50.57549476623535,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 10,
+      "execution_time_ms": 50.507545471191406,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 10,
+      "execution_time_ms": 50.54974555969238,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 10,
+      "execution_time_ms": 50.45723915100098,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 10,
+      "execution_time_ms": 55.83357810974121,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 10,
+      "execution_time_ms": 50.4763126373291,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 11,
+      "execution_time_ms": 50.55665969848633,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 11,
+      "execution_time_ms": 50.39167404174805,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 11,
+      "execution_time_ms": 50.692081451416016,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 11,
+      "execution_time_ms": 50.48561096191406,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 11,
+      "execution_time_ms": 50.47750473022461,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 11,
+      "execution_time_ms": 50.50301551818848,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 12,
+      "execution_time_ms": 50.5833625793457,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 12,
+      "execution_time_ms": 50.50945281982422,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 12,
+      "execution_time_ms": 50.70042610168457,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 12,
+      "execution_time_ms": 50.69994926452637,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 12,
+      "execution_time_ms": 50.54926872253418,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 12,
+      "execution_time_ms": 51.04804039001465,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 13,
+      "execution_time_ms": 53.0390739440918,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 13,
+      "execution_time_ms": 50.58693885803223,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 13,
+      "execution_time_ms": 50.62150955200195,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 13,
+      "execution_time_ms": 53.8485050201416,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 13,
+      "execution_time_ms": 50.620317459106445,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 13,
+      "execution_time_ms": 50.54497718811035,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 14,
+      "execution_time_ms": 50.51565170288086,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 14,
+      "execution_time_ms": 50.59933662414551,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 14,
+      "execution_time_ms": 50.547122955322266,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 14,
+      "execution_time_ms": 50.707101821899414,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 14,
+      "execution_time_ms": 50.48871040344238,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 14,
+      "execution_time_ms": 50.418853759765625,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 15,
+      "execution_time_ms": 50.57525634765625,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 15,
+      "execution_time_ms": 50.44102668762207,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 15,
+      "execution_time_ms": 50.52661895751953,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 15,
+      "execution_time_ms": 50.659894943237305,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 15,
+      "execution_time_ms": 50.48632621765137,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 15,
+      "execution_time_ms": 50.54783821105957,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 16,
+      "execution_time_ms": 50.443172454833984,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 16,
+      "execution_time_ms": 50.6441593170166,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 16,
+      "execution_time_ms": 50.41909217834473,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 16,
+      "execution_time_ms": 50.68516731262207,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 16,
+      "execution_time_ms": 57.9380989074707,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 16,
+      "execution_time_ms": 66.67733192443848,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 17,
+      "execution_time_ms": 50.46796798706055,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 17,
+      "execution_time_ms": 50.41217803955078,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 17,
+      "execution_time_ms": 50.51469802856445,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 17,
+      "execution_time_ms": 50.41790008544922,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 17,
+      "execution_time_ms": 50.39215087890625,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 17,
+      "execution_time_ms": 50.678253173828125,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 18,
+      "execution_time_ms": 50.53114891052246,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 18,
+      "execution_time_ms": 50.34303665161133,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 18,
+      "execution_time_ms": 50.55594444274902,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 18,
+      "execution_time_ms": 50.38881301879883,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 18,
+      "execution_time_ms": 50.46558380126953,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 18,
+      "execution_time_ms": 50.42266845703125,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 19,
+      "execution_time_ms": 50.45151710510254,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 19,
+      "execution_time_ms": 50.389766693115234,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 19,
+      "execution_time_ms": 50.570011138916016,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 19,
+      "execution_time_ms": 50.453901290893555,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 19,
+      "execution_time_ms": 50.5979061126709,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 19,
+      "execution_time_ms": 50.4145622253418,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 20,
+      "execution_time_ms": 50.46987533569336,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 20,
+      "execution_time_ms": 50.55594444274902,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 20,
+      "execution_time_ms": 50.52995681762695,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 20,
+      "execution_time_ms": 50.34589767456055,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 20,
+      "execution_time_ms": 50.38094520568848,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 20,
+      "execution_time_ms": 50.45461654663086,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 21,
+      "execution_time_ms": 50.41384696960449,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 21,
+      "execution_time_ms": 50.50778388977051,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 21,
+      "execution_time_ms": 50.42552947998047,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 21,
+      "execution_time_ms": 50.388336181640625,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 21,
+      "execution_time_ms": 50.60315132141113,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 21,
+      "execution_time_ms": 50.68564414978027,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 22,
+      "execution_time_ms": 53.12347412109375,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 22,
+      "execution_time_ms": 50.71520805358887,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 22,
+      "execution_time_ms": 50.63343048095703,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 22,
+      "execution_time_ms": 50.5061149597168,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 22,
+      "execution_time_ms": 50.492048263549805,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 22,
+      "execution_time_ms": 50.461530685424805,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 23,
+      "execution_time_ms": 50.54426193237305,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 23,
+      "execution_time_ms": 50.49324035644531,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 23,
+      "execution_time_ms": 50.45771598815918,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 23,
+      "execution_time_ms": 50.4765510559082,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 23,
+      "execution_time_ms": 50.406694412231445,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 23,
+      "execution_time_ms": 50.3842830657959,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 24,
+      "execution_time_ms": 50.45175552368164,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 24,
+      "execution_time_ms": 50.51374435424805,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 24,
+      "execution_time_ms": 50.508975982666016,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 24,
+      "execution_time_ms": 50.46868324279785,
+      "accuracy_score": 0.74,
+      "confidence_score": 0.7,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9029999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT AVG(total) FROM orders",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 24,
+      "execution_time_ms": 50.54593086242676,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.8,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.9329999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "template_based_baseline",
+      "iteration": 24,
+      "execution_time_ms": 50.4603385925293,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.6,
+      "sql_quality_score": 0.55,
+      "resource_efficiency": 0.873,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "template_based",
+        "additional_metrics": {}
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 0,
+      "execution_time_ms": 150.44808387756348,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 0,
+      "execution_time_ms": 150.46143531799316,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 0,
+      "execution_time_ms": 150.44784545898438,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 0,
+      "execution_time_ms": 150.45595169067383,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 0,
+      "execution_time_ms": 150.45595169067383,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 0,
+      "execution_time_ms": 150.4533290863037,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 1,
+      "execution_time_ms": 150.50292015075684,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 1,
+      "execution_time_ms": 150.44903755187988,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 1,
+      "execution_time_ms": 150.45762062072754,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 1,
+      "execution_time_ms": 150.35533905029297,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 1,
+      "execution_time_ms": 150.48694610595703,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 1,
+      "execution_time_ms": 150.42757987976074,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 2,
+      "execution_time_ms": 150.4683494567871,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 2,
+      "execution_time_ms": 150.42734146118164,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 2,
+      "execution_time_ms": 150.4495143890381,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 2,
+      "execution_time_ms": 150.407075881958,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 2,
+      "execution_time_ms": 150.44355392456055,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 2,
+      "execution_time_ms": 150.27165412902832,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 3,
+      "execution_time_ms": 150.3770351409912,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 3,
+      "execution_time_ms": 150.4073143005371,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 3,
+      "execution_time_ms": 150.34031867980957,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 3,
+      "execution_time_ms": 150.4504680633545,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 3,
+      "execution_time_ms": 150.40135383605957,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 3,
+      "execution_time_ms": 150.94828605651855,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 4,
+      "execution_time_ms": 150.60710906982422,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 4,
+      "execution_time_ms": 150.91609954833984,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 4,
+      "execution_time_ms": 151.4291763305664,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 4,
+      "execution_time_ms": 151.4272689819336,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 4,
+      "execution_time_ms": 150.5136489868164,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 4,
+      "execution_time_ms": 150.39730072021484,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 5,
+      "execution_time_ms": 150.37202835083008,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 5,
+      "execution_time_ms": 150.36773681640625,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 5,
+      "execution_time_ms": 150.32577514648438,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 5,
+      "execution_time_ms": 150.42757987976074,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 5,
+      "execution_time_ms": 150.8769989013672,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 5,
+      "execution_time_ms": 150.59232711791992,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 6,
+      "execution_time_ms": 150.41732788085938,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 6,
+      "execution_time_ms": 150.30956268310547,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 6,
+      "execution_time_ms": 150.73013305664062,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 6,
+      "execution_time_ms": 150.88295936584473,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 6,
+      "execution_time_ms": 150.79617500305176,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 6,
+      "execution_time_ms": 150.35176277160645,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 7,
+      "execution_time_ms": 150.39777755737305,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 7,
+      "execution_time_ms": 150.3593921661377,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 7,
+      "execution_time_ms": 150.36606788635254,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 7,
+      "execution_time_ms": 150.32339096069336,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 7,
+      "execution_time_ms": 150.42567253112793,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 7,
+      "execution_time_ms": 150.90441703796387,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 8,
+      "execution_time_ms": 150.56610107421875,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 8,
+      "execution_time_ms": 150.53248405456543,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 8,
+      "execution_time_ms": 150.6335735321045,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 8,
+      "execution_time_ms": 150.6049633026123,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 8,
+      "execution_time_ms": 150.70533752441406,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 8,
+      "execution_time_ms": 150.38371086120605,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 9,
+      "execution_time_ms": 150.3608226776123,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 9,
+      "execution_time_ms": 150.47264099121094,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 9,
+      "execution_time_ms": 150.51579475402832,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 9,
+      "execution_time_ms": 151.1228084564209,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 9,
+      "execution_time_ms": 151.11017227172852,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 9,
+      "execution_time_ms": 150.39753913879395,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 10,
+      "execution_time_ms": 150.36535263061523,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 10,
+      "execution_time_ms": 150.35462379455566,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 10,
+      "execution_time_ms": 150.48646926879883,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 10,
+      "execution_time_ms": 150.49338340759277,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 10,
+      "execution_time_ms": 150.44116973876953,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 10,
+      "execution_time_ms": 150.45523643493652,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 11,
+      "execution_time_ms": 150.46215057373047,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 11,
+      "execution_time_ms": 150.3734588623047,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 11,
+      "execution_time_ms": 150.4080295562744,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 11,
+      "execution_time_ms": 150.45762062072754,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 11,
+      "execution_time_ms": 150.4065990447998,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 11,
+      "execution_time_ms": 150.33459663391113,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 12,
+      "execution_time_ms": 150.7437229156494,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 12,
+      "execution_time_ms": 150.3734588623047,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 12,
+      "execution_time_ms": 150.36511421203613,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 12,
+      "execution_time_ms": 150.3605842590332,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 12,
+      "execution_time_ms": 150.41208267211914,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 12,
+      "execution_time_ms": 150.3927707672119,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 13,
+      "execution_time_ms": 150.53486824035645,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 13,
+      "execution_time_ms": 150.46119689941406,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 13,
+      "execution_time_ms": 150.33459663391113,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 13,
+      "execution_time_ms": 150.35748481750488,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 13,
+      "execution_time_ms": 150.44736862182617,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 13,
+      "execution_time_ms": 150.47931671142578,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 14,
+      "execution_time_ms": 150.4685878753662,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 14,
+      "execution_time_ms": 150.30908584594727,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 14,
+      "execution_time_ms": 150.4969596862793,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 14,
+      "execution_time_ms": 150.50649642944336,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 14,
+      "execution_time_ms": 150.3760814666748,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 14,
+      "execution_time_ms": 150.36320686340332,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 15,
+      "execution_time_ms": 150.43091773986816,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 15,
+      "execution_time_ms": 150.7408618927002,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 15,
+      "execution_time_ms": 150.44498443603516,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 15,
+      "execution_time_ms": 150.35510063171387,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 15,
+      "execution_time_ms": 150.60949325561523,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 15,
+      "execution_time_ms": 150.46358108520508,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 16,
+      "execution_time_ms": 150.44212341308594,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 16,
+      "execution_time_ms": 150.38204193115234,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 16,
+      "execution_time_ms": 150.35486221313477,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 16,
+      "execution_time_ms": 150.39801597595215,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 16,
+      "execution_time_ms": 150.43067932128906,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 16,
+      "execution_time_ms": 150.4824161529541,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 17,
+      "execution_time_ms": 150.41327476501465,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 17,
+      "execution_time_ms": 150.4373550415039,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 17,
+      "execution_time_ms": 150.38633346557617,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 17,
+      "execution_time_ms": 150.37131309509277,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 17,
+      "execution_time_ms": 150.45690536499023,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 17,
+      "execution_time_ms": 150.4039764404297,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 18,
+      "execution_time_ms": 150.36845207214355,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 18,
+      "execution_time_ms": 150.3889560699463,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 18,
+      "execution_time_ms": 150.28905868530273,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 18,
+      "execution_time_ms": 150.41685104370117,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 18,
+      "execution_time_ms": 150.360107421875,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 18,
+      "execution_time_ms": 150.3612995147705,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 19,
+      "execution_time_ms": 150.33507347106934,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 19,
+      "execution_time_ms": 150.38776397705078,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 19,
+      "execution_time_ms": 150.3276824951172,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 19,
+      "execution_time_ms": 150.34890174865723,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 19,
+      "execution_time_ms": 150.29215812683105,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 19,
+      "execution_time_ms": 150.36439895629883,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 20,
+      "execution_time_ms": 150.34937858581543,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 20,
+      "execution_time_ms": 150.3314971923828,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 20,
+      "execution_time_ms": 150.3884792327881,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 20,
+      "execution_time_ms": 150.39992332458496,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 20,
+      "execution_time_ms": 150.43330192565918,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 20,
+      "execution_time_ms": 150.39300918579102,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 21,
+      "execution_time_ms": 150.3605842590332,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 21,
+      "execution_time_ms": 150.38323402404785,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 21,
+      "execution_time_ms": 150.34794807434082,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 21,
+      "execution_time_ms": 150.37775039672852,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 21,
+      "execution_time_ms": 150.37202835083008,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 21,
+      "execution_time_ms": 150.36368370056152,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 22,
+      "execution_time_ms": 150.38204193115234,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 22,
+      "execution_time_ms": 150.5603790283203,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 22,
+      "execution_time_ms": 150.4659652709961,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 22,
+      "execution_time_ms": 152.64058113098145,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 22,
+      "execution_time_ms": 150.27689933776855,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 22,
+      "execution_time_ms": 150.44307708740234,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 23,
+      "execution_time_ms": 150.38514137268066,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 23,
+      "execution_time_ms": 150.4056453704834,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 23,
+      "execution_time_ms": 150.37918090820312,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 23,
+      "execution_time_ms": 150.3734588623047,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 23,
+      "execution_time_ms": 150.3925323486328,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 23,
+      "execution_time_ms": 150.35653114318848,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 24,
+      "execution_time_ms": 150.32696723937988,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 0,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 24,
+      "execution_time_ms": 150.33555030822754,
+      "accuracy_score": 0.8666666666666667,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM orders WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 1,
+        "test_case_complexity": "simple",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 24,
+      "execution_time_ms": 150.3593921661377,
+      "accuracy_score": 0.6785714285714286,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM users LIMIT 100",
+      "metadata": {
+        "test_case_index": 2,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 24,
+      "execution_time_ms": 150.4385471343994,
+      "accuracy_score": 0.6799999999999999,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM orders LIMIT 100",
+      "metadata": {
+        "test_case_index": 3,
+        "test_case_complexity": "medium",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 24,
+      "execution_time_ms": 177.46376991271973,
+      "accuracy_score": 0.6038961038961039,
+      "confidence_score": 0.95,
+      "sql_quality_score": 0.7000000000000001,
+      "resource_efficiency": 0.964,
+      "error_occurred": false,
+      "generated_sql": "SELECT COUNT(*) FROM customers WHERE id IS NOT NULL",
+      "metadata": {
+        "test_case_index": 4,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    },
+    {
+      "approach_name": "quantum_inspired_novel",
+      "iteration": 24,
+      "execution_time_ms": 150.41732788085938,
+      "accuracy_score": 0.7085714285714285,
+      "confidence_score": 0.85,
+      "sql_quality_score": 0.65,
+      "resource_efficiency": 0.9339999999999999,
+      "error_occurred": false,
+      "generated_sql": "SELECT * FROM products LIMIT 100",
+      "metadata": {
+        "test_case_index": 5,
+        "test_case_complexity": "complex",
+        "approach_details": "quantum_inspired",
+        "additional_metrics": {
+          "quantum_coherence": 0.8,
+          "superposition_states": 16,
+          "entanglement_strength": 0.7
+        }
+      }
+    }
+  ],
+  "research_conclusions": [
+    "\u274c HYPOTHESIS REJECTED: Novel approaches do not consistently outperform baseline methods.",
+    "\ud83c\udfc6 BEST OVERALL PERFORMER: quantum_inspired_novel (score: 0.811)",
+    "\ud83d\udcca CRITERIA SATISFACTION: 33.3% of success criteria were met",
+    "\ud83d\udd2c RECOMMENDATION: Further research needed to improve novel approaches before production consideration.",
+    "\ud83d\udd0d KEY INSIGHT: Best accuracy: template_based_baseline (0.744)"
+  ],
+  "reproducibility_info": {
+    "benchmark_framework_version": "1.0.0",
+    "python_version": "3.8+",
+    "test_cases_count": 6,
+    "iterations_per_approach": 25,
+    "timeout_seconds": 10.0,
+    "statistical_threshold": 0.05,
+    "evaluation_metrics": [
+      "execution_time_ms",
+      "accuracy_score",
+      "confidence_score",
+      "sql_quality_score",
+      "resource_efficiency"
+    ],
+    "benchmark_checksum": "819c5bac52c3c7f7622c38b0fb435aaa"
+  },
+  "generated_at": "2025-08-16T12:39:14.465304"
+}

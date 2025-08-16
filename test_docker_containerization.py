@@ -1,7 +1,5 @@
 """Test for Docker containerization functionality."""
 
-import os
-import tempfile
 from pathlib import Path
 
 
@@ -16,9 +14,9 @@ def test_dockerfile_content():
     dockerfile_path = Path("./Dockerfile")
     if not dockerfile_path.exists():
         return  # Skip if file doesn't exist yet
-        
+
     content = dockerfile_path.read_text()
-    
+
     # Check for essential Dockerfile elements
     assert "FROM python:" in content, "Should use Python base image"
     assert "COPY requirements.txt" in content, "Should copy requirements"
@@ -33,11 +31,11 @@ def test_sample_data_exists():
         "sample_data/demo_queries.txt",
         "sample_data/README.md"
     ]
-    
+
     for file_path in sample_files:
         path = Path(file_path)
         # Just check if directory structure can be created
-        assert path.parent.name == "sample_data", f"Sample data should be in sample_data directory"
+        assert path.parent.name == "sample_data", "Sample data should be in sample_data directory"
 
 
 def test_docker_ignore_exists():
@@ -57,7 +55,7 @@ if __name__ == "__main__":
         print("✅ Dockerfile exists")
     except AssertionError as e:
         print(f"❌ {e}")
-    
+
     try:
         test_dockerfile_content()
         print("✅ Dockerfile content is valid")
@@ -65,7 +63,7 @@ if __name__ == "__main__":
         print(f"❌ {e}")
     except Exception:
         print("⚠️ Dockerfile content not yet testable")
-        
+
     try:
         test_sample_data_exists()
         print("✅ Sample data structure is valid")
