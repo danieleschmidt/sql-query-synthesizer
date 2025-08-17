@@ -1,0 +1,194 @@
+{
+  "experiment_metadata": {
+    "total_experiments": 60,
+    "algorithms_tested": 3,
+    "test_queries": 4,
+    "timestamp": "2025-08-17T18:28:09.483763"
+  },
+  "performance_analysis": {
+    "execution_time": {
+      "mean_by_algorithm": {
+        "quantum_annealing": 0.005778968334197998,
+        "quantum_entanglement": 0.0001190185546875,
+        "quantum_superposition": 0.0013762593269348144
+      },
+      "std_by_algorithm": {
+        "quantum_annealing": 0.0001753203591757619,
+        "quantum_entanglement": 8.657898879759637e-05,
+        "quantum_superposition": 0.00038264383678617237
+      }
+    },
+    "accuracy_scores": {
+      "mean_by_algorithm": {
+        "quantum_annealing": 0.7857142857142857,
+        "quantum_entanglement": 1.0,
+        "quantum_superposition": 1.0
+      },
+      "median_by_algorithm": {
+        "quantum_annealing": 1.0,
+        "quantum_entanglement": 1.0,
+        "quantum_superposition": 1.0
+      }
+    },
+    "memory_usage": {
+      "mean_by_algorithm": {
+        "quantum_annealing": 0.0,
+        "quantum_entanglement": 0.0,
+        "quantum_superposition": 0.0470703125
+      },
+      "max_by_algorithm": {
+        "quantum_annealing": 0.0,
+        "quantum_entanglement": 0.0,
+        "quantum_superposition": 0.94140625
+      }
+    }
+  },
+  "complexity_analysis": {
+    "performance_by_complexity": [
+      {
+        "algorithm": "quantum_annealing",
+        "query_type": "complexity_0.0",
+        "execution_time": 0.005779886245727539,
+        "accuracy_score": 0.8285714285714285,
+        "sql_quality_score": 0.7333333333333333
+      },
+      {
+        "algorithm": "quantum_annealing",
+        "query_type": "complexity_0.1",
+        "execution_time": 0.005794954299926758,
+        "accuracy_score": 1.0,
+        "sql_quality_score": 0.3333333333333333
+      },
+      {
+        "algorithm": "quantum_annealing",
+        "query_type": "complexity_0.2",
+        "execution_time": 0.00577077865600586,
+        "accuracy_score": 0.6571428571428571,
+        "sql_quality_score": 0.2
+      },
+      {
+        "algorithm": "quantum_annealing",
+        "query_type": "complexity_0.3",
+        "execution_time": 0.005770254135131836,
+        "accuracy_score": 0.6571428571428571,
+        "sql_quality_score": 0.2
+      },
+      {
+        "algorithm": "quantum_entanglement",
+        "query_type": "complexity_0.0",
+        "execution_time": 4.1532516479492185e-05,
+        "accuracy_score": 1.0,
+        "sql_quality_score": 0.6666666666666666
+      },
+      {
+        "algorithm": "quantum_entanglement",
+        "query_type": "complexity_0.1",
+        "execution_time": 5.373954772949219e-05,
+        "accuracy_score": 1.0,
+        "sql_quality_score": 0.3333333333333333
+      },
+      {
+        "algorithm": "quantum_entanglement",
+        "query_type": "complexity_0.2",
+        "execution_time": 0.00013604164123535157,
+        "accuracy_score": 1.0,
+        "sql_quality_score": 0.3333333333333333
+      },
+      {
+        "algorithm": "quantum_entanglement",
+        "query_type": "complexity_0.3",
+        "execution_time": 0.00024476051330566404,
+        "accuracy_score": 1.0,
+        "sql_quality_score": 0.3333333333333333
+      },
+      {
+        "algorithm": "quantum_superposition",
+        "query_type": "complexity_0.0",
+        "execution_time": 0.0015194416046142578,
+        "accuracy_score": 1.0,
+        "sql_quality_score": 0.6666666666666666
+      },
+      {
+        "algorithm": "quantum_superposition",
+        "query_type": "complexity_0.1",
+        "execution_time": 0.0012721538543701172,
+        "accuracy_score": 1.0,
+        "sql_quality_score": 0.3333333333333333
+      },
+      {
+        "algorithm": "quantum_superposition",
+        "query_type": "complexity_0.2",
+        "execution_time": 0.0013132572174072265,
+        "accuracy_score": 1.0,
+        "sql_quality_score": 0.3333333333333333
+      },
+      {
+        "algorithm": "quantum_superposition",
+        "query_type": "complexity_0.3",
+        "execution_time": 0.0014001846313476563,
+        "accuracy_score": 1.0,
+        "sql_quality_score": 0.3333333333333333
+      }
+    ]
+  },
+  "statistical_significance": {
+    "execution_time": {
+      "quantum_superposition_vs_quantum_entanglement": {
+        "p_value": 6.606460518971909e-17,
+        "significant": "True",
+        "effect_size": 4.532072965321157
+      },
+      "quantum_superposition_vs_quantum_annealing": {
+        "p_value": 3.3441954904519987e-35,
+        "significant": "True",
+        "effect_size": 14.7931298558814
+      },
+      "quantum_entanglement_vs_quantum_annealing": {
+        "p_value": 7.027005928981364e-52,
+        "significant": "True",
+        "effect_size": 40.936201080958035
+      }
+    },
+    "accuracy_score": {
+      "quantum_superposition_vs_quantum_entanglement": {
+        "p_value": NaN,
+        "significant": "False",
+        "effect_size": NaN
+      },
+      "quantum_superposition_vs_quantum_annealing": {
+        "p_value": 0.01618969404825174,
+        "significant": "True",
+        "effect_size": 0.795822425754222
+      },
+      "quantum_entanglement_vs_quantum_annealing": {
+        "p_value": 0.01618969404825174,
+        "significant": "True",
+        "effect_size": 0.795822425754222
+      }
+    },
+    "sql_quality_score": {
+      "quantum_superposition_vs_quantum_entanglement": {
+        "p_value": 1.0,
+        "significant": "False",
+        "effect_size": 0.0
+      },
+      "quantum_superposition_vs_quantum_annealing": {
+        "p_value": 0.4629417506929029,
+        "significant": "False",
+        "effect_size": 0.23448650884343453
+      },
+      "quantum_entanglement_vs_quantum_annealing": {
+        "p_value": 0.4629417506929029,
+        "significant": "False",
+        "effect_size": 0.23448650884343453
+      }
+    }
+  },
+  "recommendations": [
+    "Best overall algorithm: quantum_entanglement",
+    "Best for complexity_0.0: quantum_entanglement",
+    "Best for complexity_0.1: quantum_annealing",
+    "Best for complexity_0.2: quantum_entanglement",
+    "Best for complexity_0.3: quantum_entanglement"
+  ]
+}
