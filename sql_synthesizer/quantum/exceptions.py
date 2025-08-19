@@ -376,3 +376,27 @@ class QuantumExceptionContext:
             return False  # Re-raise the exception
 
         return False  # Don't suppress other exceptions
+
+
+class QuantumBulkheadError(QuantumError):
+    """Raised when quantum bulkhead isolation fails"""
+
+    def __init__(
+        self,
+        message: str,
+        bulkhead_name: str = None,
+        current_load: int = None,
+        capacity: int = None,
+        details: Dict[str, Any] = None,
+    ):
+        super().__init__(message, "QUANTUM_BULKHEAD_ERROR", details)
+        self.bulkhead_name = bulkhead_name
+        self.current_load = current_load
+        self.capacity = capacity
+
+    def to_dict(self) -> Dict[str, Any]:
+        data = super().to_dict()
+        data["bulkhead_name"] = self.bulkhead_name
+        data["current_load"] = self.current_load
+        data["capacity"] = self.capacity
+        return data

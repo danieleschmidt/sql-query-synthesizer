@@ -1,7 +1,8 @@
-"""Enhanced Core Functionality for SQL Query Synthesizer.
+"""Enhanced Core Functionality with Advanced Reliability Patterns.
 
-This module implements Generation 1 enhancements focused on making the system work
-with improved reliability, performance monitoring, and enterprise features.
+This module extends the core functionality with enterprise-grade reliability
+patterns including circuit breakers, bulkheads, adaptive timeouts, and
+self-healing mechanisms for production environments.
 """
 
 import asyncio
@@ -10,14 +11,88 @@ import logging
 import threading
 import time
 import uuid
+from collections import defaultdict
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, TypeVar, Union
 
-from .core import QueryMetadata, ResultFormatter, SystemInfo
+from .core import (
+    ErrorHandler,
+    QueryMetadata,
+    QueryTracker,
+    ResultFormatter,
+    SystemInfo,
+)
+from .robust_error_handling import (
+    ErrorCategory,
+    ErrorContext,
+    ErrorSeverity,
+    RobustErrorHandler,
+)
 from .types import QueryResult
 
+T = TypeVar("T")
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class AdvancedSystemMetrics:
+    """Advanced system metrics for enhanced monitoring."""
+
+    # Performance metrics
+    avg_response_time: float = 0.0
+    p95_response_time: float = 0.0
+    p99_response_time: float = 0.0
+    throughput_per_second: float = 0.0
+
+    # Reliability metrics
+    error_rate: float = 0.0
+    circuit_breaker_trips: int = 0
+    fallback_activations: int = 0
+    timeout_count: int = 0
+
+    # Resource metrics
+    memory_usage_mb: float = 0.0
+    cpu_usage_percent: float = 0.0
+    active_connections: int = 0
+    queue_depth: int = 0
+
+    # Business metrics
+    sql_generation_success_rate: float = 0.0
+    cache_efficiency: float = 0.0
+    user_satisfaction_score: float = 0.0
+
+
+@dataclass
+class ReliabilityConfiguration:
+    """Configuration for reliability features."""
+
+    # Circuit breaker settings
+    circuit_breaker_failure_threshold: int = 5
+    circuit_breaker_recovery_timeout: float = 60.0
+    circuit_breaker_half_open_max_calls: int = 3
+
+    # Timeout settings
+    default_timeout: float = 30.0
+    adaptive_timeout_enabled: bool = True
+    max_timeout: float = 120.0
+    min_timeout: float = 5.0
+
+    # Retry settings
+    max_retries: int = 3
+    retry_backoff_multiplier: float = 2.0
+    retry_max_delay: float = 30.0
+
+    # Bulkhead settings
+    max_concurrent_queries: int = 100
+    high_priority_queue_size: int = 20
+    normal_priority_queue_size: int = 50
+    low_priority_queue_size: int = 30
+
+    # Health check settings
+    health_check_interval: float = 60.0
+    dependency_timeout: float = 10.0
 
 
 @dataclass
@@ -45,8 +120,224 @@ class EnhancedQueryMetadata(QueryMetadata):
     data_source: str = "primary"
 
 
+class EnhancedQueryTracker(QueryTracker):
+    """Enhanced query tracker with advanced metrics and reliability features."""
+
+    def __init__(self, config: ReliabilityConfiguration = None):
+        super().__init__()
+        self.config = config or ReliabilityConfiguration()
+        self._response_times: List[float] = []
+        self._error_counts = defaultdict(int)
+        self._circuit_breaker_trips = 0
+        self._fallback_activations = 0
+        self._timeout_count = 0
+        self._last_cleanup = time.time()
+        self._metrics_lock = threading.Lock()
+
+    def record_advanced_query(
+        self,
+        duration_ms: float,
+        success: bool,
+        cache_hit: bool = False,
+        error_category: Optional[ErrorCategory] = None,
+        circuit_breaker_tripped: bool = False,
+        fallback_used: bool = False,
+        timed_out: bool = False,
+    ):
+        """Record advanced query metrics with reliability information."""
+        with self._metrics_lock:
+            # Record basic metrics
+            self.record_query(duration_ms, success, cache_hit)
+
+            # Record response time
+            self._response_times.append(duration_ms)
+
+            # Track reliability metrics
+            if error_category:
+                self._error_counts[error_category] += 1
+
+            if circuit_breaker_tripped:
+                self._circuit_breaker_trips += 1
+
+            if fallback_used:
+                self._fallback_activations += 1
+
+            if timed_out:
+                self._timeout_count += 1
+
+            # Periodic cleanup to prevent memory growth
+            if time.time() - self._last_cleanup > 300:  # 5 minutes
+                self._cleanup_old_metrics()
+
+    def _cleanup_old_metrics(self):
+        """Clean up old metrics to prevent memory growth."""
+        # Keep only last 1000 response times
+        if len(self._response_times) > 1000:
+            self._response_times = self._response_times[-1000:]
+
+        self._last_cleanup = time.time()
+
+    def get_advanced_statistics(self) -> AdvancedSystemMetrics:
+        """Get comprehensive system metrics."""
+        stats = self.get_statistics()
+
+        # Calculate percentiles
+        response_times = sorted(self._response_times) if self._response_times else [0]
+        p95_index = int(len(response_times) * 0.95)
+        p99_index = int(len(response_times) * 0.99)
+
+        p95_response = response_times[min(p95_index, len(response_times) - 1)]
+        p99_response = response_times[min(p99_index, len(response_times) - 1)]
+
+        # Calculate error rate
+        total_queries = self._query_count
+        error_rate = (self._error_count / max(total_queries, 1)) * 100
+
+        return AdvancedSystemMetrics(
+            avg_response_time=stats["average_duration_ms"],
+            p95_response_time=p95_response,
+            p99_response_time=p99_response,
+            throughput_per_second=stats["queries_per_second"],
+            error_rate=error_rate,
+            circuit_breaker_trips=self._circuit_breaker_trips,
+            fallback_activations=self._fallback_activations,
+            timeout_count=self._timeout_count,
+            sql_generation_success_rate=stats["success_rate"],
+            cache_efficiency=stats["cache_hit_rate"],
+        )
+
+
+class AdaptiveTimeoutManager:
+    """Manages adaptive timeouts based on historical performance."""
+
+    def __init__(self, config: ReliabilityConfiguration):
+        self.config = config
+        self._response_times: Dict[str, List[float]] = defaultdict(list)
+        self._last_cleanup = time.time()
+
+    def record_response_time(self, operation: str, duration_ms: float):
+        """Record response time for adaptive timeout calculation."""
+        self._response_times[operation].append(duration_ms)
+
+        # Cleanup old data
+        if time.time() - self._last_cleanup > 300:  # 5 minutes
+            self._cleanup_old_data()
+
+    def _cleanup_old_data(self):
+        """Clean up old response time data."""
+        for operation in self._response_times:
+            if len(self._response_times[operation]) > 100:
+                self._response_times[operation] = self._response_times[operation][-100:]
+        self._last_cleanup = time.time()
+
+    def get_adaptive_timeout(self, operation: str) -> float:
+        """Calculate adaptive timeout based on historical performance."""
+        if not self.config.adaptive_timeout_enabled:
+            return self.config.default_timeout
+
+        response_times = self._response_times.get(operation, [])
+        if len(response_times) < 5:  # Not enough data
+            return self.config.default_timeout
+
+        # Use 95th percentile + buffer
+        sorted_times = sorted(response_times)
+        p95_index = int(len(sorted_times) * 0.95)
+        p95_time = sorted_times[min(p95_index, len(sorted_times) - 1)]
+
+        # Add 50% buffer and convert to seconds
+        adaptive_timeout = (p95_time * 1.5) / 1000.0
+
+        # Apply bounds
+        return max(
+            self.config.min_timeout, min(adaptive_timeout, self.config.max_timeout)
+        )
+
+
+class EnhancedErrorHandler(ErrorHandler):
+    """Enhanced error handler with advanced recovery strategies."""
+
+    def __init__(self, config: ReliabilityConfiguration = None):
+        self.config = config or ReliabilityConfiguration()
+        self.robust_handler = RobustErrorHandler()
+
+    @staticmethod
+    def format_enhanced_error(
+        error: Exception, context: Optional[ErrorContext] = None
+    ) -> str:
+        """Format errors with enhanced context information."""
+        base_message = ErrorHandler.format_database_error(error)
+
+        if context:
+            severity_indicator = {
+                ErrorSeverity.LOW: "ℹ️",
+                ErrorSeverity.MEDIUM: "⚠️",
+                ErrorSeverity.HIGH: "🚨",
+                ErrorSeverity.CRITICAL: "🔥",
+            }.get(context.severity, "❓")
+
+            return f"{severity_indicator} {base_message} (Error ID: {context.error_id})"
+
+        return base_message
+
+    def should_retry_error(
+        self, error: Exception, attempt_count: int
+    ) -> tuple[bool, float]:
+        """Determine if error should be retried and calculate delay."""
+        if attempt_count >= self.config.max_retries:
+            return False, 0.0
+
+        # Get error context
+        error_context = self.robust_handler.classify_error(error)
+
+        # Don't retry validation or authentication errors
+        no_retry_categories = {ErrorCategory.VALIDATION, ErrorCategory.AUTHENTICATION}
+        if error_context.category in no_retry_categories:
+            return False, 0.0
+
+        # Calculate exponential backoff delay
+        base_delay = 1.0
+        delay = min(
+            base_delay * (self.config.retry_backoff_multiplier**attempt_count),
+            self.config.retry_max_delay,
+        )
+
+        return True, delay
+
+
+class BulkheadManager:
+    """Manages resource isolation using the bulkhead pattern."""
+
+    def __init__(self, config: ReliabilityConfiguration):
+        self.config = config
+        self._high_priority_semaphore = asyncio.Semaphore(
+            config.high_priority_queue_size
+        )
+        self._normal_priority_semaphore = asyncio.Semaphore(
+            config.normal_priority_queue_size
+        )
+        self._low_priority_semaphore = asyncio.Semaphore(config.low_priority_queue_size)
+        self._global_semaphore = asyncio.Semaphore(config.max_concurrent_queries)
+
+    @asynccontextmanager
+    async def acquire_slot(self, priority: str = "normal"):
+        """Acquire a bulkhead slot based on priority."""
+        semaphore_map = {
+            "high": self._high_priority_semaphore,
+            "normal": self._normal_priority_semaphore,
+            "low": self._low_priority_semaphore,
+        }
+
+        priority_semaphore = semaphore_map.get(
+            priority, self._normal_priority_semaphore
+        )
+
+        async with self._global_semaphore:
+            async with priority_semaphore:
+                yield
+
+
 class PerformanceTracker:
-    """Tracks performance metrics and system health."""
+    """Legacy performance tracker for backward compatibility."""
 
     def __init__(self):
         self.start_time = time.time()
@@ -175,6 +466,54 @@ class EnhancedResultFormatter(ResultFormatter):
                     row_str = f"| {str(row)} |"
                 rows.append(row_str)
             return "\n".join(rows)
+
+
+# Global enhanced tracker instance
+enhanced_query_tracker = EnhancedQueryTracker()
+
+
+def create_enhanced_query_metadata(
+    query_id: str,
+    duration_ms: float,
+    cache_hit: bool = False,
+    user_agent: Optional[str] = None,
+    client_ip: Optional[str] = None,
+    priority: str = "normal",
+    error_context: Optional[ErrorContext] = None,
+) -> QueryMetadata:
+    """Create enhanced query metadata with additional tracking information."""
+    metadata = QueryMetadata(
+        query_id=query_id,
+        timestamp=datetime.utcnow(),
+        duration_ms=duration_ms,
+        cache_hit=cache_hit,
+        user_agent=user_agent,
+        client_ip=client_ip,
+    )
+
+    # Add enhanced attributes
+    metadata.priority = priority  # type: ignore
+    metadata.error_context = error_context  # type: ignore
+
+    return metadata
+
+
+def get_enhanced_system_info(
+    include_advanced_metrics: bool = True,
+) -> Union[SystemInfo, AdvancedSystemMetrics]:
+    """Get enhanced system information with advanced metrics."""
+    if include_advanced_metrics:
+        return enhanced_query_tracker.get_advanced_statistics()
+    else:
+        stats = enhanced_query_tracker.get_statistics()
+        return SystemInfo(
+            version="0.2.2",
+            uptime=stats["uptime_seconds"],
+            total_queries=stats["total_queries"],
+            successful_queries=stats["successful_queries"],
+            failed_queries=stats["failed_queries"],
+            cache_hit_rate=stats["cache_hit_rate"],
+        )
 
 
 class GlobalEventBus:
