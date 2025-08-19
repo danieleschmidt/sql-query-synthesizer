@@ -491,11 +491,10 @@ class IntelligentQueryRouter:
             return {"total_queries": 0}
 
         endpoint_stats = {}
-        complexity_stats = {}
         total_queries = len(self.routing_history)
         total_execution_time = 0
 
-        for query_hash, route, execution_time in self.routing_history:
+        for _query_hash, route, execution_time in self.routing_history:
             # Endpoint statistics
             endpoint_name = route.endpoint.name
             if endpoint_name not in endpoint_stats:

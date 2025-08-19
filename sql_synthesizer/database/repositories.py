@@ -50,10 +50,10 @@ class QueryHistoryRepository(BaseRepository):
         """Create a new query history record."""
         try:
             query = """
-            INSERT INTO query_history 
-            (query_id, user_question, generated_sql, execution_time_ms, 
+            INSERT INTO query_history
+            (query_id, user_question, generated_sql, execution_time_ms,
              success, error_message, cache_hit, user_agent, client_ip, created_at)
-            VALUES 
+            VALUES
             (:query_id, :user_question, :generated_sql, :execution_time_ms,
              :success, :error_message, :cache_hit, :user_agent, :client_ip, :created_at)
             """
@@ -96,7 +96,7 @@ class QueryHistoryRepository(BaseRepository):
         """Update query history record."""
         try:
             query = """
-            UPDATE query_history 
+            UPDATE query_history
             SET user_question = :user_question,
                 generated_sql = :generated_sql,
                 execution_time_ms = :execution_time_ms,
@@ -134,8 +134,8 @@ class QueryHistoryRepository(BaseRepository):
         """List all query history records with pagination."""
         try:
             query = """
-            SELECT * FROM query_history 
-            ORDER BY created_at DESC 
+            SELECT * FROM query_history
+            ORDER BY created_at DESC
             LIMIT :limit OFFSET :offset
             """
 
@@ -153,9 +153,9 @@ class QueryHistoryRepository(BaseRepository):
         """Get recent successful queries."""
         try:
             query = """
-            SELECT * FROM query_history 
-            WHERE success = true 
-            ORDER BY created_at DESC 
+            SELECT * FROM query_history
+            WHERE success = true
+            ORDER BY created_at DESC
             LIMIT :limit
             """
 
@@ -170,7 +170,7 @@ class QueryHistoryRepository(BaseRepository):
         """Get query execution statistics."""
         try:
             stats_query = """
-            SELECT 
+            SELECT
                 COUNT(*) as total_queries,
                 COUNT(CASE WHEN success = true THEN 1 END) as successful_queries,
                 COUNT(CASE WHEN success = false THEN 1 END) as failed_queries,
@@ -207,7 +207,7 @@ class QueryHistoryRepository(BaseRepository):
         """Clean up old query history records."""
         try:
             query = f"""
-            DELETE FROM query_history 
+            DELETE FROM query_history
             WHERE created_at < datetime('now', '-{days_to_keep} days')
             """
 
@@ -247,9 +247,9 @@ class SystemMetricsRepository(BaseRepository):
         """Record system metrics."""
         try:
             query = """
-            INSERT INTO system_metrics 
+            INSERT INTO system_metrics
             (metric_name, metric_value, metric_type, tags, recorded_at)
-            VALUES 
+            VALUES
             (:metric_name, :metric_value, :metric_type, :tags, :recorded_at)
             """
 
@@ -306,8 +306,8 @@ class SystemMetricsRepository(BaseRepository):
         """List all metrics with pagination."""
         try:
             query = """
-            SELECT * FROM system_metrics 
-            ORDER BY recorded_at DESC 
+            SELECT * FROM system_metrics
+            ORDER BY recorded_at DESC
             LIMIT :limit OFFSET :offset
             """
 
@@ -327,9 +327,9 @@ class SystemMetricsRepository(BaseRepository):
         """Get metrics by name."""
         try:
             query = """
-            SELECT * FROM system_metrics 
-            WHERE metric_name = :metric_name 
-            ORDER BY recorded_at DESC 
+            SELECT * FROM system_metrics
+            WHERE metric_name = :metric_name
+            ORDER BY recorded_at DESC
             LIMIT :limit
             """
 
@@ -350,8 +350,8 @@ class SystemMetricsRepository(BaseRepository):
             SELECT metric_name, metric_value, metric_type, recorded_at
             FROM system_metrics m1
             WHERE recorded_at = (
-                SELECT MAX(recorded_at) 
-                FROM system_metrics m2 
+                SELECT MAX(recorded_at)
+                FROM system_metrics m2
                 WHERE m2.metric_name = m1.metric_name
             )
             ORDER BY metric_name

@@ -6,7 +6,7 @@ import threading
 import time
 from abc import ABC, abstractmethod
 from collections import OrderedDict
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # Optional imports for cache backends
 try:
@@ -45,12 +45,12 @@ class CacheBackend(ABC):
         pass
 
     @abstractmethod
-    def cleanup_expired(self) -> Dict[str, int]:
+    def cleanup_expired(self) -> dict[str, int]:
         """Remove expired entries and return cleanup statistics."""
         pass
 
     @abstractmethod
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get cache statistics."""
         pass
 
@@ -58,7 +58,7 @@ class CacheBackend(ABC):
 class TTLCache:
     """A time-based cache with performance metrics and memory management."""
 
-    def __init__(self, ttl: int = 0, max_size: Optional[int] = None) -> None:
+    def __init__(self, ttl: int = 0, max_size: int | None = None) -> None:
         self.ttl = ttl
         self.max_size = max_size
         self._items: OrderedDict[str, tuple[float, Any]] = OrderedDict()
@@ -171,7 +171,7 @@ class TTLCache:
             self._miss_count = 0
             self._eviction_count = 0
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get comprehensive cache statistics."""
         with self._lock:
             total_ops = self._hit_count + self._miss_count
@@ -190,7 +190,7 @@ class TTLCache:
 class TTLCacheBackend(CacheBackend):
     """TTL cache backend wrapper implementing the CacheBackend interface."""
 
-    def __init__(self, ttl: int = 0, max_size: Optional[int] = None):
+    def __init__(self, ttl: int = 0, max_size: int | None = None):
         self._cache = TTLCache(ttl=ttl, max_size=max_size)
 
     @property
@@ -210,12 +210,12 @@ class TTLCacheBackend(CacheBackend):
         """Clear all cache entries."""
         self._cache.clear()
 
-    def cleanup_expired(self) -> Dict[str, int]:
+    def cleanup_expired(self) -> dict[str, int]:
         """Remove expired entries and return cleanup statistics."""
         cleaned_count = self._cache.cleanup_expired()
         return {"total_cleaned": cleaned_count, "remaining_size": self._cache.size}
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get cache statistics."""
         return self._cache.get_stats()
 
@@ -229,7 +229,7 @@ class RedisCacheBackend(CacheBackend):
         port: int = 6379,
         db: int = 0,
         ttl: int = 3600,
-        password: Optional[str] = None,
+        password: str | None = None,
     ):
         if redis is None:
             raise CacheError(
@@ -284,11 +284,11 @@ class RedisCacheBackend(CacheBackend):
         except redis.RedisError as e:
             raise CacheError(f"Redis clear operation failed: {e}")
 
-    def cleanup_expired(self) -> Dict[str, int]:
+    def cleanup_expired(self) -> dict[str, int]:
         """Redis automatically handles TTL, so this is a no-op."""
         return {"total_cleaned": 0, "remaining_size": -1}  # Size unknown in Redis
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get cache statistics."""
         with self._lock:
             total_ops = self._hit_count + self._miss_count
@@ -315,7 +315,7 @@ class RedisCacheBackend(CacheBackend):
 class MemcachedCacheBackend(CacheBackend):
     """Memcached cache backend for distributed caching."""
 
-    def __init__(self, servers: List[str], ttl: int = 3600):
+    def __init__(self, servers: list[str], ttl: int = 3600):
         if pymemcache is None:
             raise CacheError(
                 "pymemcache library not installed. Install with: pip install pymemcache"
@@ -367,11 +367,11 @@ class MemcachedCacheBackend(CacheBackend):
         except (ConnectionError, OSError) as e:
             raise CacheError(f"Memcached clear operation failed: {e}")
 
-    def cleanup_expired(self) -> Dict[str, int]:
+    def cleanup_expired(self) -> dict[str, int]:
         """Memcached automatically handles TTL, so this is a no-op."""
         return {"total_cleaned": 0, "remaining_size": -1}  # Size unknown in Memcached
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get cache statistics."""
         with self._lock:
             total_ops = self._hit_count + self._miss_count

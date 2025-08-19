@@ -1,0 +1,680 @@
+{
+  "benchmark_timestamp": 1755565021.6745267,
+  "total_duration": 43.19812989234924,
+  "system_info": {
+    "python_version": "3.12.3 (main, Jun 18 2025, 17:59:45) [GCC 13.3.0]",
+    "cpu_count": 2,
+    "cpu_freq": {
+      "current": 2000.176,
+      "min": 0.0,
+      "max": 0.0
+    },
+    "memory_total_gb": 3.8496856689453125,
+    "memory_available_gb": 3.1940956115722656,
+    "disk_usage": {
+      "total_gb": 23.488197326660156,
+      "free_gb": 19.447715759277344
+    },
+    "platform": "linux"
+  },
+  "benchmark_results": [
+    {
+      "benchmark_name": "simple_function_call",
+      "benchmark_type": "latency",
+      "duration": 1.9807815551757812e-07,
+      "throughput": 5048512.2773230625,
+      "memory_used": null,
+      "cpu_percent": null,
+      "success_rate": 1.0,
+      "error_count": 0,
+      "metadata": {
+        "avg_latency_ms": 0.00019807815551757811,
+        "min_latency_ms": 0.0,
+        "max_latency_ms": 0.025272369384765625,
+        "p95_latency_ms": 0.000476837158203125,
+        "iterations": 10000
+      }
+    },
+    {
+      "benchmark_name": "async_function_call",
+      "benchmark_type": "latency",
+      "duration": 4.567861557006836e-06,
+      "throughput": 218920.8205021139,
+      "memory_used": null,
+      "cpu_percent": null,
+      "success_rate": 1.0,
+      "error_count": 0,
+      "metadata": {
+        "avg_latency_ms": 0.004567861557006836,
+        "min_latency_ms": 0.0035762786865234375,
+        "max_latency_ms": 0.07462501525878906,
+        "p95_latency_ms": 0.00476837158203125,
+        "iterations": 1000
+      }
+    },
+    {
+      "benchmark_name": "quantum_optimizer_latency",
+      "benchmark_type": "latency",
+      "duration": 0.00017764568328857422,
+      "throughput": 5629.182660045632,
+      "memory_used": null,
+      "cpu_percent": null,
+      "success_rate": 1.0,
+      "error_count": 0,
+      "metadata": {
+        "avg_latency_ms": 0.17764568328857422,
+        "min_latency_ms": 0.15997886657714844,
+        "max_latency_ms": 0.2224445343017578,
+        "p95_latency_ms": 0,
+        "iterations": 10
+      }
+    },
+    {
+      "benchmark_name": "sequential_throughput",
+      "benchmark_type": "throughput",
+      "duration": 5.001481771469116,
+      "throughput": 63922.256364855406,
+      "memory_used": 80.265625,
+      "cpu_percent": 58.6,
+      "success_rate": 1.0,
+      "error_count": 0,
+      "metadata": {
+        "items_processed": 319706,
+        "profile_stats": {
+          "duration": 4.961076974868774,
+          "sample_count": 48,
+          "cpu_stats": {
+            "mean": 48.577083333333334,
+            "max": 58.6,
+            "min": 0.0,
+            "std": 8.378753260818328
+          },
+          "memory_stats": {
+            "mean_mb": 80.265625,
+            "max_mb": 80.265625,
+            "min_mb": 80.265625,
+            "std_mb": 0.0
+          },
+          "peak_usage": {
+            "cpu_percent": 58.6,
+            "memory_mb": 80.265625
+          }
+        }
+      }
+    },
+    {
+      "benchmark_name": "concurrent_throughput",
+      "benchmark_type": "throughput",
+      "duration": 5.001598596572876,
+      "throughput": 865.7232115681855,
+      "memory_used": 80.265625,
+      "cpu_percent": 9.9,
+      "success_rate": 1.0,
+      "error_count": 0,
+      "metadata": {
+        "items_processed": 4330,
+        "concurrency_limit": 20,
+        "profile_stats": {
+          "duration": 4.955667972564697,
+          "sample_count": 50,
+          "cpu_stats": {
+            "mean": 4.548,
+            "max": 9.9,
+            "min": 0.0,
+            "std": 4.977838232545103
+          },
+          "memory_stats": {
+            "mean_mb": 80.265625,
+            "max_mb": 80.265625,
+            "min_mb": 80.265625,
+            "std_mb": 0.0
+          },
+          "peak_usage": {
+            "cpu_percent": 9.9,
+            "memory_mb": 80.265625
+          }
+        }
+      }
+    },
+    {
+      "benchmark_name": "quantum_system_throughput",
+      "benchmark_type": "throughput",
+      "duration": 3.0002574920654297,
+      "throughput": 1526.2023383358794,
+      "memory_used": 81.29296875,
+      "cpu_percent": 97.8,
+      "success_rate": 1.0,
+      "error_count": 0,
+      "metadata": {
+        "metrics_recorded": 13737,
+        "profile_stats": {
+          "duration": 2.9191410541534424,
+          "sample_count": 24,
+          "cpu_stats": {
+            "mean": 57.5,
+            "max": 97.8,
+            "min": 0.0,
+            "std": 21.020424849882676
+          },
+          "memory_stats": {
+            "mean_mb": 81.18570963541667,
+            "max_mb": 81.29296875,
+            "min_mb": 80.265625,
+            "std_mb": 0.26184414370834913
+          },
+          "peak_usage": {
+            "cpu_percent": 97.8,
+            "memory_mb": 81.29296875
+          }
+        }
+      }
+    },
+    {
+      "benchmark_name": "memory_allocation",
+      "benchmark_type": "memory",
+      "duration": 2.1742684841156006,
+      "throughput": null,
+      "memory_used": 10.024009704589844,
+      "cpu_percent": null,
+      "success_rate": 1.0,
+      "error_count": 0,
+      "metadata": {
+        "current_memory_mb": 0.06728363037109375,
+        "peak_memory_mb": 10.024009704589844,
+        "allocations_performed": 1000
+      }
+    },
+    {
+      "benchmark_name": "memory_leak_detection",
+      "benchmark_type": "memory",
+      "duration": 0.0063245296478271484,
+      "throughput": null,
+      "memory_used": 0.34710121154785156,
+      "cpu_percent": null,
+      "success_rate": 1.0,
+      "error_count": 0,
+      "metadata": {
+        "memory_growth_mb": 0.0,
+        "cache_entries_final": 225,
+        "peak_traced_memory_mb": 0.34710121154785156,
+        "potential_leak": false
+      }
+    },
+    {
+      "benchmark_name": "concurrency_level_1",
+      "benchmark_type": "concurrency",
+      "duration": 2.0011744499206543,
+      "throughput": 807.5258006937245,
+      "memory_used": 105.421875,
+      "cpu_percent": 19.8,
+      "success_rate": 1.0,
+      "error_count": 0,
+      "metadata": {
+        "concurrency_level": 1,
+        "total_operations": 1616,
+        "profile_stats": {
+          "duration": 1.9246349334716797,
+          "sample_count": 20,
+          "cpu_stats": {
+            "mean": 8.395,
+            "max": 19.8,
+            "min": 0.0,
+            "std": 4.838385441881468
+          },
+          "memory_stats": {
+            "mean_mb": 105.421875,
+            "max_mb": 105.421875,
+            "min_mb": 105.421875,
+            "std_mb": 0.0
+          },
+          "peak_usage": {
+            "cpu_percent": 19.8,
+            "memory_mb": 105.421875
+          }
+        }
+      }
+    },
+    {
+      "benchmark_name": "concurrency_level_5",
+      "benchmark_type": "concurrency",
+      "duration": 2.0012590885162354,
+      "throughput": 3927.5274476467343,
+      "memory_used": 105.421875,
+      "cpu_percent": 19.9,
+      "success_rate": 1.0,
+      "error_count": 0,
+      "metadata": {
+        "concurrency_level": 5,
+        "total_operations": 7860,
+        "profile_stats": {
+          "duration": 1.9226107597351074,
+          "sample_count": 20,
+          "cpu_stats": {
+            "mean": 13.35,
+            "max": 19.9,
+            "min": 0.0,
+            "std": 5.804399420403367
+          },
+          "memory_stats": {
+            "mean_mb": 105.421875,
+            "max_mb": 105.421875,
+            "min_mb": 105.421875,
+            "std_mb": 0.0
+          },
+          "peak_usage": {
+            "cpu_percent": 19.9,
+            "memory_mb": 105.421875
+          }
+        }
+      }
+    },
+    {
+      "benchmark_name": "concurrency_level_10",
+      "benchmark_type": "concurrency",
+      "duration": 2.001664876937866,
+      "throughput": 7343.886666227548,
+      "memory_used": 105.421875,
+      "cpu_percent": 29.8,
+      "success_rate": 1.0,
+      "error_count": 0,
+      "metadata": {
+        "concurrency_level": 10,
+        "total_operations": 14700,
+        "profile_stats": {
+          "duration": 1.9222488403320312,
+          "sample_count": 20,
+          "cpu_stats": {
+            "mean": 19.765,
+            "max": 29.8,
+            "min": 0.0,
+            "std": 6.4084052536287714
+          },
+          "memory_stats": {
+            "mean_mb": 105.421875,
+            "max_mb": 105.421875,
+            "min_mb": 105.421875,
+            "std_mb": 0.0
+          },
+          "peak_usage": {
+            "cpu_percent": 29.8,
+            "memory_mb": 105.421875
+          }
+        }
+      }
+    },
+    {
+      "benchmark_name": "concurrency_level_20",
+      "benchmark_type": "concurrency",
+      "duration": 2.0010764598846436,
+      "throughput": 13367.805047060552,
+      "memory_used": 105.421875,
+      "cpu_percent": 39.5,
+      "success_rate": 1.0,
+      "error_count": 0,
+      "metadata": {
+        "concurrency_level": 20,
+        "total_operations": 26750,
+        "profile_stats": {
+          "duration": 1.9244983196258545,
+          "sample_count": 20,
+          "cpu_stats": {
+            "mean": 27.14,
+            "max": 39.5,
+            "min": 0.0,
+            "std": 8.37768967022092
+          },
+          "memory_stats": {
+            "mean_mb": 105.421875,
+            "max_mb": 105.421875,
+            "min_mb": 105.421875,
+            "std_mb": 0.0
+          },
+          "peak_usage": {
+            "cpu_percent": 39.5,
+            "memory_mb": 105.421875
+          }
+        }
+      }
+    },
+    {
+      "benchmark_name": "concurrency_level_50",
+      "benchmark_type": "concurrency",
+      "duration": 2.0026285648345947,
+      "throughput": 27104.377193622626,
+      "memory_used": 105.421875,
+      "cpu_percent": 49.6,
+      "success_rate": 1.0,
+      "error_count": 0,
+      "metadata": {
+        "concurrency_level": 50,
+        "total_operations": 54280,
+        "profile_stats": {
+          "duration": 1.922860860824585,
+          "sample_count": 20,
+          "cpu_stats": {
+            "mean": 41.019999999999996,
+            "max": 49.6,
+            "min": 0.0,
+            "std": 11.221670764054794
+          },
+          "memory_stats": {
+            "mean_mb": 105.421875,
+            "max_mb": 105.421875,
+            "min_mb": 105.421875,
+            "std_mb": 0.0
+          },
+          "peak_usage": {
+            "cpu_percent": 49.6,
+            "memory_mb": 105.421875
+          }
+        }
+      }
+    },
+    {
+      "benchmark_name": "scalability_load_1x",
+      "benchmark_type": "scalability",
+      "duration": 0.01353597640991211,
+      "throughput": 7387.719730862719,
+      "memory_used": 105.421875,
+      "cpu_percent": 0.0,
+      "success_rate": 1.0,
+      "error_count": 0,
+      "metadata": {
+        "load_factor": 1,
+        "work_items": 100,
+        "concurrency": 10,
+        "scalability_efficiency": 147.75439461725438,
+        "profile_stats": {
+          "duration": 0.0,
+          "sample_count": 1,
+          "cpu_stats": {
+            "mean": 0.0,
+            "max": 0.0,
+            "min": 0.0,
+            "std": 0
+          },
+          "memory_stats": {
+            "mean_mb": 105.421875,
+            "max_mb": 105.421875,
+            "min_mb": 105.421875,
+            "std_mb": 0
+          },
+          "peak_usage": {
+            "cpu_percent": 0.0,
+            "memory_mb": 105.421875
+          }
+        }
+      }
+    },
+    {
+      "benchmark_name": "scalability_load_2x",
+      "benchmark_type": "scalability",
+      "duration": 0.024823665618896484,
+      "throughput": 8056.827829962158,
+      "memory_used": 105.421875,
+      "cpu_percent": 0.0,
+      "success_rate": 1.0,
+      "error_count": 0,
+      "metadata": {
+        "load_factor": 2,
+        "work_items": 200,
+        "concurrency": 20,
+        "scalability_efficiency": 80.56827829962158,
+        "profile_stats": {
+          "duration": 0.0,
+          "sample_count": 1,
+          "cpu_stats": {
+            "mean": 0.0,
+            "max": 0.0,
+            "min": 0.0,
+            "std": 0
+          },
+          "memory_stats": {
+            "mean_mb": 105.421875,
+            "max_mb": 105.421875,
+            "min_mb": 105.421875,
+            "std_mb": 0
+          },
+          "peak_usage": {
+            "cpu_percent": 0.0,
+            "memory_mb": 105.421875
+          }
+        }
+      }
+    },
+    {
+      "benchmark_name": "scalability_load_4x",
+      "benchmark_type": "scalability",
+      "duration": 0.047733306884765625,
+      "throughput": 8379.892911372173,
+      "memory_used": 105.421875,
+      "cpu_percent": 0.0,
+      "success_rate": 1.0,
+      "error_count": 0,
+      "metadata": {
+        "load_factor": 4,
+        "work_items": 400,
+        "concurrency": 40,
+        "scalability_efficiency": 41.89946455686086,
+        "profile_stats": {
+          "duration": 0.0,
+          "sample_count": 1,
+          "cpu_stats": {
+            "mean": 0.0,
+            "max": 0.0,
+            "min": 0.0,
+            "std": 0
+          },
+          "memory_stats": {
+            "mean_mb": 105.421875,
+            "max_mb": 105.421875,
+            "min_mb": 105.421875,
+            "std_mb": 0
+          },
+          "peak_usage": {
+            "cpu_percent": 0.0,
+            "memory_mb": 105.421875
+          }
+        }
+      }
+    },
+    {
+      "benchmark_name": "scalability_load_8x",
+      "benchmark_type": "scalability",
+      "duration": 0.14443039894104004,
+      "throughput": 5539.000140313808,
+      "memory_used": 105.421875,
+      "cpu_percent": 0.0,
+      "success_rate": 1.0,
+      "error_count": 0,
+      "metadata": {
+        "load_factor": 8,
+        "work_items": 800,
+        "concurrency": 50,
+        "scalability_efficiency": 13.84750035078452,
+        "profile_stats": {
+          "duration": 0.1015174388885498,
+          "sample_count": 2,
+          "cpu_stats": {
+            "mean": 0.0,
+            "max": 0.0,
+            "min": 0.0,
+            "std": 0.0
+          },
+          "memory_stats": {
+            "mean_mb": 105.421875,
+            "max_mb": 105.421875,
+            "min_mb": 105.421875,
+            "std_mb": 0.0
+          },
+          "peak_usage": {
+            "cpu_percent": 0.0,
+            "memory_mb": 105.421875
+          }
+        }
+      }
+    },
+    {
+      "benchmark_name": "cpu_stress",
+      "benchmark_type": "stress",
+      "duration": 5.001248598098755,
+      "throughput": 700.0251899757432,
+      "memory_used": 105.421875,
+      "cpu_percent": 104.8,
+      "success_rate": 1.0,
+      "error_count": 0,
+      "metadata": {
+        "operations": 3501,
+        "profile_stats": {
+          "duration": 4.9252283573150635,
+          "sample_count": 37,
+          "cpu_stats": {
+            "mean": 97.20270270270271,
+            "max": 104.8,
+            "min": 0.0,
+            "std": 16.77291941868874
+          },
+          "memory_stats": {
+            "mean_mb": 105.421875,
+            "max_mb": 105.421875,
+            "min_mb": 105.421875,
+            "std_mb": 0.0
+          },
+          "peak_usage": {
+            "cpu_percent": 104.8,
+            "memory_mb": 105.421875
+          }
+        }
+      }
+    },
+    {
+      "benchmark_name": "memory_stress",
+      "benchmark_type": "stress",
+      "duration": 5.071899175643921,
+      "throughput": null,
+      "memory_used": 133.96875,
+      "cpu_percent": 109.4,
+      "success_rate": 1.0,
+      "error_count": 0,
+      "metadata": {
+        "allocations": 2396,
+        "peak_memory_chunks": 0,
+        "profile_stats": {
+          "duration": 4.957139730453491,
+          "sample_count": 41,
+          "cpu_stats": {
+            "mean": 97.5439024390244,
+            "max": 109.4,
+            "min": 0.0,
+            "std": 16.177902348272593
+          },
+          "memory_stats": {
+            "mean_mb": 130.980087652439,
+            "max_mb": 133.96875,
+            "min_mb": 105.67578125,
+            "std_mb": 5.196536642440946
+          },
+          "peak_usage": {
+            "cpu_percent": 109.4,
+            "memory_mb": 133.96875
+          }
+        }
+      }
+    },
+    {
+      "benchmark_name": "combined_stress",
+      "benchmark_type": "stress",
+      "duration": 5.0418291091918945,
+      "throughput": 329.8406122032458,
+      "memory_used": 122.1796875,
+      "cpu_percent": 104.6,
+      "success_rate": 1.0,
+      "error_count": 0,
+      "metadata": {
+        "operations": 1663,
+        "profile_stats": {
+          "duration": 4.96151065826416,
+          "sample_count": 32,
+          "cpu_stats": {
+            "mean": 96.659375,
+            "max": 104.6,
+            "min": 0.0,
+            "std": 17.7807772132281
+          },
+          "memory_stats": {
+            "mean_mb": 115.53515625,
+            "max_mb": 122.1796875,
+            "min_mb": 115.2890625,
+            "std_mb": 1.224899189400315
+          },
+          "peak_usage": {
+            "cpu_percent": 104.6,
+            "memory_mb": 122.1796875
+          }
+        }
+      }
+    }
+  ],
+  "performance_summary": {
+    "total_benchmarks": 20,
+    "by_type": {
+      "latency": [
+        "BenchmarkResult(benchmark_name='simple_function_call', benchmark_type=<BenchmarkType.LATENCY: 'latency'>, duration=1.9807815551757812e-07, throughput=5048512.2773230625, memory_used=None, cpu_percent=None, success_rate=1.0, error_count=0, metadata={'avg_latency_ms': 0.00019807815551757811, 'min_latency_ms': 0.0, 'max_latency_ms': 0.025272369384765625, 'p95_latency_ms': 0.000476837158203125, 'iterations': 10000})",
+        "BenchmarkResult(benchmark_name='async_function_call', benchmark_type=<BenchmarkType.LATENCY: 'latency'>, duration=4.567861557006836e-06, throughput=218920.8205021139, memory_used=None, cpu_percent=None, success_rate=1.0, error_count=0, metadata={'avg_latency_ms': 0.004567861557006836, 'min_latency_ms': 0.0035762786865234375, 'max_latency_ms': 0.07462501525878906, 'p95_latency_ms': 0.00476837158203125, 'iterations': 1000})",
+        "BenchmarkResult(benchmark_name='quantum_optimizer_latency', benchmark_type=<BenchmarkType.LATENCY: 'latency'>, duration=0.00017764568328857422, throughput=5629.182660045632, memory_used=None, cpu_percent=None, success_rate=1.0, error_count=0, metadata={'avg_latency_ms': 0.17764568328857422, 'min_latency_ms': 0.15997886657714844, 'max_latency_ms': 0.2224445343017578, 'p95_latency_ms': 0, 'iterations': 10})"
+      ],
+      "throughput": [
+        "BenchmarkResult(benchmark_name='sequential_throughput', benchmark_type=<BenchmarkType.THROUGHPUT: 'throughput'>, duration=5.001481771469116, throughput=63922.256364855406, memory_used=80.265625, cpu_percent=58.6, success_rate=1.0, error_count=0, metadata={'items_processed': 319706, 'profile_stats': {'duration': 4.961076974868774, 'sample_count': 48, 'cpu_stats': {'mean': 48.577083333333334, 'max': 58.6, 'min': 0.0, 'std': 8.378753260818328}, 'memory_stats': {'mean_mb': 80.265625, 'max_mb': 80.265625, 'min_mb': 80.265625, 'std_mb': 0.0}, 'peak_usage': {'cpu_percent': 58.6, 'memory_mb': 80.265625}}})",
+        "BenchmarkResult(benchmark_name='concurrent_throughput', benchmark_type=<BenchmarkType.THROUGHPUT: 'throughput'>, duration=5.001598596572876, throughput=865.7232115681855, memory_used=80.265625, cpu_percent=9.9, success_rate=1.0, error_count=0, metadata={'items_processed': 4330, 'concurrency_limit': 20, 'profile_stats': {'duration': 4.955667972564697, 'sample_count': 50, 'cpu_stats': {'mean': 4.548, 'max': 9.9, 'min': 0.0, 'std': 4.977838232545103}, 'memory_stats': {'mean_mb': 80.265625, 'max_mb': 80.265625, 'min_mb': 80.265625, 'std_mb': 0.0}, 'peak_usage': {'cpu_percent': 9.9, 'memory_mb': 80.265625}}})",
+        "BenchmarkResult(benchmark_name='quantum_system_throughput', benchmark_type=<BenchmarkType.THROUGHPUT: 'throughput'>, duration=3.0002574920654297, throughput=1526.2023383358794, memory_used=81.29296875, cpu_percent=97.8, success_rate=1.0, error_count=0, metadata={'metrics_recorded': 13737, 'profile_stats': {'duration': 2.9191410541534424, 'sample_count': 24, 'cpu_stats': {'mean': 57.5, 'max': 97.8, 'min': 0.0, 'std': 21.020424849882676}, 'memory_stats': {'mean_mb': 81.18570963541667, 'max_mb': 81.29296875, 'min_mb': 80.265625, 'std_mb': 0.26184414370834913}, 'peak_usage': {'cpu_percent': 97.8, 'memory_mb': 81.29296875}}})"
+      ],
+      "memory": [
+        "BenchmarkResult(benchmark_name='memory_allocation', benchmark_type=<BenchmarkType.MEMORY: 'memory'>, duration=2.1742684841156006, throughput=None, memory_used=10.024009704589844, cpu_percent=None, success_rate=1.0, error_count=0, metadata={'current_memory_mb': 0.06728363037109375, 'peak_memory_mb': 10.024009704589844, 'allocations_performed': 1000})",
+        "BenchmarkResult(benchmark_name='memory_leak_detection', benchmark_type=<BenchmarkType.MEMORY: 'memory'>, duration=0.0063245296478271484, throughput=None, memory_used=0.34710121154785156, cpu_percent=None, success_rate=1.0, error_count=0, metadata={'memory_growth_mb': 0.0, 'cache_entries_final': 225, 'peak_traced_memory_mb': 0.34710121154785156, 'potential_leak': False})"
+      ],
+      "concurrency": [
+        "BenchmarkResult(benchmark_name='concurrency_level_1', benchmark_type=<BenchmarkType.CONCURRENCY: 'concurrency'>, duration=2.0011744499206543, throughput=807.5258006937245, memory_used=105.421875, cpu_percent=19.8, success_rate=1.0, error_count=0, metadata={'concurrency_level': 1, 'total_operations': 1616, 'profile_stats': {'duration': 1.9246349334716797, 'sample_count': 20, 'cpu_stats': {'mean': 8.395, 'max': 19.8, 'min': 0.0, 'std': 4.838385441881468}, 'memory_stats': {'mean_mb': 105.421875, 'max_mb': 105.421875, 'min_mb': 105.421875, 'std_mb': 0.0}, 'peak_usage': {'cpu_percent': 19.8, 'memory_mb': 105.421875}}})",
+        "BenchmarkResult(benchmark_name='concurrency_level_5', benchmark_type=<BenchmarkType.CONCURRENCY: 'concurrency'>, duration=2.0012590885162354, throughput=3927.5274476467343, memory_used=105.421875, cpu_percent=19.9, success_rate=1.0, error_count=0, metadata={'concurrency_level': 5, 'total_operations': 7860, 'profile_stats': {'duration': 1.9226107597351074, 'sample_count': 20, 'cpu_stats': {'mean': 13.35, 'max': 19.9, 'min': 0.0, 'std': 5.804399420403367}, 'memory_stats': {'mean_mb': 105.421875, 'max_mb': 105.421875, 'min_mb': 105.421875, 'std_mb': 0.0}, 'peak_usage': {'cpu_percent': 19.9, 'memory_mb': 105.421875}}})",
+        "BenchmarkResult(benchmark_name='concurrency_level_10', benchmark_type=<BenchmarkType.CONCURRENCY: 'concurrency'>, duration=2.001664876937866, throughput=7343.886666227548, memory_used=105.421875, cpu_percent=29.8, success_rate=1.0, error_count=0, metadata={'concurrency_level': 10, 'total_operations': 14700, 'profile_stats': {'duration': 1.9222488403320312, 'sample_count': 20, 'cpu_stats': {'mean': 19.765, 'max': 29.8, 'min': 0.0, 'std': 6.4084052536287714}, 'memory_stats': {'mean_mb': 105.421875, 'max_mb': 105.421875, 'min_mb': 105.421875, 'std_mb': 0.0}, 'peak_usage': {'cpu_percent': 29.8, 'memory_mb': 105.421875}}})",
+        "BenchmarkResult(benchmark_name='concurrency_level_20', benchmark_type=<BenchmarkType.CONCURRENCY: 'concurrency'>, duration=2.0010764598846436, throughput=13367.805047060552, memory_used=105.421875, cpu_percent=39.5, success_rate=1.0, error_count=0, metadata={'concurrency_level': 20, 'total_operations': 26750, 'profile_stats': {'duration': 1.9244983196258545, 'sample_count': 20, 'cpu_stats': {'mean': 27.14, 'max': 39.5, 'min': 0.0, 'std': 8.37768967022092}, 'memory_stats': {'mean_mb': 105.421875, 'max_mb': 105.421875, 'min_mb': 105.421875, 'std_mb': 0.0}, 'peak_usage': {'cpu_percent': 39.5, 'memory_mb': 105.421875}}})",
+        "BenchmarkResult(benchmark_name='concurrency_level_50', benchmark_type=<BenchmarkType.CONCURRENCY: 'concurrency'>, duration=2.0026285648345947, throughput=27104.377193622626, memory_used=105.421875, cpu_percent=49.6, success_rate=1.0, error_count=0, metadata={'concurrency_level': 50, 'total_operations': 54280, 'profile_stats': {'duration': 1.922860860824585, 'sample_count': 20, 'cpu_stats': {'mean': 41.019999999999996, 'max': 49.6, 'min': 0.0, 'std': 11.221670764054794}, 'memory_stats': {'mean_mb': 105.421875, 'max_mb': 105.421875, 'min_mb': 105.421875, 'std_mb': 0.0}, 'peak_usage': {'cpu_percent': 49.6, 'memory_mb': 105.421875}}})"
+      ],
+      "scalability": [
+        "BenchmarkResult(benchmark_name='scalability_load_1x', benchmark_type=<BenchmarkType.SCALABILITY: 'scalability'>, duration=0.01353597640991211, throughput=7387.719730862719, memory_used=105.421875, cpu_percent=0.0, success_rate=1.0, error_count=0, metadata={'load_factor': 1, 'work_items': 100, 'concurrency': 10, 'scalability_efficiency': 147.75439461725438, 'profile_stats': {'duration': 0.0, 'sample_count': 1, 'cpu_stats': {'mean': 0.0, 'max': 0.0, 'min': 0.0, 'std': 0}, 'memory_stats': {'mean_mb': 105.421875, 'max_mb': 105.421875, 'min_mb': 105.421875, 'std_mb': 0}, 'peak_usage': {'cpu_percent': 0.0, 'memory_mb': 105.421875}}})",
+        "BenchmarkResult(benchmark_name='scalability_load_2x', benchmark_type=<BenchmarkType.SCALABILITY: 'scalability'>, duration=0.024823665618896484, throughput=8056.827829962158, memory_used=105.421875, cpu_percent=0.0, success_rate=1.0, error_count=0, metadata={'load_factor': 2, 'work_items': 200, 'concurrency': 20, 'scalability_efficiency': 80.56827829962158, 'profile_stats': {'duration': 0.0, 'sample_count': 1, 'cpu_stats': {'mean': 0.0, 'max': 0.0, 'min': 0.0, 'std': 0}, 'memory_stats': {'mean_mb': 105.421875, 'max_mb': 105.421875, 'min_mb': 105.421875, 'std_mb': 0}, 'peak_usage': {'cpu_percent': 0.0, 'memory_mb': 105.421875}}})",
+        "BenchmarkResult(benchmark_name='scalability_load_4x', benchmark_type=<BenchmarkType.SCALABILITY: 'scalability'>, duration=0.047733306884765625, throughput=8379.892911372173, memory_used=105.421875, cpu_percent=0.0, success_rate=1.0, error_count=0, metadata={'load_factor': 4, 'work_items': 400, 'concurrency': 40, 'scalability_efficiency': 41.89946455686086, 'profile_stats': {'duration': 0.0, 'sample_count': 1, 'cpu_stats': {'mean': 0.0, 'max': 0.0, 'min': 0.0, 'std': 0}, 'memory_stats': {'mean_mb': 105.421875, 'max_mb': 105.421875, 'min_mb': 105.421875, 'std_mb': 0}, 'peak_usage': {'cpu_percent': 0.0, 'memory_mb': 105.421875}}})",
+        "BenchmarkResult(benchmark_name='scalability_load_8x', benchmark_type=<BenchmarkType.SCALABILITY: 'scalability'>, duration=0.14443039894104004, throughput=5539.000140313808, memory_used=105.421875, cpu_percent=0.0, success_rate=1.0, error_count=0, metadata={'load_factor': 8, 'work_items': 800, 'concurrency': 50, 'scalability_efficiency': 13.84750035078452, 'profile_stats': {'duration': 0.1015174388885498, 'sample_count': 2, 'cpu_stats': {'mean': 0.0, 'max': 0.0, 'min': 0.0, 'std': 0.0}, 'memory_stats': {'mean_mb': 105.421875, 'max_mb': 105.421875, 'min_mb': 105.421875, 'std_mb': 0.0}, 'peak_usage': {'cpu_percent': 0.0, 'memory_mb': 105.421875}}})"
+      ],
+      "stress": [
+        "BenchmarkResult(benchmark_name='cpu_stress', benchmark_type=<BenchmarkType.STRESS: 'stress'>, duration=5.001248598098755, throughput=700.0251899757432, memory_used=105.421875, cpu_percent=104.8, success_rate=1.0, error_count=0, metadata={'operations': 3501, 'profile_stats': {'duration': 4.9252283573150635, 'sample_count': 37, 'cpu_stats': {'mean': 97.20270270270271, 'max': 104.8, 'min': 0.0, 'std': 16.77291941868874}, 'memory_stats': {'mean_mb': 105.421875, 'max_mb': 105.421875, 'min_mb': 105.421875, 'std_mb': 0.0}, 'peak_usage': {'cpu_percent': 104.8, 'memory_mb': 105.421875}}})",
+        "BenchmarkResult(benchmark_name='memory_stress', benchmark_type=<BenchmarkType.STRESS: 'stress'>, duration=5.071899175643921, throughput=None, memory_used=133.96875, cpu_percent=109.4, success_rate=1.0, error_count=0, metadata={'allocations': 2396, 'peak_memory_chunks': 0, 'profile_stats': {'duration': 4.957139730453491, 'sample_count': 41, 'cpu_stats': {'mean': 97.5439024390244, 'max': 109.4, 'min': 0.0, 'std': 16.177902348272593}, 'memory_stats': {'mean_mb': 130.980087652439, 'max_mb': 133.96875, 'min_mb': 105.67578125, 'std_mb': 5.196536642440946}, 'peak_usage': {'cpu_percent': 109.4, 'memory_mb': 133.96875}}})",
+        "BenchmarkResult(benchmark_name='combined_stress', benchmark_type=<BenchmarkType.STRESS: 'stress'>, duration=5.0418291091918945, throughput=329.8406122032458, memory_used=122.1796875, cpu_percent=104.6, success_rate=1.0, error_count=0, metadata={'operations': 1663, 'profile_stats': {'duration': 4.96151065826416, 'sample_count': 32, 'cpu_stats': {'mean': 96.659375, 'max': 104.6, 'min': 0.0, 'std': 17.7807772132281}, 'memory_stats': {'mean_mb': 115.53515625, 'max_mb': 122.1796875, 'min_mb': 115.2890625, 'std_mb': 1.224899189400315}, 'peak_usage': {'cpu_percent': 104.6, 'memory_mb': 122.1796875}}})"
+      ]
+    },
+    "overall_performance": "PerformanceLevel.EXCELLENT",
+    "performance_scores": {
+      "latency": "excellent",
+      "throughput": "excellent",
+      "memory": "excellent",
+      "reliability": "excellent"
+    },
+    "key_metrics": {
+      "fastest_operation_ms": 0.00019807815551757811,
+      "highest_throughput_ops_sec": 5048512.2773230625,
+      "peak_memory_usage_mb": 133.96875,
+      "overall_success_rate": 1.0
+    }
+  },
+  "recommendations": [
+    "\ud83c\udfaf CONCURRENCY: Optimal concurrency level appears to be around 50 for this workload.",
+    "\ud83d\udd25 CPU STRESS: High CPU usage (109.4%) under stress. Consider CPU optimization and load distribution.",
+    "\ud83d\udcca Implement continuous performance monitoring.",
+    "\ud83c\udfaf Set up performance regression testing in CI/CD.",
+    "\ud83d\udcc8 Consider load testing with realistic workloads.",
+    "\ud83d\udd27 Profile code regularly to identify optimization opportunities."
+  ],
+  "metadata": {
+    "benchmark_version": "1.0.0",
+    "export_time": 1755565064.8732812
+  }
+}

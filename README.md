@@ -1,6 +1,6 @@
 # SQL-Query-Synthesizer
 
-Natural-language-to-SQL agent with automatic schema discovery and query validation.
+Natural-language-to-SQL agent with automatic schema discovery, query validation, and autonomous SDLC capabilities.
 
 ## Features
 - Schema introspection across multiple database types (PostgreSQL, MySQL, SQLite)
@@ -15,6 +15,18 @@ Natural-language-to-SQL agent with automatic schema discovery and query validati
 - **Production-ready error handling** with graceful degradation and recovery
 - **LLM provider resilience** with circuit breaker pattern for OpenAI API failures
 - **High-performance async I/O operations** for improved scalability and concurrent request handling
+- **🚀 Autonomous SDLC**: Self-healing quality gates, predictive scaling, and zero-downtime deployment
+
+## Autonomous SDLC Features
+
+This project implements the TERRAGON SDLC MASTER PROMPT v4.0 with:
+
+- **🛡️ Self-Healing Quality Gates**: Automatic code fixing and quality enforcement
+- **🔄 Resilient Error Handling**: Circuit breakers and adaptive retry mechanisms  
+- **📊 Performance Optimization**: Real-time monitoring with predictive scaling
+- **🚀 Blue-Green Deployment**: Zero-downtime deployment with intelligent rollback
+
+See the [Autonomous SDLC Guide](AUTONOMOUS_SDLC_GUIDE.md) for detailed documentation.
 
 ## Quick Start
 ```bash

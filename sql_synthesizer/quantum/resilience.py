@@ -417,7 +417,7 @@ class QuantumBulkhead:
 
         # Calculate load metrics
         recent_load = list(self.load_history)[-20:]
-        avg_response_time = sum(recent_load) / len(recent_load)
+        sum(recent_load) / len(recent_load)
         high_load_count = sum(
             1 for t in recent_load if t > self.metrics.average_response_time * 1.5
         )

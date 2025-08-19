@@ -207,9 +207,7 @@ class AccessPatternPredictor:
                 return 0.1, 0.0
 
             avg_interval = np.mean(intervals)
-            interval_std = (
-                np.std(intervals) if len(intervals) > 1 else avg_interval * 0.5
-            )
+            (np.std(intervals) if len(intervals) > 1 else avg_interval * 0.5)
 
             # Time since last access
             time_since_last = time.time() - recent_history[-1]
@@ -650,7 +648,7 @@ class IntelligentCacheManager:
             return insights
 
         # Analyze temporal patterns
-        current_hour = datetime.now().hour
+        datetime.now().hour
         recent_accesses = []
         old_accesses = []
 

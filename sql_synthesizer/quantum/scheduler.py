@@ -201,7 +201,7 @@ class QuantumTaskScheduler:
         """Measure quantum resource states"""
         available = []
         for resource in self.resources:
-            measured_util = resource.measure_state()
+            resource.measure_state()
             if resource.is_available():
                 available.append(resource)
         return available

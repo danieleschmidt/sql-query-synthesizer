@@ -296,12 +296,8 @@ class PatternMiner:
         ) / len(semantic_features)
 
         # Keyword similarity (Jaccard similarity)
-        keywords1 = set(
-            k for k, v in features1.get("keyword_counts", {}).items() if v > 0
-        )
-        keywords2 = set(
-            k for k, v in features2.get("keyword_counts", {}).items() if v > 0
-        )
+        keywords1 = {k for k, v in features1.get("keyword_counts", {}).items() if v > 0}
+        keywords2 = {k for k, v in features2.get("keyword_counts", {}).items() if v > 0}
 
         if keywords1 or keywords2:
             keyword_sim = len(keywords1.intersection(keywords2)) / len(

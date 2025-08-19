@@ -283,7 +283,7 @@ class AutonomousQuantumOptimizer:
 
         # Group tasks by dependencies for parallel execution
         execution_groups = []
-        remaining_tasks = set(task.task_id for task in tasks)
+        remaining_tasks = {task.task_id for task in tasks}
         task_map = {task.task_id: task for task in tasks}
 
         while remaining_tasks:

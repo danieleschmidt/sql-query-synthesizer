@@ -154,7 +154,7 @@ class QueryPatternAnalyzer:
         """Identify frequently occurring query patterns."""
         pattern_frequency = defaultdict(int)
 
-        for query_hash, data in self.query_patterns.items():
+        for _query_hash, data in self.query_patterns.items():
             for pattern in data.get("patterns", []):
                 pattern_frequency[pattern] += 1
 
