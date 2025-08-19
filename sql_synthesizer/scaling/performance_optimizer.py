@@ -624,7 +624,7 @@ class PerformanceOptimizer:
         analysis = self.analyze_performance()
 
         current_metrics = analysis["current_metrics"]
-        issues = analysis["performance_issues"]
+        analysis["performance_issues"]
 
         # CPU optimization recommendations
         cpu_usage = current_metrics.get("cpu_usage", 0)

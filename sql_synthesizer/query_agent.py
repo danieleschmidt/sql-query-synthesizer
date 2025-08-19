@@ -77,7 +77,7 @@ def _main_impl(argv: list[str] | None = None) -> None:
 
     # Enhanced description with examples
     description = """Interactive Natural Language to SQL Agent
-    
+
 Ask questions about your data in plain English and get SQL queries automatically generated.
 
 Examples:
@@ -241,7 +241,7 @@ Common question patterns:
     if enable_quantum:
         from sql_synthesizer.quantum.core import QuantumQueryOptimizer
 
-        quantum_optimizer = QuantumQueryOptimizer(
+        QuantumQueryOptimizer(
             num_qubits=getattr(args, "quantum_qubits", 16),
             temperature=getattr(args, "quantum_temp", 1000.0),
         )

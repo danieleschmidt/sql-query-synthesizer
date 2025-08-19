@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class LLMProvider(ABC):
@@ -11,7 +11,7 @@ class LLMProvider(ABC):
 
     @abstractmethod
     def generate_sql(
-        self, question: str, available_tables: Optional[list[str]] = None, **kwargs: Any
+        self, question: str, available_tables: list[str] | None = None, **kwargs: Any
     ) -> str:
         """Generate SQL from a natural language question.
 
@@ -55,7 +55,7 @@ class LLMProvider(ABC):
         """
         return True
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         """Get provider capabilities and limitations.
 
         Returns:
@@ -68,7 +68,7 @@ class LLMProvider(ABC):
 class ProviderError(Exception):
     """Base exception for LLM provider errors."""
 
-    def __init__(self, message: str, provider: str, error_code: Optional[str] = None):
+    def __init__(self, message: str, provider: str, error_code: str | None = None):
         self.provider = provider
         self.error_code = error_code
         super().__init__(message)

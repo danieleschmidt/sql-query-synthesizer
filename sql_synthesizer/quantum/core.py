@@ -577,7 +577,7 @@ class QuantumQueryPlanGenerator:
 
         # Join costs with quantum interference effects
         join_cost = 0.0
-        for i, (t1, t2) in enumerate(joins):
+        for i, (_t1, _t2) in enumerate(joins):
             # Later joins are more expensive (cardinality growth)
             join_factor = self.base_cost_factors["hash_join"] * (1.5**i)
             # Add quantum interference based on join position

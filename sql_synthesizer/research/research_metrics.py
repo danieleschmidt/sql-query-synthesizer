@@ -873,10 +873,10 @@ class PublicationPreparation:
             "experimental_overview": {
                 "total_experiments": len(experiments),
                 "approaches_evaluated": list(
-                    set(exp.get("approach_name", "unknown") for exp in experiments)
+                    {exp.get("approach_name", "unknown") for exp in experiments}
                 ),
                 "datasets_used": list(
-                    set(exp.get("dataset_name", "unknown") for exp in experiments)
+                    {exp.get("dataset_name", "unknown") for exp in experiments}
                 ),
                 "evaluation_period": self._calculate_evaluation_period(experiments),
             },
@@ -940,7 +940,7 @@ class PublicationPreparation:
     def _generate_abstract(self, experiments: List[Dict[str, Any]]) -> str:
         """Generate abstract from experimental results."""
         approach_count = len(
-            set(exp.get("approach_name", "unknown") for exp in experiments)
+            {exp.get("approach_name", "unknown") for exp in experiments}
         )
 
         abstract_template = f"""
@@ -1133,10 +1133,10 @@ class PublicationPreparation:
         """Extract experimental parameters for reproducibility."""
         parameters = {
             "approaches_evaluated": list(
-                set(exp.get("approach_name", "unknown") for exp in experiments)
+                {exp.get("approach_name", "unknown") for exp in experiments}
             ),
             "benchmark_datasets": list(
-                set(exp.get("dataset_name", "unknown") for exp in experiments)
+                {exp.get("dataset_name", "unknown") for exp in experiments}
             ),
             "evaluation_metrics": [
                 "accuracy",
@@ -1214,10 +1214,10 @@ Approach 1 vs 3 & Accuracy & 1.23 & 0.245 & No \\\\
 Parameter & Value \\\\
 \\hline
 Number of Approaches & """
-            + str(len(set(exp.get("approach_name", "unknown") for exp in experiments)))
+            + str(len({exp.get("approach_name", "unknown") for exp in experiments}))
             + """ \\\\
 Benchmark Datasets & """
-            + str(len(set(exp.get("dataset_name", "unknown") for exp in experiments)))
+            + str(len({exp.get("dataset_name", "unknown") for exp in experiments}))
             + """ \\\\
 Evaluation Metrics & Accuracy, Precision, Recall, F1, Execution Time \\\\
 Statistical Tests & t-test, Effect Size Analysis \\\\

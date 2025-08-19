@@ -592,7 +592,7 @@ class ExperimentalFramework:
             for i, test_case in enumerate(test_cases):
                 natural_language = test_case["natural_language"]
                 schema_context = test_case.get("schema_context", {})
-                expected_patterns = test_case.get("expected_patterns", [])
+                test_case.get("expected_patterns", [])
 
                 logger.debug(
                     f"Running test case {i+1}/{len(test_cases)}: {natural_language[:50]}..."
@@ -993,7 +993,7 @@ class ExperimentalFramework:
             "total_approaches_evaluated": total_approaches,
             "best_overall_approach": best_approach,
             "approach_types": list(
-                set(p["type"] for p in performance_data if p["type"] != "unknown")
+                {p["type"] for p in performance_data if p["type"] != "unknown"}
             ),
             "complexity_distribution": Counter(
                 p["complexity"]

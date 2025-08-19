@@ -532,7 +532,7 @@ class QuantumLoadPredictor:
         actual_dict = self._metrics_to_dict(actual_metrics)
 
         # Calculate accuracy for each model (simplified)
-        for i, model in enumerate(self.prediction_models):
+        for i, _model in enumerate(self.prediction_models):
             # Calculate error for key metrics
             error = 0.0
             key_metrics = ["cpu_utilization", "memory_utilization", "request_rate"]

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Dict, Optional
+from typing import Any
 
 try:
     import openai  # type: ignore
@@ -52,7 +52,7 @@ class OpenAIAdapter(LLMProvider):
         )
 
     def generate_sql(
-        self, question: str, available_tables: Optional[list[str]] = None, **kwargs: Any
+        self, question: str, available_tables: list[str] | None = None, **kwargs: Any
     ) -> str:
         """Generate SQL with proper schema context and safety constraints."""
         # Sanitize input question
@@ -149,7 +149,7 @@ class OpenAIAdapter(LLMProvider):
             return False
         return True
 
-    def get_capabilities(self) -> Dict[str, Any]:
+    def get_capabilities(self) -> dict[str, Any]:
         """Get OpenAI provider capabilities and limitations."""
         return {
             "max_tokens": 4096 if "gpt-3.5" in self.model else 8192,
@@ -161,6 +161,6 @@ class OpenAIAdapter(LLMProvider):
             "circuit_breaker": self.circuit_breaker.get_status(),
         }
 
-    def get_circuit_breaker_status(self) -> Dict[str, Any]:
+    def get_circuit_breaker_status(self) -> dict[str, Any]:
         """Get circuit breaker status for monitoring and debugging."""
         return self.circuit_breaker.get_status()

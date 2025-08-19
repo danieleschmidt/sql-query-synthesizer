@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Optional
+from typing import Any
 
 try:
     from openai import AsyncOpenAI  # type: ignore
@@ -51,7 +51,7 @@ class AsyncOpenAIAdapter(LLMProvider):
         )
 
     async def generate_sql(
-        self, question: str, available_tables: Optional[list[str]] = None, **kwargs: Any
+        self, question: str, available_tables: list[str] | None = None, **kwargs: Any
     ) -> str:
         """Generate SQL with proper schema context and safety constraints asynchronously."""
         # Sanitize input question

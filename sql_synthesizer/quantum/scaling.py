@@ -401,7 +401,7 @@ class QuantumLoadBalancer:
 
             # Calculate load imbalance
             utilizations = [w.utilization for w in healthy_workers]
-            avg_utilization = statistics.mean(utilizations)
+            statistics.mean(utilizations)
             max_utilization = max(utilizations)
             min_utilization = min(utilizations)
 
@@ -543,7 +543,7 @@ class QuantumAutoScaler:
                     )
 
                     # Use factory to create worker
-                    worker_instance = self._worker_factory()
+                    self._worker_factory()
 
                     # Register with load balancer
                     if self.load_balancer.register_worker(worker_id, capacity=1.0):

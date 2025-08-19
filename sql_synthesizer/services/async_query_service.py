@@ -314,7 +314,7 @@ class AsyncQueryService:
                 # Execute paginated query
                 result = await connection.execute(text(paginated_sql))
                 data = [list(row) for row in result.fetchall()]
-                column_names = list(result.keys())
+                list(result.keys())
 
                 # Create pagination info
                 pagination = PaginationInfo.create(page, page_size, total_count)
