@@ -1,0 +1,1144 @@
+warning: The top-level linter settings are deprecated in favour of their counterparts in the `lint` section. Please update the following options in `pyproject.toml`:
+  - 'ignore' -> 'lint.ignore'
+  - 'select' -> 'lint.select'
+  - 'per-file-ignores' -> 'lint.per-file-ignores'
+[
+  {
+    "cell": null,
+    "code": "B007",
+    "end_location": {
+      "column": 21,
+      "row": 350
+    },
+    "filename": "/root/repo/sql_synthesizer/adaptive_caching.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 350
+    },
+    "message": "Loop control variable `priority` not used within loop body",
+    "noqa_row": 350,
+    "url": "https://docs.astral.sh/ruff/rules/unused-loop-control-variable"
+  },
+  {
+    "cell": null,
+    "code": "E722",
+    "end_location": {
+      "column": 15,
+      "row": 398
+    },
+    "filename": "/root/repo/sql_synthesizer/adaptive_caching.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 398
+    },
+    "message": "Do not use bare `except`",
+    "noqa_row": 398,
+    "url": "https://docs.astral.sh/ruff/rules/bare-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 87,
+      "row": 115
+    },
+    "filename": "/root/repo/sql_synthesizer/async_openai_adapter.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 115
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 115,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 18,
+      "row": 120
+    },
+    "filename": "/root/repo/sql_synthesizer/async_openai_adapter.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 118
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 118,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 77,
+      "row": 123
+    },
+    "filename": "/root/repo/sql_synthesizer/async_openai_adapter.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 123
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 123,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 65,
+      "row": 257
+    },
+    "filename": "/root/repo/sql_synthesizer/cache.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 257
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 257,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 65,
+      "row": 271
+    },
+    "filename": "/root/repo/sql_synthesizer/cache.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 271
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 271,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 65,
+      "row": 278
+    },
+    "filename": "/root/repo/sql_synthesizer/cache.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 278
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 278,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 67,
+      "row": 285
+    },
+    "filename": "/root/repo/sql_synthesizer/cache.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 285
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 285,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 69,
+      "row": 334
+    },
+    "filename": "/root/repo/sql_synthesizer/cache.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 334
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 334,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 75,
+      "row": 336
+    },
+    "filename": "/root/repo/sql_synthesizer/cache.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 336
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 336,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 69,
+      "row": 350
+    },
+    "filename": "/root/repo/sql_synthesizer/cache.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 350
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 350,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 73,
+      "row": 352
+    },
+    "filename": "/root/repo/sql_synthesizer/cache.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 352
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 352,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 69,
+      "row": 359
+    },
+    "filename": "/root/repo/sql_synthesizer/cache.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 359
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 359,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 73,
+      "row": 361
+    },
+    "filename": "/root/repo/sql_synthesizer/cache.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 361
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 361,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 71,
+      "row": 368
+    },
+    "filename": "/root/repo/sql_synthesizer/cache.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 368
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 368,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 14,
+      "row": 188
+    },
+    "filename": "/root/repo/sql_synthesizer/config.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 186
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 186,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 14,
+      "row": 227
+    },
+    "filename": "/root/repo/sql_synthesizer/config.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 225
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 225,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 74,
+      "row": 259
+    },
+    "filename": "/root/repo/sql_synthesizer/config.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 259
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 259,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "invalid-syntax",
+    "end_location": {
+      "column": 56,
+      "row": 83
+    },
+    "filename": "/root/repo/sql_synthesizer/core.py",
+    "fix": null,
+    "location": {
+      "column": 55,
+      "row": 83
+    },
+    "message": "Cannot reuse outer quote character in f-strings on Python 3.8 (syntax was added in Python 3.12)",
+    "noqa_row": null,
+    "url": null
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 22,
+      "row": 140
+    },
+    "filename": "/root/repo/sql_synthesizer/db_connection.py",
+    "fix": null,
+    "location": {
+      "column": 21,
+      "row": 138
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 138,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 80,
+      "row": 182
+    },
+    "filename": "/root/repo/sql_synthesizer/db_connection.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 182
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 182,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 74,
+      "row": 225
+    },
+    "filename": "/root/repo/sql_synthesizer/db_connection.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 225
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 225,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 78,
+      "row": 228
+    },
+    "filename": "/root/repo/sql_synthesizer/db_connection.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 228
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 228,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 77,
+      "row": 231
+    },
+    "filename": "/root/repo/sql_synthesizer/db_connection.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 231
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 231,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "F811",
+    "end_location": {
+      "column": 29,
+      "row": 646
+    },
+    "filename": "/root/repo/sql_synthesizer/enhanced_core.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 646
+    },
+    "message": "Redefinition of unused `get_enhanced_system_info` from line 501",
+    "noqa_row": 646,
+    "url": "https://docs.astral.sh/ruff/rules/redefined-while-unused"
+  },
+  {
+    "cell": null,
+    "code": "F811",
+    "end_location": {
+      "column": 35,
+      "row": 664
+    },
+    "filename": "/root/repo/sql_synthesizer/enhanced_core.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 664
+    },
+    "message": "Redefinition of unused `create_enhanced_query_metadata` from line 475",
+    "noqa_row": 664,
+    "url": "https://docs.astral.sh/ruff/rules/redefined-while-unused"
+  },
+  {
+    "cell": null,
+    "code": "B018",
+    "end_location": {
+      "column": 28,
+      "row": 651
+    },
+    "filename": "/root/repo/sql_synthesizer/intelligence/intelligent_cache.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 651
+    },
+    "message": "Found useless attribute access. Either assign it to a variable or remove it.",
+    "noqa_row": 651,
+    "url": "https://docs.astral.sh/ruff/rules/useless-expression"
+  },
+  {
+    "cell": null,
+    "code": "F821",
+    "end_location": {
+      "column": 19,
+      "row": 108
+    },
+    "filename": "/root/repo/sql_synthesizer/openai_adapter.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 108
+    },
+    "message": "Undefined name `logger`",
+    "noqa_row": 108,
+    "url": "https://docs.astral.sh/ruff/rules/undefined-name"
+  },
+  {
+    "cell": null,
+    "code": "F821",
+    "end_location": {
+      "column": 19,
+      "row": 114
+    },
+    "filename": "/root/repo/sql_synthesizer/openai_adapter.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 114
+    },
+    "message": "Undefined name `logger`",
+    "noqa_row": 114,
+    "url": "https://docs.astral.sh/ruff/rules/undefined-name"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 87,
+      "row": 126
+    },
+    "filename": "/root/repo/sql_synthesizer/openai_adapter.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 126
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 126,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 18,
+      "row": 131
+    },
+    "filename": "/root/repo/sql_synthesizer/openai_adapter.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 129
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 129,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 77,
+      "row": 134
+    },
+    "filename": "/root/repo/sql_synthesizer/openai_adapter.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 134
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 134,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 14,
+      "row": 1124
+    },
+    "filename": "/root/repo/sql_synthesizer/quantum/auto_scaling.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 1116
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 1116,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 14,
+      "row": 188
+    },
+    "filename": "/root/repo/sql_synthesizer/quantum/autonomous_optimizer.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 180
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 180,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 14,
+      "row": 129
+    },
+    "filename": "/root/repo/sql_synthesizer/quantum/core.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 125
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 125,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 18,
+      "row": 180
+    },
+    "filename": "/root/repo/sql_synthesizer/quantum/core.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 176
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 176,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 22,
+      "row": 325
+    },
+    "filename": "/root/repo/sql_synthesizer/quantum/core.py",
+    "fix": null,
+    "location": {
+      "column": 21,
+      "row": 316
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 316,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 18,
+      "row": 341
+    },
+    "filename": "/root/repo/sql_synthesizer/quantum/core.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 332
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 332,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "E722",
+    "end_location": {
+      "column": 19,
+      "row": 361
+    },
+    "filename": "/root/repo/sql_synthesizer/quantum/integration.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 361
+    },
+    "message": "Do not use bare `except`",
+    "noqa_row": 361,
+    "url": "https://docs.astral.sh/ruff/rules/bare-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 18,
+      "row": 357
+    },
+    "filename": "/root/repo/sql_synthesizer/quantum/resilience.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 352
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 352,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 18,
+      "row": 207
+    },
+    "filename": "/root/repo/sql_synthesizer/quantum/validation.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 202
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 202,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 28,
+      "row": 406
+    },
+    "filename": "/root/repo/sql_synthesizer/reliability/error_recovery.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 406
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 406,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B007",
+    "end_location": {
+      "column": 31,
+      "row": 237
+    },
+    "filename": "/root/repo/sql_synthesizer/reliability/health_monitoring.py",
+    "fix": null,
+    "location": {
+      "column": 21,
+      "row": 237
+    },
+    "message": "Loop control variable `check_name` not used within loop body",
+    "noqa_row": 237,
+    "url": "https://docs.astral.sh/ruff/rules/unused-loop-control-variable"
+  },
+  {
+    "cell": null,
+    "code": "B007",
+    "end_location": {
+      "column": 18,
+      "row": 223
+    },
+    "filename": "/root/repo/sql_synthesizer/research/experimental_frameworks.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 223
+    },
+    "message": "Loop control variable `table` not used within loop body",
+    "noqa_row": 223,
+    "url": "https://docs.astral.sh/ruff/rules/unused-loop-control-variable"
+  },
+  {
+    "cell": null,
+    "code": "F821",
+    "end_location": {
+      "column": 32,
+      "row": 1195
+    },
+    "filename": "/root/repo/sql_synthesizer/research/novel_algorithms.py",
+    "fix": null,
+    "location": {
+      "column": 25,
+      "row": 1195
+    },
+    "message": "Undefined name `Counter`",
+    "noqa_row": 1195,
+    "url": "https://docs.astral.sh/ruff/rules/undefined-name"
+  },
+  {
+    "cell": null,
+    "code": "F821",
+    "end_location": {
+      "column": 34,
+      "row": 1655
+    },
+    "filename": "/root/repo/sql_synthesizer/research/novel_algorithms.py",
+    "fix": null,
+    "location": {
+      "column": 27,
+      "row": 1655
+    },
+    "message": "Undefined name `Counter`",
+    "noqa_row": 1655,
+    "url": "https://docs.astral.sh/ruff/rules/undefined-name"
+  },
+  {
+    "cell": null,
+    "code": "E722",
+    "end_location": {
+      "column": 19,
+      "row": 103
+    },
+    "filename": "/root/repo/sql_synthesizer/scaling/connection_pool.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 103
+    },
+    "message": "Do not use bare `except`",
+    "noqa_row": 103,
+    "url": "https://docs.astral.sh/ruff/rules/bare-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 22,
+      "row": 254
+    },
+    "filename": "/root/repo/sql_synthesizer/scaling/connection_pool.py",
+    "fix": null,
+    "location": {
+      "column": 21,
+      "row": 252
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 252,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B007",
+    "end_location": {
+      "column": 14,
+      "row": 354
+    },
+    "filename": "/root/repo/sql_synthesizer/scaling/performance_optimizer.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 354
+    },
+    "message": "Loop control variable `i` not used within loop body",
+    "noqa_row": 354,
+    "url": "https://docs.astral.sh/ruff/rules/unused-loop-control-variable"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 25,
+      "row": 133
+    },
+    "filename": "/root/repo/sql_synthesizer/scaling_optimizer.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 28,
+            "row": 133
+          },
+          "location": {
+            "column": 13,
+            "row": 133
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `scale_factor`"
+    },
+    "location": {
+      "column": 13,
+      "row": 133
+    },
+    "message": "Local variable `scale_factor` is assigned to but never used",
+    "noqa_row": 133,
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 68,
+      "row": 469
+    },
+    "filename": "/root/repo/sql_synthesizer/services/async_query_service.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 469
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 469,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 38,
+      "row": 13
+    },
+    "filename": "/root/repo/sql_synthesizer/services/enhanced_query_validator.py",
+    "fix": null,
+    "location": {
+      "column": 30,
+      "row": 13
+    },
+    "message": "`sqlparse.sql.Function` imported but unused; consider using `importlib.util.find_spec` to test for availability",
+    "noqa_row": 13,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 50,
+      "row": 13
+    },
+    "filename": "/root/repo/sql_synthesizer/services/enhanced_query_validator.py",
+    "fix": null,
+    "location": {
+      "column": 40,
+      "row": 13
+    },
+    "message": "`sqlparse.sql.Identifier` imported but unused; consider using `importlib.util.find_spec` to test for availability",
+    "noqa_row": 13,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 66,
+      "row": 13
+    },
+    "filename": "/root/repo/sql_synthesizer/services/enhanced_query_validator.py",
+    "fix": null,
+    "location": {
+      "column": 52,
+      "row": 13
+    },
+    "message": "`sqlparse.sql.IdentifierList` imported but unused; consider using `importlib.util.find_spec` to test for availability",
+    "noqa_row": 13,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 74,
+      "row": 276
+    },
+    "filename": "/root/repo/sql_synthesizer/services/enhanced_query_validator.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 276
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 276,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B904",
+    "end_location": {
+      "column": 68,
+      "row": 447
+    },
+    "filename": "/root/repo/sql_synthesizer/services/query_service.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 447
+    },
+    "message": "Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling",
+    "noqa_row": 447,
+    "url": "https://docs.astral.sh/ruff/rules/raise-without-from-inside-except"
+  },
+  {
+    "cell": null,
+    "code": "B025",
+    "end_location": {
+      "column": 33,
+      "row": 93
+    },
+    "filename": "/root/repo/sql_synthesizer/webapp.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 93
+    },
+    "message": "try-except block with duplicate exception `OperationalError`",
+    "noqa_row": 93,
+    "url": "https://docs.astral.sh/ruff/rules/duplicate-try-block-exception"
+  },
+  {
+    "cell": null,
+    "code": "B025",
+    "end_location": {
+      "column": 48,
+      "row": 93
+    },
+    "filename": "/root/repo/sql_synthesizer/webapp.py",
+    "fix": null,
+    "location": {
+      "column": 35,
+      "row": 93
+    },
+    "message": "try-except block with duplicate exception `DatabaseError`",
+    "noqa_row": 93,
+    "url": "https://docs.astral.sh/ruff/rules/duplicate-try-block-exception"
+  },
+  {
+    "cell": null,
+    "code": "B025",
+    "end_location": {
+      "column": 65,
+      "row": 93
+    },
+    "filename": "/root/repo/sql_synthesizer/webapp.py",
+    "fix": null,
+    "location": {
+      "column": 50,
+      "row": 93
+    },
+    "message": "try-except block with duplicate exception `SQLTimeoutError`",
+    "noqa_row": 93,
+    "url": "https://docs.astral.sh/ruff/rules/duplicate-try-block-exception"
+  },
+  {
+    "cell": null,
+    "code": "B025",
+    "end_location": {
+      "column": 37,
+      "row": 98
+    },
+    "filename": "/root/repo/sql_synthesizer/webapp.py",
+    "fix": null,
+    "location": {
+      "column": 16,
+      "row": 98
+    },
+    "message": "try-except block with duplicate exception `openai.RateLimitError`",
+    "noqa_row": 98,
+    "url": "https://docs.astral.sh/ruff/rules/duplicate-try-block-exception"
+  },
+  {
+    "cell": null,
+    "code": "B025",
+    "end_location": {
+      "column": 33,
+      "row": 192
+    },
+    "filename": "/root/repo/sql_synthesizer/webapp.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 192
+    },
+    "message": "try-except block with duplicate exception `OperationalError`",
+    "noqa_row": 192,
+    "url": "https://docs.astral.sh/ruff/rules/duplicate-try-block-exception"
+  },
+  {
+    "cell": null,
+    "code": "B025",
+    "end_location": {
+      "column": 48,
+      "row": 192
+    },
+    "filename": "/root/repo/sql_synthesizer/webapp.py",
+    "fix": null,
+    "location": {
+      "column": 35,
+      "row": 192
+    },
+    "message": "try-except block with duplicate exception `DatabaseError`",
+    "noqa_row": 192,
+    "url": "https://docs.astral.sh/ruff/rules/duplicate-try-block-exception"
+  },
+  {
+    "cell": null,
+    "code": "B025",
+    "end_location": {
+      "column": 65,
+      "row": 192
+    },
+    "filename": "/root/repo/sql_synthesizer/webapp.py",
+    "fix": null,
+    "location": {
+      "column": 50,
+      "row": 192
+    },
+    "message": "try-except block with duplicate exception `SQLTimeoutError`",
+    "noqa_row": 192,
+    "url": "https://docs.astral.sh/ruff/rules/duplicate-try-block-exception"
+  },
+  {
+    "cell": null,
+    "code": "B025",
+    "end_location": {
+      "column": 37,
+      "row": 198
+    },
+    "filename": "/root/repo/sql_synthesizer/webapp.py",
+    "fix": null,
+    "location": {
+      "column": 16,
+      "row": 198
+    },
+    "message": "try-except block with duplicate exception `openai.RateLimitError`",
+    "noqa_row": 198,
+    "url": "https://docs.astral.sh/ruff/rules/duplicate-try-block-exception"
+  },
+  {
+    "cell": null,
+    "code": "B025",
+    "end_location": {
+      "column": 48,
+      "row": 270
+    },
+    "filename": "/root/repo/sql_synthesizer/webapp.py",
+    "fix": null,
+    "location": {
+      "column": 35,
+      "row": 270
+    },
+    "message": "try-except block with duplicate exception `DatabaseError`",
+    "noqa_row": 270,
+    "url": "https://docs.astral.sh/ruff/rules/duplicate-try-block-exception"
+  }
+]
