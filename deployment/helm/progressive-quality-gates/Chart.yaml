@@ -1,0 +1,22 @@
+apiVersion: v2
+name: progressive-quality-gates
+description: A Helm chart for Progressive Quality Gates - Autonomous SDLC System
+type: application
+version: 1.0.0
+appVersion: "v1.0.0"
+home: https://terragon.ai
+sources:
+  - https://github.com/terragon/progressive-quality-gates
+maintainers:
+  - name: Terragon Labs
+    email: devops@terragon.ai
+    url: https://terragon.ai
+keywords:
+  - quality-gates
+  - autonomous-sdlc
+  - quantum-optimization
+  - ai-driven
+  - terragon
+annotations:
+  category: DevOps
+  licenses: MIT

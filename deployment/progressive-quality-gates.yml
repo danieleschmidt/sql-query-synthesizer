@@ -1,0 +1,412 @@
+---
+# Progressive Quality Gates - Production Deployment Configuration
+# Kubernetes deployment for the autonomous SDLC quality gates system
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: progressive-quality-gates-config
+  namespace: terragon-sdlc
+data:
+  config.yaml: |
+    quality_gates:
+      execution_mode: "progressive"
+      quality_levels:
+        - basic
+        - intermediate
+        - advanced
+        - expert
+      
+      thresholds:
+        minimum_score: 0.75
+        confidence_threshold: 0.8
+        technical_debt_limit: 0.3
+        
+      optimization:
+        quantum_enabled: true
+        evolutionary_enabled: true
+        swarm_intelligence_enabled: true
+        predictive_scaling: true
+        
+      resilience:
+        circuit_breaker_enabled: true
+        recovery_strategies:
+          - retry
+          - fallback
+          - graceful_degrade
+          - circuit_break
+        max_retries: 3
+        timeout_seconds: 30
+        
+      monitoring:
+        metrics_enabled: true
+        audit_logging: true
+        performance_tracking: true
+        trend_analysis: true
+
+  logging.yaml: |
+    version: 1
+    formatters:
+      detailed:
+        format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        datefmt: '%Y-%m-%d %H:%M:%S'
+    
+    handlers:
+      console:
+        class: logging.StreamHandler
+        level: INFO
+        formatter: detailed
+        stream: ext://sys.stdout
+      
+      file:
+        class: logging.handlers.RotatingFileHandler
+        level: DEBUG
+        formatter: detailed
+        filename: /var/log/quality-gates/progressive.log
+        maxBytes: 10485760  # 10MB
+        backupCount: 5
+    
+    loggers:
+      sql_synthesizer.autonomous_sdlc:
+        level: DEBUG
+        handlers: [console, file]
+        propagate: false
+      
+      root:
+        level: INFO
+        handlers: [console]
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: progressive-quality-gates-secrets
+  namespace: terragon-sdlc
+type: Opaque
+data:
+  # Base64 encoded secrets (replace with actual values)
+  openai-api-key: ""  # Base64 encoded OpenAI API key
+  github-token: ""    # Base64 encoded GitHub token
+  slack-webhook: ""   # Base64 encoded Slack webhook URL
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: progressive-quality-gates
+  namespace: terragon-sdlc
+  labels:
+    app: progressive-quality-gates
+    component: autonomous-sdlc
+    version: v1.0.0
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: progressive-quality-gates
+  template:
+    metadata:
+      labels:
+        app: progressive-quality-gates
+        component: autonomous-sdlc
+        version: v1.0.0
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: progressive-quality-gates-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+      containers:
+      - name: quality-gates
+        image: terragon/progressive-quality-gates:v1.0.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        - name: metrics
+          containerPort: 9090
+          protocol: TCP
+        env:
+        - name: PYTHONPATH
+          value: "/app"
+        - name: CONFIG_PATH
+          value: "/etc/config/config.yaml"
+        - name: LOG_CONFIG_PATH
+          value: "/etc/config/logging.yaml"
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: progressive-quality-gates-secrets
+              key: openai-api-key
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: progressive-quality-gates-secrets
+              key: github-token
+        - name: SLACK_WEBHOOK
+          valueFrom:
+            secretKeyRef:
+              name: progressive-quality-gates-secrets
+              key: slack-webhook
+        - name: QUALITY_GATE_EXECUTION_MODE
+          value: "autonomous"
+        - name: QUANTUM_OPTIMIZATION_ENABLED
+          value: "true"
+        - name: RESILIENT_ERROR_HANDLING
+          value: "true"
+        - name: PREDICTIVE_SCALING_ENABLED
+          value: "true"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/config
+          readOnly: true
+        - name: log-volume
+          mountPath: /var/log/quality-gates
+        - name: tmp-volume
+          mountPath: /tmp
+        - name: cache-volume
+          mountPath: /app/cache
+      volumes:
+      - name: config-volume
+        configMap:
+          name: progressive-quality-gates-config
+      - name: log-volume
+        emptyDir:
+          sizeLimit: 1Gi
+      - name: tmp-volume
+        emptyDir:
+          sizeLimit: 500Mi
+      - name: cache-volume
+        emptyDir:
+          sizeLimit: 2Gi
+      nodeSelector:
+        workload-type: compute-intensive
+      tolerations:
+      - key: "compute-intensive"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - progressive-quality-gates
+              topologyKey: kubernetes.io/hostname
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: progressive-quality-gates-service
+  namespace: terragon-sdlc
+  labels:
+    app: progressive-quality-gates
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+    name: http
+  - port: 9090
+    targetPort: 9090
+    protocol: TCP
+    name: metrics
+  selector:
+    app: progressive-quality-gates
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: progressive-quality-gates-sa
+  namespace: terragon-sdlc
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: terragon-sdlc
+  name: progressive-quality-gates-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["metrics.k8s.io"]
+  resources: ["pods", "nodes"]
+  verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: progressive-quality-gates-binding
+  namespace: terragon-sdlc
+subjects:
+- kind: ServiceAccount
+  name: progressive-quality-gates-sa
+  namespace: terragon-sdlc
+roleRef:
+  kind: Role
+  name: progressive-quality-gates-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: progressive-quality-gates-ingress
+  namespace: terragon-sdlc
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+spec:
+  tls:
+  - hosts:
+    - quality-gates.terragon.ai
+    secretName: quality-gates-tls
+  rules:
+  - host: quality-gates.terragon.ai
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: progressive-quality-gates-service
+            port:
+              number: 80
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: progressive-quality-gates-monitor
+  namespace: terragon-sdlc
+  labels:
+    app: progressive-quality-gates
+spec:
+  selector:
+    matchLabels:
+      app: progressive-quality-gates
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: progressive-quality-gates-hpa
+  namespace: terragon-sdlc
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: progressive-quality-gates
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+      - type: Pods
+        value: 2
+        periodSeconds: 60
+      selectPolicy: Max
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+      selectPolicy: Min
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: progressive-quality-gates-pdb
+  namespace: terragon-sdlc
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: progressive-quality-gates
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: quality-gates-data
+  namespace: terragon-sdlc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: fast-ssd

@@ -1,0 +1,27 @@
+{
+  "timestamp": "2025-08-23T01:13:52+00:00",
+  "overall_score": 0.955,
+  "gates_passed": 3,
+  "total_gates": 3,
+  "security": {
+    "score": 1.0,
+    "passed": true,
+    "details": {
+      "pre-commit": "File exists",
+      "security_config": "File exists",
+      "pyproject_security": "Security tools configured"
+    }
+  },
+  "performance": {
+    "score": 1.0,
+    "passed": true,
+    "details": {
+      "baseline_available": true
+    }
+  },
+  "code_quality": {
+    "score": 0.85,
+    "passed": true,
+    "details": "Progressive quality gates implemented and tested"
+  }
+}
