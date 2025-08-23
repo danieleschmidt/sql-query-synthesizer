@@ -1,0 +1,172 @@
+# Progressive Quality Gates - Production Dockerfile
+# Multi-stage build for optimal size and security
+
+# Stage 1: Build stage
+FROM python:3.11-slim as builder
+
+# Set build arguments
+ARG BUILD_DATE
+ARG VCS_REF
+ARG VERSION=v1.0.0
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /build
+
+# Copy requirements first for better layer caching
+COPY requirements.txt requirements-dev.txt ./
+
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir ruff black mypy bandit safety
+
+# Copy source code
+COPY . .
+
+# Run quality gates during build
+RUN python3 test_quality_gates_standalone.py
+
+# Install the package
+RUN pip install --no-cache-dir -e .
+
+# Stage 2: Runtime stage
+FROM python:3.11-slim as runtime
+
+# Set metadata labels
+LABEL maintainer="Terragon Labs <devops@terragon.ai>" \
+      description="Progressive Quality Gates for Autonomous SDLC" \
+      version="${VERSION}" \
+      build-date="${BUILD_DATE}" \
+      vcs-ref="${VCS_REF}" \
+      org.opencontainers.image.title="Progressive Quality Gates" \
+      org.opencontainers.image.description="AI-driven quality gates with quantum optimization" \
+      org.opencontainers.image.vendor="Terragon Labs" \
+      org.opencontainers.image.version="${VERSION}" \
+      org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.revision="${VCS_REF}" \
+      org.opencontainers.image.source="https://github.com/terragon/progressive-quality-gates"
+
+# Install runtime dependencies and tools
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    gnupg \
+    wget \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Create non-root user for security
+RUN useradd --create-home --shell /bin/bash --uid 1001 quality-gates && \
+    mkdir -p /app /var/log/quality-gates /app/cache && \
+    chown -R quality-gates:quality-gates /app /var/log/quality-gates
+
+# Set working directory
+WORKDIR /app
+
+# Copy installed packages from builder stage
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Copy application code
+COPY --chown=quality-gates:quality-gates . .
+
+# Install additional quality tools
+RUN pip install --no-cache-dir --user ruff black mypy bandit safety
+
+# Create configuration directory
+RUN mkdir -p /etc/config && \
+    chown quality-gates:quality-gates /etc/config
+
+# Create default configuration
+RUN cat > /etc/config/default.yaml << 'EOF'
+quality_gates:
+  execution_mode: "progressive"
+  thresholds:
+    minimum_score: 0.75
+    confidence_threshold: 0.8
+  optimization:
+    quantum_enabled: true
+    evolutionary_enabled: true
+    swarm_intelligence_enabled: true
+  resilience:
+    circuit_breaker_enabled: true
+    max_retries: 3
+    timeout_seconds: 30
+  monitoring:
+    metrics_enabled: true
+    audit_logging: true
+    performance_tracking: true
+EOF
+
+# Switch to non-root user
+USER quality-gates
+
+# Set environment variables
+ENV PYTHONPATH=/app \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    CONFIG_PATH=/etc/config/default.yaml \
+    LOG_LEVEL=INFO \
+    QUALITY_GATE_EXECUTION_MODE=progressive \
+    QUANTUM_OPTIMIZATION_ENABLED=true \
+    RESILIENT_ERROR_HANDLING=true \
+    PREDICTIVE_SCALING_ENABLED=true
+
+# Expose ports
+EXPOSE 8080 9090
+
+# Add health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+# Create entrypoint script
+RUN cat > /app/entrypoint.sh << 'EOF'
+#!/bin/bash
+set -e
+
+# Function to log messages
+log() {
+    echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1"
+}
+
+# Initialize application
+log "Starting Progressive Quality Gates v1.0.0"
+
+# Validate configuration
+if [[ -n "${CONFIG_PATH}" && -f "${CONFIG_PATH}" ]]; then
+    log "Using configuration from: ${CONFIG_PATH}"
+else
+    log "Using default configuration"
+    export CONFIG_PATH="/etc/config/default.yaml"
+fi
+
+# Set up logging
+mkdir -p /var/log/quality-gates
+log "Log directory created at /var/log/quality-gates"
+
+# Start the quality gates service
+log "Starting quality gates service..."
+
+# If no command specified, start the progressive quality gate engine
+if [[ $# -eq 0 ]]; then
+    exec python3 -m sql_synthesizer.autonomous_sdlc.progressive_quality_gates --project-root /app --dashboard
+else
+    exec "$@"
+fi
+EOF
+
+RUN chmod +x /app/entrypoint.sh
+
+# Set entrypoint
+ENTRYPOINT ["/app/entrypoint.sh"]
+
+# Default command
+CMD ["python3", "-c", "import asyncio; from sql_synthesizer.autonomous_sdlc.progressive_quality_gates import ProgressiveQualityGateEngine; asyncio.run(ProgressiveQualityGateEngine().execute_progressive_assessment())"]
