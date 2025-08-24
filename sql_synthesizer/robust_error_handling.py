@@ -486,7 +486,9 @@ def robust_operation(
     """Decorator for robust error handling of operations."""
 
     def decorator(func):
+        """TODO: Add docstring"""
         @functools.wraps(func)
+            """TODO: Add docstring"""
         def wrapper(*args, **kwargs):
             op_name = operation_name or f"{func.__module__}.{func.__name__}"
 
@@ -502,6 +504,7 @@ def robust_operation(
                 )
                 raise  # Re-raise after handling
 
+     """TODO: Add docstring"""
         @functools.wraps(func)
         async def async_wrapper(*args, **kwargs):
             op_name = operation_name or f"{func.__module__}.{func.__name__}"

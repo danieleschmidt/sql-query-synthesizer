@@ -819,6 +819,7 @@ class ExperimentalFramework:
 
         # Rank approaches by overall performance
         def overall_score(stats):
+            """TODO: Add docstring"""
             return (
                 stats["avg_accuracy_score"] * 0.4
                 + stats["avg_output_quality"] * 0.3

@@ -732,6 +732,7 @@ class PerformanceOptimizer:
         error_count = 0
 
         async def worker():
+            """TODO: Add docstring"""
             nonlocal request_count, error_count
 
             while time.time() - start_time < duration_seconds:

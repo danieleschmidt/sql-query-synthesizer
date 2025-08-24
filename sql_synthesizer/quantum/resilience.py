@@ -59,11 +59,13 @@ class ResilienceMetrics:
 
     @property
     def success_rate(self) -> float:
+        """TODO: Add docstring"""
         if self.total_requests == 0:
             return 1.0
         return self.successful_requests / self.total_requests
 
     @property
+        """TODO: Add docstring"""
     def failure_rate(self) -> float:
         return 1.0 - self.success_rate
 
@@ -121,6 +123,7 @@ class QuantumCircuitBreaker:
     def __call__(self, func: Callable[..., T]) -> Callable[..., T]:
         """Decorator for circuit breaker"""
 
+     """TODO: Add docstring"""
         @wraps(func)
         async def wrapper(*args, **kwargs) -> T:
             return await self.call(func, *args, **kwargs)
@@ -846,6 +849,7 @@ class ResilienceManager:
 # Convenience decorators
 def circuit_breaker(name: str, **kwargs):
     """Decorator for circuit breaker protection"""
+        """TODO: Add docstring"""
 
     def decorator(func):
         cb = QuantumCircuitBreaker(name=name, **kwargs)
@@ -855,8 +859,10 @@ def circuit_breaker(name: str, **kwargs):
 
 
 def bulkhead_isolation(name: str, config: BulkheadConfig, priority: int = 1):
+    """TODO: Add docstring"""
     """Decorator for bulkhead isolation"""
 
+     """TODO: Add docstring"""
     def decorator(func):
         bh = QuantumBulkhead(name=name, config=config)
 

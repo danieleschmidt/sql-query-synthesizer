@@ -129,6 +129,7 @@ class TestEnhancedCore:
         received_events = []
 
         def test_handler(data):
+            """TODO: Add docstring"""
             received_events.append(data)
 
         # Subscribe to event
@@ -176,12 +177,12 @@ class TestIntelligentQueryRouter:
         assert complexity == QueryComplexity.SIMPLE
 
         complex_query = """
-        SELECT u.id, p.name, COUNT(*) 
-        FROM users u 
-        JOIN profiles p ON u.id = p.user_id 
-        JOIN orders o ON u.id = o.user_id 
-        WHERE u.created_at > '2023-01-01' 
-        GROUP BY u.id, p.name 
+        SELECT u.id, p.name, COUNT(*)
+        FROM users u
+        JOIN profiles p ON u.id = p.user_id
+        JOIN orders o ON u.id = o.user_id
+        WHERE u.created_at > '2023-01-01'
+        GROUP BY u.id, p.name
         HAVING COUNT(*) > 5
         """
         complexity = analyzer.analyze_query_complexity(complex_query)
@@ -350,6 +351,7 @@ class TestRobustErrorHandling:
         handler = RobustErrorHandler()
 
         # Add custom recovery strategy
+            """TODO: Add docstring"""
         def custom_recovery(error_context, exception):
             return True  # Simulate successful recovery
 
@@ -397,6 +399,7 @@ class TestRobustErrorHandling:
             category=ErrorCategory.PROCESSING,
             severity=ErrorSeverity.LOW,
             operation_name="test_decorated_function",
+                """TODO: Add docstring"""
         )
         def test_function():
             raise ValueError("Test decorator error")
@@ -451,12 +454,12 @@ class TestComprehensiveValidation:
 
         # Test query with many joins
         complex_sql = """
-        SELECT u.name 
-        FROM users u 
-        JOIN profiles p ON u.id = p.user_id 
-        JOIN orders o ON u.id = o.user_id 
-        JOIN products pr ON o.product_id = pr.id 
-        JOIN categories c ON pr.category_id = c.id 
+        SELECT u.name
+        FROM users u
+        JOIN profiles p ON u.id = p.user_id
+        JOIN orders o ON u.id = o.user_id
+        JOIN products pr ON o.product_id = pr.id
+        JOIN categories c ON pr.category_id = c.id
         JOIN suppliers s ON pr.supplier_id = s.id
         """
         complex_issues = validator.validate_performance(complex_sql)
@@ -465,6 +468,7 @@ class TestComprehensiveValidation:
     def test_business_rules_validation(self):
         """Test business rules validation."""
         validator = BusinessRulesValidator()
+            """TODO: Add docstring"""
 
         # Add a business rule
         def no_delete_users(sql, context):
@@ -490,8 +494,8 @@ class TestComprehensiveValidation:
 
         # Test mixed issues query
         problematic_sql = """
-        SELECT * FROM users u, orders o 
-        WHERE u.name LIKE '%admin%' 
+        SELECT * FROM users u, orders o
+        WHERE u.name LIKE '%admin%'
         AND (u.role = 'admin' OR o.total > 1000)
         """
 
@@ -620,12 +624,12 @@ class TestPerformanceOptimizer:
 
         # Test with a query that would benefit from indexes
         sql = """
-        SELECT u.name, COUNT(*) 
-        FROM users u 
-        JOIN orders o ON u.id = o.user_id 
-        WHERE u.created_at > '2023-01-01' 
-        AND o.status = 'completed' 
-        ORDER BY u.created_at 
+        SELECT u.name, COUNT(*)
+        FROM users u
+        JOIN orders o ON u.id = o.user_id
+        WHERE u.created_at > '2023-01-01'
+        AND o.status = 'completed'
+        ORDER BY u.created_at
         GROUP BY u.name
         """
 
@@ -735,6 +739,7 @@ class TestIntegrationScenarios:
         # Test async error handling would go here
         # (requires async version of error context)
 
+     """TODO: Add docstring"""
     def test_concurrent_operations(self):
         """Test system behavior under concurrent load."""
 

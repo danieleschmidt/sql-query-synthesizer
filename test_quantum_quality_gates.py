@@ -364,6 +364,7 @@ def test_thread_safety():
         errors = []
 
         def worker_thread(thread_id):
+            """TODO: Add docstring"""
             try:
                 plans = [
                     QueryPlan([], [], [], float(10 + thread_id), 0.0),

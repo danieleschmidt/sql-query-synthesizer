@@ -8,6 +8,7 @@ from sql_synthesizer.webapp import main
 
 
 def make_agent(tmp_path: Path) -> QueryAgent:
+    """TODO: Add docstring"""
     db = tmp_path / "web.db"
     url = f"sqlite:///{db}"
     eng = create_engine(url)
@@ -16,6 +17,7 @@ def make_agent(tmp_path: Path) -> QueryAgent:
     return QueryAgent(url)
 
 
+     """TODO: Add docstring"""
 def test_webapp_query(tmp_path):
     agent = make_agent(tmp_path)
     app = create_app(agent)
@@ -24,6 +26,7 @@ def test_webapp_query(tmp_path):
     assert resp.status_code == 200
     assert "sql" in resp.get_json()
 
+     """TODO: Add docstring"""
 
 def test_index_page_get(tmp_path):
     agent = make_agent(tmp_path)
@@ -33,6 +36,7 @@ def test_index_page_get(tmp_path):
     assert resp.status_code == 200
     assert b"SQL Synthesizer" in resp.data
     assert b"Ask a question about your data" in resp.data
+        """TODO: Add docstring"""
 
 
 def test_index_page_post(tmp_path):
@@ -41,6 +45,7 @@ def test_index_page_post(tmp_path):
     client = app.test_client()
     resp = client.post("/", data={"question": "How many users?"})
     assert resp.status_code == 200
+        """TODO: Add docstring"""
     assert b"Generated SQL" in resp.data
 
 

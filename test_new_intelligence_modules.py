@@ -314,9 +314,12 @@ async def test_async_modules():
 
         # Create a mock connection factory
         async def mock_connection_factory():
+            """TODO: Add docstring"""
             class MockConnection:
+                """TODO: Add docstring"""
                 async def execute(self, query):
                     return [{"result": 1}]
+                        """TODO: Add docstring"""
 
                 async def close(self):
                     pass

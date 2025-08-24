@@ -30,7 +30,7 @@ def test_intelligence_query_insights():
         test_query = """
         SELECT c.name, COUNT(o.id) as order_count, SUM(o.total) as revenue
         FROM customers c
-        LEFT JOIN orders o ON c.id = o.customer_id  
+        LEFT JOIN orders o ON c.id = o.customer_id
         WHERE c.created_at > '2024-01-01'
         GROUP BY c.id, c.name
         HAVING COUNT(o.id) > 5
@@ -240,6 +240,7 @@ def test_error_recovery():
 
         @breaker
         def test_function():
+            """TODO: Add docstring"""
             return "success"
 
         result = test_function()
@@ -437,8 +438,10 @@ def test_auto_scaler():
         })
 
         # Test resource pool
+            """TODO: Add docstring"""
         def create_resource():
             return {"id": f"resource_{time.time()}", "status": "active"}
+                """TODO: Add docstring"""
 
         def destroy_resource(resource):
             resource["status"] = "destroyed"
@@ -507,14 +510,17 @@ async def test_connection_pool():
             HealthChecker,
             PoolConfiguration,
         )
+            """TODO: Add docstring"""
 
         # Mock connection factory
         async def create_connection():
             class MockConnection:
+                """TODO: Add docstring"""
                 def __init__(self):
                     self.closed = False
 
                 async def execute(self, query):
+                    """TODO: Add docstring"""
                     if self.closed:
                         raise Exception("Connection closed")
                     return [{"result": 1}]

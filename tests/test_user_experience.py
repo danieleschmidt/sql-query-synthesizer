@@ -10,6 +10,7 @@ from sql_synthesizer import QueryAgent
 
 @pytest.fixture()
 def agent(tmp_path: Path) -> QueryAgent:
+    """TODO: Add docstring"""
     db = tmp_path / "test.db"
     url = f"sqlite:///{db}"
     eng = create_engine(url)

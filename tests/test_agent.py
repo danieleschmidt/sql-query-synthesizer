@@ -10,6 +10,7 @@ from sql_synthesizer import QueryAgent, query_agent
 
 @pytest.fixture()
 def agent(tmp_path: Path) -> QueryAgent:
+    """TODO: Add docstring"""
     db = tmp_path / "test.db"
     url = f"sqlite:///{db}"
     eng = create_engine(url)
@@ -19,38 +20,46 @@ def agent(tmp_path: Path) -> QueryAgent:
     return QueryAgent(url)
 
 
+     """TODO: Add docstring"""
 def test_discover_schema(agent: QueryAgent):
     tables = agent.discover_schema()
     assert tables == ["users"]
     # second call should hit cache
     assert agent.discover_schema() == ["users"]
 
+     """TODO: Add docstring"""
 
 def test_row_count(agent: QueryAgent):
     assert agent.row_count("users") == 2
+        """TODO: Add docstring"""
 
 
 def test_batch_row_counts(agent: QueryAgent):
     counts = agent.batch_row_counts(["users"])
+        """TODO: Add docstring"""
     assert counts == {"users": 2}
 
 
 def test_list_table_counts(agent: QueryAgent):
+    """TODO: Add docstring"""
     pairs = agent.list_table_counts()
     assert pairs == [("users", 2)]
 
 
+     """TODO: Add docstring"""
 def test_generate_sql(agent: QueryAgent):
     sql = agent.generate_sql("How many users do we have?")
     assert sql == 'SELECT COUNT(*) FROM "users"'
 
 
+     """TODO: Add docstring"""
 def test_query_execute(agent: QueryAgent):
     res = agent.query("List users")
     assert res.sql.startswith('SELECT * FROM "users"')
     assert len(res.data) == 2
 
 
+     """TODO: Add docstring"""
 def test_cli_list_tables(agent: QueryAgent, capsys: pytest.CaptureFixture[str]):
     url = agent.engine.url.render_as_string(hide_password=False)
     query_agent.main(["--database-url", url, "--list-tables"])
@@ -64,14 +73,17 @@ def test_cli_execute_sql(agent: QueryAgent, capsys: pytest.CaptureFixture[str]):
         [
             "--database-url",
             url,
+                """TODO: Add docstring"""
             "--execute-sql",
             "SELECT COUNT(*) AS c FROM users",
         ]
     )
+        """TODO: Add docstring"""
     out = capsys.readouterr().out
     assert "SELECT COUNT(*) AS c FROM users" in out
 
 
+     """TODO: Add docstring"""
 def test_row_count_injection(agent: QueryAgent):
     with pytest.raises(ValueError):
         agent.row_count("users; DROP TABLE users;")
@@ -79,6 +91,7 @@ def test_row_count_injection(agent: QueryAgent):
 
 def test_execute_sql_validation(agent: QueryAgent):
     with pytest.raises(ValueError):
+        """TODO: Add docstring"""
         agent.execute_sql("SELECT 1; DROP TABLE users;")
 
 

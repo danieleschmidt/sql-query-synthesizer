@@ -305,6 +305,7 @@ class AsyncQueryAgent:
 
         # Execute all count queries concurrently
         async def get_count(table: str) -> tuple[str, int]:
+            """TODO: Add docstring"""
             try:
                 async with self.engine.connect() as connection:
                     result = await connection.execute(

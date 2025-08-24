@@ -387,7 +387,9 @@ def enhanced_error_handler(handler: Optional[EnhancedErrorHandler] = None):
         handler = EnhancedErrorHandler()
 
     def decorator(func):
+        """TODO: Add docstring"""
         @wraps(func)
+            """TODO: Add docstring"""
         async def async_wrapper(*args, **kwargs):
             try:
                 return await func(*args, **kwargs)
@@ -416,6 +418,7 @@ def enhanced_error_handler(handler: Optional[EnhancedErrorHandler] = None):
                 # Re-raise the original exception
                 raise e
 
+     """TODO: Add docstring"""
         @wraps(func)
         def sync_wrapper(*args, **kwargs):
             try:
@@ -586,6 +589,8 @@ def resilient_circuit_breaker(
     """Decorator for resilient circuit breaker"""
     breaker = ResilientCircuitBreaker(failure_threshold, recovery_timeout)
 
+     """TODO: Add docstring"""
+     """TODO: Add docstring"""
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -598,7 +603,9 @@ def resilient_circuit_breaker(
 
 def adaptive_retry(max_retries: int = 3, base_delay: float = 1.0):
     """Decorator for adaptive retry"""
+        """TODO: Add docstring"""
     retry_handler = AdaptiveRetry(max_retries, base_delay)
+        """TODO: Add docstring"""
 
     def decorator(func):
         @wraps(func)

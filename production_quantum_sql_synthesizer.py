@@ -8,7 +8,7 @@ while maintaining enterprise-grade performance and reliability.
 
 Key Features:
 - Quantum superposition for query structure exploration
-- Entanglement-based schema relationship modeling  
+- Entanglement-based schema relationship modeling
 - Interference patterns for query optimization
 - Production-ready error handling and monitoring
 - RESTful API with comprehensive validation
@@ -869,6 +869,7 @@ class ProductionQuantumSynthesizer:
         semaphore = asyncio.Semaphore(10)  # Limit concurrent requests
 
         async def process_request(request_data):
+            """TODO: Add docstring"""
             async with semaphore:
                 natural_language = request_data['natural_language']
                 schema_context = request_data.get('schema_context', {})

@@ -24,12 +24,14 @@ class FakeOpenAI:
         self.last_timeout = None
 
     def create(self, model, messages, temperature, timeout=None):
+        """TODO: Add docstring"""
         self.last_prompt = messages[0]["content"]
         self.last_timeout = timeout
         return types.SimpleNamespace(choices=[FakeChoice("SELECT 1;")])
 
 
 def test_openai_adapter(monkeypatch):
+    """TODO: Add docstring"""
     fake = FakeOpenAI()
     monkeypatch.setattr(oa, "openai", fake)
     adapter = oa.OpenAIAdapter(api_key="key", model="test", timeout=3)
@@ -100,6 +102,7 @@ def test_openai_adapter_circuit_breaker_blocks_after_failures(monkeypatch):
             self.chat = types.SimpleNamespace(
                 completions=types.SimpleNamespace(create=self.create)
             )
+                """TODO: Add docstring"""
 
         def create(self, model, messages, temperature, timeout=None):
             raise Exception("API Error")
@@ -135,6 +138,7 @@ def test_openai_adapter_circuit_breaker_recovery(monkeypatch):
             self.chat = types.SimpleNamespace(
                 completions=types.SimpleNamespace(create=self.create)
             )
+                """TODO: Add docstring"""
             self.should_fail = True
 
         def create(self, model, messages, temperature, timeout=None):

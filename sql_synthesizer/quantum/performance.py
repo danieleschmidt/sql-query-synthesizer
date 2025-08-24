@@ -33,6 +33,7 @@ class PerformanceMetrics:
     timestamp: float = field(default_factory=time.time)
 
     def to_dict(self) -> Dict[str, Any]:
+        """TODO: Add docstring"""
         return {
             "operation_type": self.operation_type,
             "execution_time": self.execution_time,

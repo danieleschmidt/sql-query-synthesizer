@@ -41,6 +41,7 @@ class QuantumOptimizationError(QuantumError):
         self.plan_count = plan_count
 
     def to_dict(self) -> Dict[str, Any]:
+        """TODO: Add docstring"""
         data = super().to_dict()
         data["optimization_stage"] = self.optimization_stage
         data["plan_count"] = self.plan_count
@@ -61,6 +62,7 @@ class QuantumSchedulerError(QuantumError):
         self.task_id = task_id
         self.scheduler_state = scheduler_state
 
+     """TODO: Add docstring"""
     def to_dict(self) -> Dict[str, Any]:
         data = super().to_dict()
         data["task_id"] = self.task_id
@@ -83,6 +85,7 @@ class QuantumResourceError(QuantumError):
         self.resource_id = resource_id
         self.requested_capacity = requested_capacity
         self.available_capacity = available_capacity
+            """TODO: Add docstring"""
 
     def to_dict(self) -> Dict[str, Any]:
         data = super().to_dict()
@@ -104,6 +107,7 @@ class QuantumDecoherenceError(QuantumError):
     ):
         super().__init__(message, "QUANTUM_DECOHERENCE_ERROR", details)
         self.coherence_time = coherence_time
+            """TODO: Add docstring"""
         self.expected_coherence = expected_coherence
 
     def to_dict(self) -> Dict[str, Any]:
@@ -126,6 +130,7 @@ class QuantumValidationError(QuantumError):
     ):
         super().__init__(message, "QUANTUM_VALIDATION_ERROR", details)
         self.field_name = field_name
+            """TODO: Add docstring"""
         self.field_value = field_value
         self.validation_rule = validation_rule
 
@@ -151,6 +156,7 @@ class QuantumTimeoutError(QuantumError):
         details: Dict[str, Any] = None,
     ):
         super().__init__(message, "QUANTUM_TIMEOUT_ERROR", details)
+            """TODO: Add docstring"""
         self.operation = operation
         self.timeout_seconds = timeout_seconds
         self.elapsed_seconds = elapsed_seconds
@@ -174,6 +180,7 @@ class QuantumCircuitBreakerError(QuantumError):
         failure_threshold: int = None,
         details: Dict[str, Any] = None,
     ):
+        """TODO: Add docstring"""
         super().__init__(message, "QUANTUM_CIRCUIT_BREAKER_ERROR", details)
         self.circuit_name = circuit_name
         self.failure_count = failure_count
@@ -197,6 +204,7 @@ class QuantumSecurityError(QuantumError):
         threat_level: str = "medium",
         client_info: Dict[str, Any] = None,
         details: Dict[str, Any] = None,
+            """TODO: Add docstring"""
     ):
         super().__init__(message, "QUANTUM_SECURITY_ERROR", details)
         self.security_check = security_check
@@ -220,6 +228,7 @@ class QuantumPlanGenerationError(QuantumError):
         table_count: int = None,
         join_count: int = None,
         filter_count: int = None,
+            """TODO: Add docstring"""
         details: Dict[str, Any] = None,
     ):
         super().__init__(message, "QUANTUM_PLAN_GENERATION_ERROR", details)
@@ -386,6 +395,7 @@ class QuantumBulkheadError(QuantumError):
         message: str,
         bulkhead_name: str = None,
         current_load: int = None,
+            """TODO: Add docstring"""
         capacity: int = None,
         details: Dict[str, Any] = None,
     ):

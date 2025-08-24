@@ -438,6 +438,8 @@ def validate_quantum_input(**field_mappings):
     """
 
     def decorator(func):
+        """TODO: Add docstring"""
+            """TODO: Add docstring"""
         def wrapper(*args, **kwargs):
             # Get function argument names
             import inspect
@@ -472,6 +474,8 @@ def sanitize_quantum_input(*field_names):
             ...
     """
 
+     """TODO: Add docstring"""
+     """TODO: Add docstring"""
     def decorator(func):
         def wrapper(*args, **kwargs):
             # Get function argument names

@@ -2,7 +2,7 @@
 """
 Advanced SBOM (Software Bill of Materials) Generator for SQL Query Synthesizer.
 
-This script generates comprehensive SBOMs in multiple formats (SPDX, CycloneDX) 
+This script generates comprehensive SBOMs in multiple formats (SPDX, CycloneDX)
 with enhanced metadata, vulnerability information, and supply chain analysis.
 
 Features:

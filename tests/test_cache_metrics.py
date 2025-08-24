@@ -176,6 +176,7 @@ def test_cache_thread_safety_metrics():
     cache = TTLCache(ttl=10)
 
     def worker():
+        """TODO: Add docstring"""
         for i in range(100):
             cache.set(f"key{i}", f"value{i}")
             try:

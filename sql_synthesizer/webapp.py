@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 def create_app(agent: QueryAgent) -> Flask:
+    """TODO: Add docstring"""
     app = Flask(__name__)
 
     # Initialize security middleware
@@ -31,6 +32,7 @@ def create_app(agent: QueryAgent) -> Flask:
     validator = InputValidator()
 
     @app.route("/", methods=["GET", "POST"])
+        """TODO: Add docstring"""
     def index() -> str:
         if request.method == "GET":
             # Generate CSRF token for the form
@@ -117,6 +119,7 @@ def create_app(agent: QueryAgent) -> Flask:
                 question=sanitized_question if "sanitized_question" in locals() else "",
             )
 
+     """TODO: Add docstring"""
     @app.post("/api/query")
     def api_query() -> tuple[str, int]:
         # Validate JSON structure
@@ -638,6 +641,7 @@ def create_app(agent: QueryAgent) -> Flask:
     return app
 
 
+     """TODO: Add docstring"""
 def main() -> None:
     import argparse
 

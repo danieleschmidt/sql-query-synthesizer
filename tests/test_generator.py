@@ -2,14 +2,17 @@ from sql_synthesizer.generator import naive_generate_sql
 
 
 def test_naive_generate_sql_count():
+    """TODO: Add docstring"""
     sql = naive_generate_sql("How many users?", ["users"], 5)
     assert sql == 'SELECT COUNT(*) FROM "users"'
 
 
+     """TODO: Add docstring"""
 def test_naive_generate_sql_select():
     sql = naive_generate_sql("List users", ["users"], 3)
     assert sql == 'SELECT * FROM "users" LIMIT 3'
 
+     """TODO: Add docstring"""
 
 def test_naive_generate_sql_placeholder():
     sql = naive_generate_sql("unknown", ["users"], 5)
