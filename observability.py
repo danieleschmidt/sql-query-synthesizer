@@ -3,7 +3,7 @@ OpenTelemetry configuration for SQL Query Synthesizer.
 
 This module provides comprehensive observability setup including:
 - Distributed tracing with OTLP export
-- Custom metrics for query performance and cache efficiency  
+- Custom metrics for query performance and cache efficiency
 - Structured logging with trace correlation
 - Health check instrumentation
 """
@@ -36,7 +36,7 @@ def setup_observability(
 ) -> None:
     """
     Configure OpenTelemetry tracing, metrics, and instrumentation.
-    
+
     Args:
         service_name: Name of the service for telemetry
         service_version: Version of the service

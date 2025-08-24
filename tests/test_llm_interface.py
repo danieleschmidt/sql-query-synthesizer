@@ -22,10 +22,13 @@ class MockLLMProvider(LLMProvider):
         self.responses = {}
 
     def generate_sql(self, question, available_tables=None, **kwargs):
+        """TODO: Add docstring"""
         return self.responses.get(question, "SELECT 1")
 
+     """TODO: Add docstring"""
     def get_provider_name(self):
         return self.provider_name
+            """TODO: Add docstring"""
 
     def get_model_name(self):
         return self.model_name

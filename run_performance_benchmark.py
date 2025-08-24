@@ -105,11 +105,11 @@ class PerformanceBenchmark:
             "INSERT INTO logs (message) VALUES ('test')",
             "UPDATE users SET last_login = NOW() WHERE id = 1",
             """
-            SELECT u.name, COUNT(o.id) 
-            FROM users u 
-            LEFT JOIN orders o ON u.id = o.user_id 
-            WHERE u.created_at > '2023-01-01' 
-            GROUP BY u.name 
+            SELECT u.name, COUNT(o.id)
+            FROM users u
+            LEFT JOIN orders o ON u.id = o.user_id
+            WHERE u.created_at > '2023-01-01'
+            GROUP BY u.name
             HAVING COUNT(o.id) > 5
             """
         ]
@@ -117,6 +117,7 @@ class PerformanceBenchmark:
         times = []
 
         async def route_queries():
+            """TODO: Add docstring"""
             for i in range(iterations):
                 query = test_queries[i % len(test_queries)]
 
@@ -201,13 +202,13 @@ class PerformanceBenchmark:
             "SELECT DISTINCT name FROM users ORDER BY created_at",
             "SELECT * FROM users WHERE id IN (SELECT user_id FROM orders WHERE total > 100)",
             """
-            SELECT u.name, p.title, COUNT(*) 
-            FROM users u 
-            JOIN profiles p ON u.id = p.user_id 
-            JOIN orders o ON u.id = o.user_id 
-            WHERE u.created_at > '2023-01-01' 
-            AND p.visibility = 'public' 
-            GROUP BY u.name, p.title 
+            SELECT u.name, p.title, COUNT(*)
+            FROM users u
+            JOIN profiles p ON u.id = p.user_id
+            JOIN orders o ON u.id = o.user_id
+            WHERE u.created_at > '2023-01-01'
+            AND p.visibility = 'public'
+            GROUP BY u.name, p.title
             ORDER BY COUNT(*) DESC
             """
         ]

@@ -115,6 +115,7 @@ def create_logger_with_trace_id(
 
     class TraceIDAdapter(logging.LoggerAdapter):
         def process(self, msg, kwargs):
+            """TODO: Add docstring"""
             if "extra" not in kwargs:
                 kwargs["extra"] = {}
             kwargs["extra"]["trace_id"] = self.extra["trace_id"]

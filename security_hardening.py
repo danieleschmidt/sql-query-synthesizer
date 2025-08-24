@@ -714,6 +714,7 @@ async def initialize_security_hardening(config: SecurityHardeningConfig) -> Secu
 if __name__ == "__main__":
 
     async def demo():
+        """TODO: Add docstring"""
         # Load configuration
         security_config = load_security_config()
 

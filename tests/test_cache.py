@@ -4,6 +4,7 @@ from sql_synthesizer.cache import TTLCache
 
 
 def test_ttl_cache_basic():
+    """TODO: Add docstring"""
     cache = TTLCache(ttl=1)
     cache.set("a", 1)
     assert cache.get("a") == 1

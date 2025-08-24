@@ -107,6 +107,7 @@ class AdaptiveCacheManager:
         """Start background cleanup task."""
 
         def cleanup_loop():
+            """TODO: Add docstring"""
             while True:
                 try:
                     self._perform_cleanup()

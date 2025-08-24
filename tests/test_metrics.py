@@ -7,6 +7,7 @@ from sql_synthesizer import QueryAgent
 
 
 def make_agent(tmp_path: Path) -> QueryAgent:
+    """TODO: Add docstring"""
     db = tmp_path / "m.db"
     url = f"sqlite:///{db}"
     eng = create_engine(url)
@@ -15,6 +16,7 @@ def make_agent(tmp_path: Path) -> QueryAgent:
     return QueryAgent(url)
 
 
+     """TODO: Add docstring"""
 def test_metrics_record(tmp_path: Path):
     agent = make_agent(tmp_path)
     before = REGISTRY.get_sample_value("queries_total", {"type": "query"}) or 0

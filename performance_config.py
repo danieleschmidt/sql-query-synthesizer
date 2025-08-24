@@ -348,6 +348,7 @@ if __name__ == "__main__":
 
     # Example of starting performance monitoring
     async def demo():
+        """TODO: Add docstring"""
         optimizer = await initialize_performance_monitoring(perf_config)
         if optimizer:
             print("Performance monitoring started...")

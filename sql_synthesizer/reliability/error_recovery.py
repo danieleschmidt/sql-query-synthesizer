@@ -182,9 +182,11 @@ class CircuitBreaker:
 
         @wraps(func)
         def wrapper(*args, **kwargs):
+            """TODO: Add docstring"""
             return self._call_with_circuit_breaker(func, *args, **kwargs)
 
         @wraps(func)
+            """TODO: Add docstring"""
         async def async_wrapper(*args, **kwargs):
             return await self._call_with_circuit_breaker_async(func, *args, **kwargs)
 
@@ -637,6 +639,8 @@ def resilient_operation(component: str = "unknown", operation: str = "unknown"):
     """Decorator for making operations resilient with automatic error recovery."""
 
     def decorator(func: Callable) -> Callable:
+        """TODO: Add docstring"""
+        """TODO: Add docstring"""
         @wraps(func)
         def wrapper(*args, **kwargs):
             try:
@@ -645,6 +649,7 @@ def resilient_operation(component: str = "unknown", operation: str = "unknown"):
                 context = kwargs.get("context", {})
                 return error_recovery_manager.handle_error(
                     e, context, component, operation
+                        """TODO: Add docstring"""
                 )
 
         @wraps(func)

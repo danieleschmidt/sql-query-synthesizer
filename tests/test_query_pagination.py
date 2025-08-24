@@ -251,6 +251,7 @@ class TestQueryPagination:
         cache_key = None
 
         def mock_get(key):
+            """TODO: Add docstring"""
             nonlocal cache_key
             cache_key = key
             return None
