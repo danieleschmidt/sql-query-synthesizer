@@ -1,19 +1,50 @@
-"""
-Experimental Research Frameworks
-Advanced algorithmic research and experimental SQL synthesis approaches.
+"""Experimental Research Frameworks for Advanced NL2SQL.
+
+This module provides comprehensive experimental frameworks for testing and validating
+novel NL2SQL approaches with statistical rigor and reproducibility.
+
+Research Focus: Rigorous evaluation and comparison of novel algorithmic approaches
+with proper baselines and statistical validation.
 """
 
-import hashlib
+import json
 import logging
+import os
 import time
-from abc import ABC, abstractmethod
-from collections import Counter, defaultdict
-from dataclasses import asdict, dataclass
 from datetime import datetime
-from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple, Union
+from dataclasses import dataclass, field
+from pathlib import Path
+import statistics
+import random
+
+import numpy as np
 
 logger = logging.getLogger(__name__)
+
+# Optional statistical dependencies
+try:
+    from scipy import stats
+    from scipy.stats import ttest_rel, wilcoxon, mannwhitneyu
+    SCIPY_AVAILABLE = True
+except ImportError:
+    SCIPY_AVAILABLE = False
+    logger.warning("SciPy not available. Using basic statistical tests.")
+
+try:
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    PLOTTING_AVAILABLE = True
+except ImportError:
+    PLOTTING_AVAILABLE = False
+    logger.warning("Plotting libraries not available. Visualization disabled.")
+
+# Import existing framework for compatibility
+import hashlib
+from abc import ABC, abstractmethod
+from collections import Counter, defaultdict
+from dataclasses import asdict
+from enum import Enum
 
 
 class ExperimentType(Enum):
@@ -1048,3 +1079,961 @@ class ExperimentalFramework:
 
 # Global experimental framework instance
 experimental_framework = ExperimentalFramework()
+
+
+# ==============================================================================
+# COMPREHENSIVE RESEARCH VALIDATION FRAMEWORK
+# ==============================================================================
+
+
+@dataclass
+class ComprehensiveExperimentResult:
+    """Result of a single experimental run with comprehensive metrics."""
+    experiment_id: str
+    method_name: str
+    query_id: str
+    natural_language: str
+    ground_truth_sql: str
+    predicted_sql: str
+    execution_match: bool
+    exact_match: bool
+    semantic_similarity: float
+    execution_time_ms: float
+    confidence_score: float
+    error_message: Optional[str] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class ComprehensiveExperimentConfiguration:
+    """Configuration for comprehensive experimental runs."""
+    experiment_name: str
+    description: str
+    methods_to_test: List[str]
+    datasets: List[str]
+    evaluation_metrics: List[str]
+    num_runs: int = 3
+    random_seed: int = 42
+    output_directory: str = "experiment_results"
+    statistical_tests: List[str] = field(default_factory=lambda: ["t-test", "wilcoxon"])
+    significance_level: float = 0.05
+
+
+@dataclass
+class BaselineMethod:
+    """Definition of a baseline method for comparison."""
+    name: str
+    description: str
+    implementation_callable: Any
+    expected_performance: Dict[str, float] = field(default_factory=dict)
+    paper_reference: Optional[str] = None
+
+
+class QueryComplexityClassifier:
+    """Classifies query complexity for stratified evaluation."""
+    
+    def __init__(self):
+        self.complexity_features = {
+            'num_tables': 0.3,
+            'num_joins': 0.4,
+            'num_aggregations': 0.2,
+            'nested_queries': 0.5,
+            'num_conditions': 0.1,
+            'has_groupby': 0.2,
+            'has_orderby': 0.1,
+            'has_having': 0.3,
+        }
+    
+    def classify_query(self, sql: str) -> Dict[str, Any]:
+        """Classify query complexity and return features."""
+        sql_upper = sql.upper()
+        
+        # Count tables
+        num_tables = len([word for word in sql_upper.split() if word == 'FROM']) + sql_upper.count('JOIN')
+        
+        # Count joins
+        join_keywords = ['INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'FULL JOIN', 'JOIN']
+        num_joins = sum(sql_upper.count(keyword) for keyword in join_keywords)
+        
+        # Count aggregations
+        agg_functions = ['COUNT', 'SUM', 'AVG', 'MAX', 'MIN']
+        num_aggregations = sum(sql_upper.count(func + '(') for func in agg_functions)
+        
+        # Check for nested queries
+        nested_queries = sql_upper.count('SELECT') - 1  # Main query doesn't count
+        
+        # Count conditions
+        num_conditions = sql_upper.count('WHERE') + sql_upper.count('AND') + sql_upper.count('OR')
+        
+        # Check for specific clauses
+        has_groupby = 'GROUP BY' in sql_upper
+        has_orderby = 'ORDER BY' in sql_upper
+        has_having = 'HAVING' in sql_upper
+        
+        features = {
+            'num_tables': min(num_tables, 5) / 5.0,  # Normalize to 0-1
+            'num_joins': min(num_joins, 4) / 4.0,
+            'num_aggregations': min(num_aggregations, 3) / 3.0,
+            'nested_queries': min(nested_queries, 2) / 2.0,
+            'num_conditions': min(num_conditions, 10) / 10.0,
+            'has_groupby': 1.0 if has_groupby else 0.0,
+            'has_orderby': 1.0 if has_orderby else 0.0,
+            'has_having': 1.0 if has_having else 0.0,
+        }
+        
+        # Calculate overall complexity score
+        complexity_score = sum(
+            features[feature] * weight 
+            for feature, weight in self.complexity_features.items()
+        )
+        
+        # Classify into buckets
+        if complexity_score <= 0.3:
+            complexity_class = 'simple'
+        elif complexity_score <= 0.7:
+            complexity_class = 'medium'
+        else:
+            complexity_class = 'complex'
+        
+        return {
+            'complexity_score': complexity_score,
+            'complexity_class': complexity_class,
+            'features': features,
+            'raw_counts': {
+                'num_tables': num_tables,
+                'num_joins': num_joins,
+                'num_aggregations': num_aggregations,
+                'nested_queries': nested_queries,
+                'num_conditions': num_conditions
+            }
+        }
+    
+    def get_complexity_distribution(self, queries: List[str]) -> Dict[str, Any]:
+        """Analyze complexity distribution of a query set."""
+        classifications = [self.classify_query(q) for q in queries]
+        
+        # Count by class
+        class_counts = {'simple': 0, 'medium': 0, 'complex': 0}
+        complexity_scores = []
+        
+        for classification in classifications:
+            class_counts[classification['complexity_class']] += 1
+            complexity_scores.append(classification['complexity_score'])
+        
+        return {
+            'class_distribution': class_counts,
+            'class_percentages': {
+                cls: count / len(queries) * 100 
+                for cls, count in class_counts.items()
+            },
+            'average_complexity': statistics.mean(complexity_scores),
+            'complexity_std': statistics.stdev(complexity_scores) if len(complexity_scores) > 1 else 0.0,
+            'complexity_range': [min(complexity_scores), max(complexity_scores)]
+        }
+
+
+class ComprehensiveEvaluationMetrics:
+    """Comprehensive evaluation metrics for NL2SQL systems."""
+    
+    @staticmethod
+    def exact_match(predicted: str, ground_truth: str) -> bool:
+        """Check if SQL queries are exactly the same (normalized)."""
+        pred_normalized = ComprehensiveEvaluationMetrics._normalize_sql(predicted)
+        truth_normalized = ComprehensiveEvaluationMetrics._normalize_sql(ground_truth)
+        return pred_normalized == truth_normalized
+    
+    @staticmethod
+    def _normalize_sql(sql: str) -> str:
+        """Normalize SQL for comparison."""
+        # Remove extra whitespace and convert to lowercase
+        normalized = ' '.join(sql.strip().upper().split())
+        
+        # Remove trailing semicolon
+        if normalized.endswith(';'):
+            normalized = normalized[:-1]
+            
+        return normalized
+    
+    @staticmethod
+    def execution_accuracy(predicted: str, ground_truth: str, 
+                         database_connector: Optional[Any] = None) -> bool:
+        """Check if queries return the same results when executed."""
+        if not database_connector:
+            # Fallback: structural similarity
+            return ComprehensiveEvaluationMetrics._structural_similarity(predicted, ground_truth) > 0.8
+        
+        try:
+            # This would execute both queries and compare results
+            # Implementation depends on database connector
+            pred_result = database_connector.execute(predicted)
+            truth_result = database_connector.execute(ground_truth)
+            
+            # Compare result sets
+            return ComprehensiveEvaluationMetrics._compare_result_sets(pred_result, truth_result)
+        except Exception as e:
+            logger.warning(f"Execution comparison failed: {e}")
+            return False
+    
+    @staticmethod
+    def _structural_similarity(sql1: str, sql2: str) -> float:
+        """Calculate structural similarity between SQL queries."""
+        # Extract key components
+        def extract_components(sql):
+            sql_upper = sql.upper()
+            components = {
+                'select': 'SELECT' in sql_upper,
+                'from': 'FROM' in sql_upper,
+                'where': 'WHERE' in sql_upper,
+                'join': any(j in sql_upper for j in ['JOIN', 'INNER JOIN', 'LEFT JOIN']),
+                'group_by': 'GROUP BY' in sql_upper,
+                'order_by': 'ORDER BY' in sql_upper,
+                'having': 'HAVING' in sql_upper,
+                'limit': 'LIMIT' in sql_upper,
+            }
+            return components
+        
+        comp1 = extract_components(sql1)
+        comp2 = extract_components(sql2)
+        
+        # Calculate Jaccard similarity
+        intersection = sum(1 for k in comp1 if comp1[k] and comp2[k])
+        union = sum(1 for k in comp1 if comp1[k] or comp2[k])
+        
+        return intersection / union if union > 0 else 0.0
+    
+    @staticmethod
+    def _compare_result_sets(result1: Any, result2: Any) -> bool:
+        """Compare database result sets."""
+        # This is a simplified implementation
+        # In practice, would need to handle different result formats
+        try:
+            if hasattr(result1, 'fetchall') and hasattr(result2, 'fetchall'):
+                rows1 = sorted(result1.fetchall())
+                rows2 = sorted(result2.fetchall())
+                return rows1 == rows2
+            else:
+                return str(result1) == str(result2)
+        except Exception:
+            return False
+    
+    @staticmethod
+    def semantic_similarity(predicted: str, ground_truth: str) -> float:
+        """Calculate semantic similarity using multiple heuristics."""
+        # Structural similarity
+        struct_sim = ComprehensiveEvaluationMetrics._structural_similarity(predicted, ground_truth)
+        
+        # Keyword overlap
+        pred_words = set(predicted.upper().split())
+        truth_words = set(ground_truth.upper().split())
+        
+        if not pred_words and not truth_words:
+            keyword_sim = 1.0
+        elif not pred_words or not truth_words:
+            keyword_sim = 0.0
+        else:
+            intersection = len(pred_words & truth_words)
+            union = len(pred_words | truth_words)
+            keyword_sim = intersection / union
+        
+        # Table and column similarity
+        table_sim = ComprehensiveEvaluationMetrics._table_column_similarity(predicted, ground_truth)
+        
+        # Weighted average
+        return (struct_sim * 0.4 + keyword_sim * 0.3 + table_sim * 0.3)
+    
+    @staticmethod
+    def _table_column_similarity(sql1: str, sql2: str) -> float:
+        """Calculate similarity based on tables and columns mentioned."""
+        def extract_table_column_references(sql):
+            # Simple extraction - in practice would use SQL parser
+            words = sql.upper().replace(',', ' ').replace('(', ' ').replace(')', ' ').split()
+            
+            # Look for patterns like table.column
+            table_col_refs = set()
+            for word in words:
+                if '.' in word and word.count('.') == 1:
+                    table_col_refs.add(word)
+            
+            return table_col_refs
+        
+        refs1 = extract_table_column_references(sql1)
+        refs2 = extract_table_column_references(sql2)
+        
+        if not refs1 and not refs2:
+            return 1.0
+        elif not refs1 or not refs2:
+            return 0.0
+        
+        intersection = len(refs1 & refs2)
+        union = len(refs1 | refs2)
+        
+        return intersection / union
+    
+    @staticmethod
+    def calculate_all_metrics(predicted: str, ground_truth: str, 
+                            execution_time_ms: float = 0.0,
+                            database_connector: Optional[Any] = None) -> Dict[str, float]:
+        """Calculate all available metrics."""
+        return {
+            'exact_match': float(ComprehensiveEvaluationMetrics.exact_match(predicted, ground_truth)),
+            'execution_accuracy': float(ComprehensiveEvaluationMetrics.execution_accuracy(
+                predicted, ground_truth, database_connector
+            )),
+            'semantic_similarity': ComprehensiveEvaluationMetrics.semantic_similarity(predicted, ground_truth),
+            'structural_similarity': ComprehensiveEvaluationMetrics._structural_similarity(predicted, ground_truth),
+            'execution_time_ms': execution_time_ms
+        }
+
+
+class StatisticalAnalyzer:
+    """Statistical analysis and significance testing for experiments."""
+    
+    def __init__(self, significance_level: float = 0.05):
+        self.significance_level = significance_level
+    
+    def compare_methods(self, results_a: List[float], results_b: List[float],
+                       method_name_a: str = "Method A", method_name_b: str = "Method B") -> Dict[str, Any]:
+        """Compare two methods using multiple statistical tests."""
+        
+        if len(results_a) != len(results_b):
+            raise ValueError("Result lists must have the same length")
+        
+        if len(results_a) < 2:
+            raise ValueError("Need at least 2 samples for comparison")
+        
+        # Descriptive statistics
+        stats_a = {
+            'mean': statistics.mean(results_a),
+            'std': statistics.stdev(results_a) if len(results_a) > 1 else 0.0,
+            'median': statistics.median(results_a),
+            'min': min(results_a),
+            'max': max(results_a),
+            'n': len(results_a)
+        }
+        
+        stats_b = {
+            'mean': statistics.mean(results_b),
+            'std': statistics.stdev(results_b) if len(results_b) > 1 else 0.0,
+            'median': statistics.median(results_b),
+            'min': min(results_b),
+            'max': max(results_b),
+            'n': len(results_b)
+        }
+        
+        # Effect size (Cohen's d)
+        pooled_std = ((stats_a['std'] ** 2 + stats_b['std'] ** 2) / 2) ** 0.5
+        cohens_d = (stats_a['mean'] - stats_b['mean']) / pooled_std if pooled_std > 0 else 0.0
+        
+        comparison_result = {
+            'method_a': method_name_a,
+            'method_b': method_name_b,
+            'stats_a': stats_a,
+            'stats_b': stats_b,
+            'effect_size_cohens_d': cohens_d,
+            'statistical_tests': {}
+        }
+        
+        # Statistical tests
+        if SCIPY_AVAILABLE:
+            # Paired t-test (assumes normal distribution)
+            try:
+                t_stat, t_pvalue = ttest_rel(results_a, results_b)
+                comparison_result['statistical_tests']['paired_t_test'] = {
+                    't_statistic': t_stat,
+                    'p_value': t_pvalue,
+                    'significant': t_pvalue < self.significance_level,
+                    'interpretation': self._interpret_t_test(t_stat, t_pvalue)
+                }
+            except Exception as e:
+                logger.warning(f"T-test failed: {e}")
+            
+            # Wilcoxon signed-rank test (non-parametric)
+            try:
+                w_stat, w_pvalue = wilcoxon(results_a, results_b, alternative='two-sided')
+                comparison_result['statistical_tests']['wilcoxon_signed_rank'] = {
+                    'w_statistic': w_stat,
+                    'p_value': w_pvalue,
+                    'significant': w_pvalue < self.significance_level,
+                    'interpretation': self._interpret_wilcoxon(w_stat, w_pvalue)
+                }
+            except Exception as e:
+                logger.warning(f"Wilcoxon test failed: {e}")
+            
+            # Mann-Whitney U test (independent samples)
+            try:
+                u_stat, u_pvalue = mannwhitneyu(results_a, results_b, alternative='two-sided')
+                comparison_result['statistical_tests']['mann_whitney_u'] = {
+                    'u_statistic': u_stat,
+                    'p_value': u_pvalue,
+                    'significant': u_pvalue < self.significance_level,
+                    'interpretation': self._interpret_mann_whitney(u_stat, u_pvalue)
+                }
+            except Exception as e:
+                logger.warning(f"Mann-Whitney test failed: {e}")
+        else:
+            # Simple comparison without scipy
+            comparison_result['statistical_tests']['basic_comparison'] = {
+                'mean_difference': stats_a['mean'] - stats_b['mean'],
+                'interpretation': f"{method_name_a} has {'higher' if stats_a['mean'] > stats_b['mean'] else 'lower'} mean performance"
+            }
+        
+        # Overall interpretation
+        comparison_result['summary'] = self._generate_comparison_summary(comparison_result)
+        
+        return comparison_result
+    
+    def _interpret_t_test(self, t_stat: float, p_value: float) -> str:
+        """Interpret t-test results."""
+        if p_value < self.significance_level:
+            direction = "significantly higher" if t_stat > 0 else "significantly lower"
+            return f"Method A performs {direction} than Method B (p={p_value:.4f})"
+        else:
+            return f"No significant difference between methods (p={p_value:.4f})"
+    
+    def _interpret_wilcoxon(self, w_stat: float, p_value: float) -> str:
+        """Interpret Wilcoxon test results."""
+        if p_value < self.significance_level:
+            return f"Significant difference detected by non-parametric test (p={p_value:.4f})"
+        else:
+            return f"No significant difference by non-parametric test (p={p_value:.4f})"
+    
+    def _interpret_mann_whitney(self, u_stat: float, p_value: float) -> str:
+        """Interpret Mann-Whitney U test results."""
+        if p_value < self.significance_level:
+            return f"Significant difference between independent groups (p={p_value:.4f})"
+        else:
+            return f"No significant difference between independent groups (p={p_value:.4f})"
+    
+    def _generate_comparison_summary(self, comparison: Dict[str, Any]) -> str:
+        """Generate human-readable summary of comparison."""
+        stats_a = comparison['stats_a']
+        stats_b = comparison['stats_b']
+        
+        better_method = comparison['method_a'] if stats_a['mean'] > stats_b['mean'] else comparison['method_b']
+        worse_method = comparison['method_b'] if stats_a['mean'] > stats_b['mean'] else comparison['method_a']
+        
+        improvement = abs(stats_a['mean'] - stats_b['mean']) / min(stats_a['mean'], stats_b['mean']) * 100
+        
+        # Check if any test found significance
+        significant = False
+        if comparison['statistical_tests']:
+            for test_name, test_result in comparison['statistical_tests'].items():
+                if isinstance(test_result, dict) and test_result.get('significant', False):
+                    significant = True
+                    break
+        
+        summary = f"{better_method} outperforms {worse_method} by {improvement:.1f}% on average"
+        if significant:
+            summary += " (statistically significant)"
+        else:
+            summary += " (not statistically significant)"
+        
+        # Add effect size interpretation
+        effect_size = abs(comparison['effect_size_cohens_d'])
+        if effect_size < 0.2:
+            effect_desc = "negligible"
+        elif effect_size < 0.5:
+            effect_desc = "small"
+        elif effect_size < 0.8:
+            effect_desc = "medium"
+        else:
+            effect_desc = "large"
+        
+        summary += f" with {effect_desc} effect size (Cohen's d = {comparison['effect_size_cohens_d']:.3f})"
+        
+        return summary
+    
+    def analyze_method_across_complexity(self, results_by_complexity: Dict[str, List[float]]) -> Dict[str, Any]:
+        """Analyze method performance across query complexity levels."""
+        analysis = {
+            'complexity_levels': list(results_by_complexity.keys()),
+            'performance_by_complexity': {},
+            'complexity_trend': None
+        }
+        
+        # Calculate stats for each complexity level
+        for complexity, results in results_by_complexity.items():
+            if results:
+                analysis['performance_by_complexity'][complexity] = {
+                    'mean': statistics.mean(results),
+                    'std': statistics.stdev(results) if len(results) > 1 else 0.0,
+                    'median': statistics.median(results),
+                    'count': len(results)
+                }
+        
+        # Analyze trend across complexity levels
+        if len(analysis['performance_by_complexity']) >= 3:
+            complexity_order = ['simple', 'medium', 'complex']
+            means = []
+            
+            for complexity in complexity_order:
+                if complexity in analysis['performance_by_complexity']:
+                    means.append(analysis['performance_by_complexity'][complexity]['mean'])
+            
+            if len(means) >= 2:
+                # Simple trend analysis
+                if all(means[i] >= means[i+1] for i in range(len(means)-1)):
+                    trend = "decreasing"  # Performance decreases with complexity
+                elif all(means[i] <= means[i+1] for i in range(len(means)-1)):
+                    trend = "increasing"  # Performance increases with complexity
+                else:
+                    trend = "mixed"
+                
+                analysis['complexity_trend'] = trend
+        
+        return analysis
+
+
+class ComprehensiveExperimentRunner:
+    """Main experiment runner for comprehensive NL2SQL evaluation."""
+    
+    def __init__(self, config: ComprehensiveExperimentConfiguration):
+        self.config = config
+        self.complexity_classifier = QueryComplexityClassifier()
+        self.statistical_analyzer = StatisticalAnalyzer(config.significance_level)
+        
+        # Create output directory
+        self.output_dir = Path(config.output_directory)
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Experiment state
+        self.experiment_id = f"{config.experiment_name}_{int(time.time())}"
+        self.results: List[ComprehensiveExperimentResult] = []
+        self.baselines: List[BaselineMethod] = []
+        
+    def add_baseline_method(self, baseline: BaselineMethod):
+        """Add a baseline method for comparison."""
+        self.baselines.append(baseline)
+        
+    def run_experiment(self, test_queries: List[Dict[str, Any]], 
+                      methods_to_test: Dict[str, Any],
+                      database_connector: Optional[Any] = None) -> Dict[str, Any]:
+        """Run comprehensive experiment comparing multiple methods."""
+        
+        logger.info(f"Starting comprehensive experiment: {self.experiment_id}")
+        experiment_start_time = time.time()
+        
+        # Set random seed for reproducibility
+        random.seed(self.config.random_seed)
+        np.random.seed(self.config.random_seed)
+        
+        # Analyze dataset complexity
+        ground_truth_queries = [q.get('sql', '') for q in test_queries]
+        complexity_analysis = self.complexity_classifier.get_complexity_distribution(ground_truth_queries)
+        
+        logger.info(f"Dataset complexity distribution: {complexity_analysis['class_percentages']}")
+        
+        # Run experiments for each method
+        method_results = {}
+        
+        for method_name, method_impl in methods_to_test.items():
+            logger.info(f"Testing method: {method_name}")
+            method_start_time = time.time()
+            
+            method_results[method_name] = []
+            
+            for run_idx in range(self.config.num_runs):
+                logger.info(f"  Run {run_idx + 1}/{self.config.num_runs}")
+                
+                for query_idx, query_data in enumerate(test_queries):
+                    result = self._run_single_query(
+                        method_name, method_impl, query_data, 
+                        query_idx, run_idx, database_connector
+                    )
+                    method_results[method_name].append(result)
+                    self.results.append(result)
+            
+            method_time = time.time() - method_start_time
+            logger.info(f"  Completed {method_name} in {method_time:.2f}s")
+        
+        # Analyze results
+        analysis = self._analyze_experiment_results(method_results, complexity_analysis)
+        
+        # Save results
+        self._save_experiment_results(analysis)
+        
+        experiment_time = time.time() - experiment_start_time
+        logger.info(f"Comprehensive experiment completed in {experiment_time:.2f}s")
+        
+        return analysis
+    
+    def _run_single_query(self, method_name: str, method_impl: Any, 
+                         query_data: Dict[str, Any], query_idx: int, run_idx: int,
+                         database_connector: Optional[Any] = None) -> ComprehensiveExperimentResult:
+        """Run a single query through a method and collect comprehensive results."""
+        
+        query_id = f"{self.experiment_id}_{method_name}_{query_idx}_{run_idx}"
+        natural_language = query_data.get('question', query_data.get('natural_language', ''))
+        ground_truth_sql = query_data.get('sql', query_data.get('ground_truth', ''))
+        schema_metadata = query_data.get('schema_metadata', {})
+        
+        try:
+            # Time the prediction
+            start_time = time.time()
+            
+            # Call the method implementation
+            if hasattr(method_impl, 'synthesize_sql'):
+                prediction_result = method_impl.synthesize_sql(natural_language, schema_metadata)
+                predicted_sql = prediction_result.get('sql', '') if isinstance(prediction_result, dict) else str(prediction_result)
+                confidence = prediction_result.get('confidence', 0.5) if isinstance(prediction_result, dict) else 0.5
+            elif callable(method_impl):
+                prediction_result = method_impl(natural_language, schema_metadata)
+                predicted_sql = prediction_result if isinstance(prediction_result, str) else str(prediction_result)
+                confidence = 0.5
+            else:
+                raise ValueError(f"Method {method_name} is not callable or doesn't have synthesize_sql method")
+            
+            execution_time_ms = (time.time() - start_time) * 1000
+            
+            # Calculate comprehensive metrics
+            metrics = ComprehensiveEvaluationMetrics.calculate_all_metrics(
+                predicted_sql, ground_truth_sql, execution_time_ms, database_connector
+            )
+            
+            return ComprehensiveExperimentResult(
+                experiment_id=self.experiment_id,
+                method_name=method_name,
+                query_id=query_id,
+                natural_language=natural_language,
+                ground_truth_sql=ground_truth_sql,
+                predicted_sql=predicted_sql,
+                execution_match=bool(metrics['execution_accuracy']),
+                exact_match=bool(metrics['exact_match']),
+                semantic_similarity=metrics['semantic_similarity'],
+                execution_time_ms=execution_time_ms,
+                confidence_score=confidence,
+                metadata={
+                    'run_idx': run_idx,
+                    'query_idx': query_idx,
+                    'all_metrics': metrics
+                }
+            )
+            
+        except Exception as e:
+            logger.error(f"Error processing query {query_idx} with {method_name}: {e}")
+            
+            return ComprehensiveExperimentResult(
+                experiment_id=self.experiment_id,
+                method_name=method_name,
+                query_id=query_id,
+                natural_language=natural_language,
+                ground_truth_sql=ground_truth_sql,
+                predicted_sql="",
+                execution_match=False,
+                exact_match=False,
+                semantic_similarity=0.0,
+                execution_time_ms=0.0,
+                confidence_score=0.0,
+                error_message=str(e),
+                metadata={
+                    'run_idx': run_idx,
+                    'query_idx': query_idx,
+                    'error': True
+                }
+            )
+    
+    def _analyze_experiment_results(self, method_results: Dict[str, List[ComprehensiveExperimentResult]], 
+                                  complexity_analysis: Dict[str, Any]) -> Dict[str, Any]:
+        """Analyze experiment results and generate comprehensive report."""
+        
+        analysis = {
+            'experiment_id': self.experiment_id,
+            'experiment_config': self.config.__dict__,
+            'dataset_analysis': complexity_analysis,
+            'method_performance': {},
+            'statistical_comparisons': {},
+            'complexity_analysis': {},
+            'summary': {}
+        }
+        
+        # Calculate performance metrics for each method
+        for method_name, results in method_results.items():
+            if not results:
+                continue
+            
+            # Overall metrics
+            exact_matches = [r.exact_match for r in results]
+            execution_matches = [r.execution_match for r in results]
+            semantic_similarities = [r.semantic_similarity for r in results]
+            execution_times = [r.execution_time_ms for r in results]
+            confidence_scores = [r.confidence_score for r in results]
+            
+            # Error rate
+            errors = [r for r in results if r.error_message is not None]
+            error_rate = len(errors) / len(results)
+            
+            analysis['method_performance'][method_name] = {
+                'exact_match_accuracy': statistics.mean(exact_matches),
+                'execution_accuracy': statistics.mean(execution_matches),
+                'semantic_similarity': statistics.mean(semantic_similarities),
+                'average_execution_time_ms': statistics.mean(execution_times),
+                'average_confidence': statistics.mean(confidence_scores),
+                'error_rate': error_rate,
+                'total_queries': len(results),
+                'performance_std': {
+                    'exact_match_std': statistics.stdev(exact_matches) if len(exact_matches) > 1 else 0.0,
+                    'execution_std': statistics.stdev(execution_matches) if len(execution_matches) > 1 else 0.0,
+                    'semantic_similarity_std': statistics.stdev(semantic_similarities) if len(semantic_similarities) > 1 else 0.0
+                }
+            }
+        
+        # Statistical comparisons between methods
+        method_names = list(method_results.keys())
+        for i, method_a in enumerate(method_names):
+            for method_b in method_names[i+1:]:
+                if method_a == method_b:
+                    continue
+                
+                # Compare on semantic similarity
+                results_a = [r.semantic_similarity for r in method_results[method_a]]
+                results_b = [r.semantic_similarity for r in method_results[method_b]]
+                
+                comparison_key = f"{method_a}_vs_{method_b}"
+                analysis['statistical_comparisons'][comparison_key] = \
+                    self.statistical_analyzer.compare_methods(results_a, results_b, method_a, method_b)
+        
+        # Complexity-stratified analysis
+        for method_name, results in method_results.items():
+            complexity_results = {'simple': [], 'medium': [], 'complex': []}
+            
+            for result in results:
+                # Classify query complexity
+                query_complexity = self.complexity_classifier.classify_query(result.ground_truth_sql)
+                complexity_class = query_complexity['complexity_class']
+                
+                complexity_results[complexity_class].append(result.semantic_similarity)
+            
+            analysis['complexity_analysis'][method_name] = \
+                self.statistical_analyzer.analyze_method_across_complexity(complexity_results)
+        
+        # Generate summary
+        analysis['summary'] = self._generate_experiment_summary(analysis)
+        
+        return analysis
+    
+    def _generate_experiment_summary(self, analysis: Dict[str, Any]) -> Dict[str, Any]:
+        """Generate high-level summary of experiment results."""
+        
+        method_performance = analysis['method_performance']
+        
+        if not method_performance:
+            return {'error': 'No method performance data available'}
+        
+        # Find best performing method
+        best_method = max(
+            method_performance.items(),
+            key=lambda x: x[1]['semantic_similarity']
+        )
+        
+        # Find fastest method
+        fastest_method = min(
+            method_performance.items(),
+            key=lambda x: x[1]['average_execution_time_ms']
+        )
+        
+        # Calculate overall statistics
+        all_semantic_scores = []
+        all_exact_matches = []
+        
+        for method_name, perf in method_performance.items():
+            all_semantic_scores.append(perf['semantic_similarity'])
+            all_exact_matches.append(perf['exact_match_accuracy'])
+        
+        summary = {
+            'best_performing_method': {
+                'name': best_method[0],
+                'semantic_similarity': best_method[1]['semantic_similarity'],
+                'exact_match_accuracy': best_method[1]['exact_match_accuracy']
+            },
+            'fastest_method': {
+                'name': fastest_method[0],
+                'average_time_ms': fastest_method[1]['average_execution_time_ms']
+            },
+            'overall_statistics': {
+                'methods_tested': len(method_performance),
+                'best_semantic_similarity': max(all_semantic_scores),
+                'worst_semantic_similarity': min(all_semantic_scores),
+                'best_exact_match': max(all_exact_matches),
+                'worst_exact_match': min(all_exact_matches),
+                'semantic_similarity_range': max(all_semantic_scores) - min(all_semantic_scores)
+            },
+            'key_findings': self._extract_key_findings(analysis)
+        }
+        
+        return summary
+    
+    def _extract_key_findings(self, analysis: Dict[str, Any]) -> List[str]:
+        """Extract key findings from the analysis."""
+        findings = []
+        
+        # Performance findings
+        method_performance = analysis['method_performance']
+        if len(method_performance) >= 2:
+            best_methods = sorted(
+                method_performance.items(),
+                key=lambda x: x[1]['semantic_similarity'],
+                reverse=True
+            )
+            
+            best_name, best_perf = best_methods[0]
+            second_name, second_perf = best_methods[1]
+            
+            improvement = ((best_perf['semantic_similarity'] - second_perf['semantic_similarity']) 
+                          / second_perf['semantic_similarity'] * 100)
+            
+            findings.append(f"{best_name} outperforms {second_name} by {improvement:.1f}% in semantic similarity")
+        
+        # Statistical significance findings
+        statistical_comparisons = analysis.get('statistical_comparisons', {})
+        significant_comparisons = []
+        
+        for comp_name, comp_result in statistical_comparisons.items():
+            tests = comp_result.get('statistical_tests', {})
+            for test_name, test_result in tests.items():
+                if isinstance(test_result, dict) and test_result.get('significant', False):
+                    significant_comparisons.append(comp_name)
+                    break
+        
+        if significant_comparisons:
+            findings.append(f"Found statistically significant differences in {len(significant_comparisons)} method comparisons")
+        else:
+            findings.append("No statistically significant differences found between methods")
+        
+        # Complexity findings
+        complexity_analysis = analysis.get('complexity_analysis', {})
+        for method_name, complexity_result in complexity_analysis.items():
+            trend = complexity_result.get('complexity_trend')
+            if trend:
+                if trend == 'decreasing':
+                    findings.append(f"{method_name} performance decreases with query complexity")
+                elif trend == 'increasing':
+                    findings.append(f"{method_name} performance surprisingly improves with complexity")
+        
+        # Error rate findings
+        high_error_methods = []
+        for method_name, perf in method_performance.items():
+            if perf.get('error_rate', 0) > 0.1:  # More than 10% error rate
+                high_error_methods.append((method_name, perf['error_rate']))
+        
+        if high_error_methods:
+            findings.append(f"High error rates detected in: {', '.join(m[0] for m in high_error_methods)}")
+        
+        return findings[:10]  # Limit to top 10 findings
+    
+    def _save_experiment_results(self, analysis: Dict[str, Any]):
+        """Save comprehensive experiment results to files."""
+        
+        # Save detailed results as JSON
+        results_file = self.output_dir / f"{self.experiment_id}_comprehensive_results.json"
+        
+        # Convert results to serializable format
+        serializable_results = []
+        for result in self.results:
+            serializable_results.append({
+                'experiment_id': result.experiment_id,
+                'method_name': result.method_name,
+                'query_id': result.query_id,
+                'natural_language': result.natural_language,
+                'ground_truth_sql': result.ground_truth_sql,
+                'predicted_sql': result.predicted_sql,
+                'execution_match': result.execution_match,
+                'exact_match': result.exact_match,
+                'semantic_similarity': result.semantic_similarity,
+                'execution_time_ms': result.execution_time_ms,
+                'confidence_score': result.confidence_score,
+                'error_message': result.error_message,
+                'metadata': result.metadata
+            })
+        
+        with open(results_file, 'w') as f:
+            json.dump(serializable_results, f, indent=2)
+        
+        # Save analysis as JSON
+        analysis_file = self.output_dir / f"{self.experiment_id}_comprehensive_analysis.json"
+        with open(analysis_file, 'w') as f:
+            json.dump(analysis, f, indent=2)
+        
+        # Save summary report as markdown
+        summary_file = self.output_dir / f"{self.experiment_id}_comprehensive_summary.md"
+        self._generate_markdown_report(analysis, summary_file)
+        
+        logger.info(f"Comprehensive results saved to {self.output_dir}")
+    
+    def _generate_markdown_report(self, analysis: Dict[str, Any], output_file: Path):
+        """Generate a comprehensive markdown report of the experiment."""
+        
+        with open(output_file, 'w') as f:
+            f.write(f"# Comprehensive Experiment Report: {self.config.experiment_name}\n\n")
+            f.write(f"**Experiment ID:** {self.experiment_id}\n")
+            f.write(f"**Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+            
+            # Configuration
+            f.write("## Experiment Configuration\n\n")
+            f.write(f"- **Description:** {self.config.description}\n")
+            f.write(f"- **Number of runs:** {self.config.num_runs}\n")
+            f.write(f"- **Random seed:** {self.config.random_seed}\n")
+            f.write(f"- **Significance level:** {self.config.significance_level}\n\n")
+            
+            # Dataset analysis
+            dataset_analysis = analysis.get('dataset_analysis', {})
+            if dataset_analysis:
+                f.write("## Dataset Analysis\n\n")
+                class_dist = dataset_analysis.get('class_percentages', {})
+                for complexity, percentage in class_dist.items():
+                    f.write(f"- **{complexity.title()} queries:** {percentage:.1f}%\n")
+                f.write(f"- **Average complexity score:** {dataset_analysis.get('average_complexity', 0):.3f}\n\n")
+            
+            # Method performance
+            method_performance = analysis.get('method_performance', {})
+            if method_performance:
+                f.write("## Method Performance\n\n")
+                f.write("| Method | Semantic Similarity | Exact Match | Execution Time (ms) | Error Rate |\n")
+                f.write("|--------|-------------------|-------------|-------------------|----------|\n")
+                
+                for method_name, perf in method_performance.items():
+                    f.write(f"| {method_name} | {perf['semantic_similarity']:.3f} | ")
+                    f.write(f"{perf['exact_match_accuracy']:.3f} | ")
+                    f.write(f"{perf['average_execution_time_ms']:.1f} | ")
+                    f.write(f"{perf['error_rate']:.3f} |\n")
+                f.write("\n")
+            
+            # Key findings
+            summary = analysis.get('summary', {})
+            key_findings = summary.get('key_findings', [])
+            if key_findings:
+                f.write("## Key Findings\n\n")
+                for i, finding in enumerate(key_findings, 1):
+                    f.write(f"{i}. {finding}\n")
+                f.write("\n")
+            
+            # Statistical comparisons
+            statistical_comparisons = analysis.get('statistical_comparisons', {})
+            if statistical_comparisons:
+                f.write("## Statistical Comparisons\n\n")
+                for comp_name, comp_result in statistical_comparisons.items():
+                    f.write(f"### {comp_name}\n")
+                    f.write(f"{comp_result.get('summary', 'No summary available')}\n\n")
+            
+            # Best performing method
+            if 'best_performing_method' in summary:
+                best = summary['best_performing_method']
+                f.write("## Best Performing Method\n\n")
+                f.write(f"**{best['name']}** achieved the highest semantic similarity of ")
+                f.write(f"{best['semantic_similarity']:.3f} with exact match accuracy of ")
+                f.write(f"{best['exact_match_accuracy']:.3f}.\n\n")
+        
+        logger.info(f"Comprehensive markdown report saved to {output_file}")
+
+
+# Export comprehensive framework classes
+__all__.extend([
+    'ComprehensiveExperimentRunner',
+    'ComprehensiveExperimentConfiguration', 
+    'ComprehensiveExperimentResult',
+    'BaselineMethod',
+    'QueryComplexityClassifier',
+    'ComprehensiveEvaluationMetrics',
+    'StatisticalAnalyzer',
+    'SCIPY_AVAILABLE',
+    'PLOTTING_AVAILABLE'
+])
