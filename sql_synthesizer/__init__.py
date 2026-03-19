@@ -1,112 +1,19 @@
-"""SQL Query Synthesizer - Natural language to SQL conversion with enterprise security.
+"""
+sql_synthesizer — Natural language to SQL, schema-aware, stdlib only.
 
-The SQL Query Synthesizer provides a secure, scalable solution for converting natural
-language queries into safe SQL statements with comprehensive validation, caching,
-and monitoring capabilities.
-
-Key Features:
-- Multi-database support (PostgreSQL, MySQL, SQLite)
-- Advanced SQL injection prevention
-- High-performance async operations
-- Enterprise-grade security and audit logging
-- Prometheus metrics and health monitoring
+Components:
+  Schema          — represents tables, columns, types, foreign keys
+  NLParser        — parses NL queries into structured intents
+  SQLSynthesizer  — maps intent + schema → valid SQL
+  QueryValidator  — validates SQL against the schema
+  QueryExecutor   — runs SQL against an in-memory SQLite database
 """
 
-from . import metrics
-from .async_query_agent import AsyncQueryAgent
-from .cache import TTLCache
-from .core import (
-    ErrorHandler,
-    QueryMetadata,
-    QueryTracker,
-    ResultFormatter,
-    SystemInfo,
-    TraceIDGenerator,
-    create_query_metadata,
-    get_system_info,
-)
-from .generator import naive_generate_sql
-from .llm_interface import (
-    LLMProvider,
-    ProviderAuthenticationError,
-    ProviderError,
-    ProviderTimeoutError,
-)
-from .openai_adapter import OpenAIAdapter
-from .sync_query_agent import QueryAgent
-from .types import QueryResult
+from .schema import Schema
+from .parser import NLParser
+from .synthesizer import SQLSynthesizer
+from .validator import QueryValidator
+from .executor import QueryExecutor
 
-# Version information
-__version__ = "0.2.2"
-__author__ = "SQL Synthesizer Team"
-__license__ = "MIT"
-
-# Optional webapp import (requires Flask)
-try:
-    from .webapp import create_app
-
-    _webapp_available = True
-except ImportError:
-    _webapp_available = False
-    create_app = None
-
-# Optional quantum optimization (requires numpy)
-try:
-    from .quantum import (
-        QuantumQueryOptimizer,
-        QuantumSQLSynthesizer,
-        QuantumTaskScheduler,
-    )
-
-    _quantum_available = True
-except ImportError:
-    _quantum_available = False
-    QuantumSQLSynthesizer = None
-    QuantumQueryOptimizer = None
-    QuantumTaskScheduler = None
-
-# Optional security audit logging
-try:
-    from .security_audit import SecurityAuditLogger, security_audit_logger
-
-    _security_audit_available = True
-except ImportError:
-    _security_audit_available = False
-    SecurityAuditLogger = None
-    security_audit_logger = None
-
-__all__ = [
-    "QueryAgent",
-    "AsyncQueryAgent",
-    "QueryResult",
-    "TTLCache",
-    "OpenAIAdapter",
-    "LLMProvider",
-    "ProviderError",
-    "ProviderTimeoutError",
-    "ProviderAuthenticationError",
-    "naive_generate_sql",
-    "metrics",
-    "SystemInfo",
-    "QueryMetadata",
-    "ResultFormatter",
-    "QueryTracker",
-    "TraceIDGenerator",
-    "ErrorHandler",
-    "get_system_info",
-    "create_query_metadata",
-    "__version__",
-    "__author__",
-    "__license__",
-]
-
-if _webapp_available:
-    __all__.append("create_app")
-
-if _quantum_available:
-    __all__.extend(
-        ["QuantumSQLSynthesizer", "QuantumQueryOptimizer", "QuantumTaskScheduler"]
-    )
-
-if _security_audit_available:
-    __all__.extend(["SecurityAuditLogger", "security_audit_logger"])
+__all__ = ["Schema", "NLParser", "SQLSynthesizer", "QueryValidator", "QueryExecutor"]
+__version__ = "1.0.0"
